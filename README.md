@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Horde Portal
 
-## Getting Started
+Portail client pour Horde Agence - Suivi de projets et livraison de livrables.
 
-First, run the development server:
+## Stack technique
+
+- **Next.js 15** (App Router, Turbopack)
+- **Supabase** (Auth, PostgreSQL, Storage)
+- **Tailwind CSS 4** + **shadcn/ui**
+- **TypeScript**
+
+## Setup
+
+### 1. Creer un projet Supabase
+
+1. Aller sur [supabase.com](https://supabase.com) et creer un nouveau projet
+2. Noter l'URL du projet et les cles API (anon + service role)
+
+### 2. Configurer les variables d'environnement
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Remplir les valeurs dans `.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+RESEND_API_KEY=re_xxxxx
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Initialiser la base de donnees
 
-## Learn More
+Dans le SQL Editor de Supabase, executer le contenu de:
+```
+supabase/migrations/001_initial_schema.sql
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Configurer l'authentification Supabase
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Dans Supabase Dashboard > Authentication > Settings:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Site URL**: `http://localhost:3000` (ou votre URL de prod)
+2. **Redirect URLs**: Ajouter `http://localhost:3000/auth/callback`
+3. **Email Templates**: Personnaliser si souhaite (optionnel)
 
-## Deploy on Vercel
+### 5. Creer le premier admin
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Dans Supabase Dashboard > SQL Editor, executer:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```sql
+-- Remplacer par votre email
+INSERT INTO auth.users (
+  id,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  created_at,
+  updated_at
+) VALUES (
+  gen_random_uuid(),
+  'votre@email.com',
+  crypt('motdepasse', gen_salt('bf')),
+  now(),
+  now(),
+  now()
+);
+
+-- Mettre a jour le profil en admin
+UPDATE profiles
+SET role = 'admin', full_name = 'Votre Nom'
+WHERE email = 'votre@email.com';
+```
+
+Ou utiliser la methode magic link:
+1. S'inscrire normalement via `/login`
+2. Mettre a jour le role en admin via SQL
+
+### 6. Lancer le serveur de dev
+
+```bash
+npm install
+npm run dev
+```
+
+Ouvrir [http://localhost:3000](http://localhost:3000)
+
+## Structure du projet
+
+```
+src/
+├── app/
+│   ├── (auth)/           # Pages d'auth (login, callback)
+│   ├── (dashboard)/      # Dashboard client
+│   │   ├── dashboard/    # Page principale
+│   │   └── projects/     # Vue projet client
+│   ├── admin/            # Panel admin
+│   │   ├── projects/     # Gestion projets
+│   │   └── clients/      # Gestion clients
+│   └── api/              # API routes
+├── components/
+│   ├── ui/               # Composants shadcn
+│   └── ...               # Composants custom
+├── lib/
+│   └── supabase/         # Clients Supabase
+└── types/                # Types TypeScript
+```
+
+## Deploiement Vercel
+
+1. Pusher le repo sur GitHub
+2. Connecter a Vercel
+3. Ajouter les variables d'environnement
+4. Mettre a jour `NEXT_PUBLIC_APP_URL` avec l'URL Vercel
+5. Ajouter l'URL Vercel dans les Redirect URLs de Supabase
+
+## Fonctionnalites MVP
+
+- [x] Auth magic link (clients invites par admin)
+- [x] Dashboard client avec vue projets
+- [x] Timeline des phases par projet
+- [x] Admin: gestion projets et clients
+- [ ] Upload de livrables (a venir)
+- [ ] Commentaires sur livrables (a venir)
+- [ ] Notifications email (a venir)
+
+## Prochaines etapes
+
+1. **Page livrable**: Vue detail avec fichiers et commentaires
+2. **Upload fichiers**: Integration Supabase Storage
+3. **Validation livrables**: Boutons approuver/demander revision
+4. **Notifications**: Emails via Resend sur nouveaux livrables/commentaires
