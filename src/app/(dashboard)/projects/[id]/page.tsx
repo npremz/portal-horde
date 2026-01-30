@@ -8,48 +8,12 @@ import {
   ArrowLeft,
   ExternalLink,
   CheckCircle2,
-  Clock,
-  Circle,
   ChevronRight,
   FileText,
   MessageSquare,
-  AlertCircle,
 } from "lucide-react";
-import type { Phase, Deliverable } from "@/types/database";
-
-const phaseStatusConfig = {
-  pending: {
-    label: "A venir",
-    icon: Circle,
-    dotColor: "bg-muted border-muted-foreground/30",
-    textColor: "text-muted-foreground",
-  },
-  in_progress: {
-    label: "En cours",
-    icon: Clock,
-    dotColor: "bg-yellow-500 border-yellow-500",
-    textColor: "text-foreground",
-  },
-  review: {
-    label: "A valider",
-    icon: AlertCircle,
-    dotColor: "bg-orange-500 border-orange-500",
-    textColor: "text-foreground",
-  },
-  completed: {
-    label: "Termine",
-    icon: CheckCircle2,
-    dotColor: "bg-green-500 border-green-500",
-    textColor: "text-muted-foreground",
-  },
-};
-
-const deliverableStatusConfig = {
-  draft: { label: "Brouillon", color: "bg-muted text-muted-foreground" },
-  pending_review: { label: "A valider", color: "bg-yellow-100 text-yellow-800" },
-  approved: { label: "Valide", color: "bg-green-100 text-green-800" },
-  revision_requested: { label: "Revision", color: "bg-red-100 text-red-800" },
-};
+import { phaseStatusConfig, deliverableStatusConfig } from "@/lib/constants";
+import type { Phase, Deliverable, PhaseStatus, DeliverableStatus } from "@/types/database";
 
 export default async function ProjectPage({
   params,
@@ -187,7 +151,7 @@ export default async function ProjectPage({
       {/* Timeline vertical */}
       <div className="relative">
         {sortedPhases.map((phase: Phase & { deliverables?: (Deliverable & { files: { id: string }[]; comments: { id: string }[] })[] }, index: number) => {
-          const config = phaseStatusConfig[phase.status as keyof typeof phaseStatusConfig];
+          const config = phaseStatusConfig[phase.status as PhaseStatus];
           const isActive = phase.status === "in_progress" || phase.status === "review";
           const isCompleted = phase.status === "completed";
           const isPending = phase.status === "pending";
@@ -239,7 +203,7 @@ export default async function ProjectPage({
                     <div className="mt-3 space-y-2">
                       {deliverables.map((deliverable) => {
                         const statusConfig = deliverableStatusConfig[
-                          deliverable.status as keyof typeof deliverableStatusConfig
+                          deliverable.status as DeliverableStatus
                         ];
                         const filesCount = deliverable.files?.length || 0;
                         const commentsCount = deliverable.comments?.length || 0;

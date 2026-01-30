@@ -73,6 +73,17 @@ export interface FileRecord {
   uploader?: Profile;
 }
 
+export interface Link {
+  id: string;
+  deliverable_id: string;
+  title: string;
+  url: string;
+  created_by: string | null;
+  created_at: string;
+  // Relations
+  creator?: Profile;
+}
+
 export interface Comment {
   id: string;
   deliverable_id: string;

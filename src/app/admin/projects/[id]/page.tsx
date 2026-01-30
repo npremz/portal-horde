@@ -57,44 +57,13 @@ import type {
   Profile,
   PhaseStatus,
   DeliverableStatus,
+  ProjectStatus,
 } from "@/types/database";
-
-const phaseStatusConfig = {
-  pending: {
-    label: "En attente",
-    dotColor: "bg-muted border-muted-foreground/30",
-    textColor: "text-muted-foreground",
-  },
-  in_progress: {
-    label: "En cours",
-    dotColor: "bg-blue-500 border-blue-500",
-    textColor: "text-foreground",
-  },
-  review: {
-    label: "En review",
-    dotColor: "bg-orange-500 border-orange-500",
-    textColor: "text-foreground",
-  },
-  completed: {
-    label: "Termine",
-    dotColor: "bg-green-500 border-green-500",
-    textColor: "text-muted-foreground",
-  },
-};
-
-const deliverableStatusConfig = {
-  draft: { label: "Brouillon", color: "bg-muted text-muted-foreground" },
-  pending_review: { label: "A valider", color: "bg-yellow-100 text-yellow-800" },
-  approved: { label: "Valide", color: "bg-green-100 text-green-800" },
-  revision_requested: { label: "Revision", color: "bg-red-100 text-red-800" },
-};
-
-const projectStatusConfig = {
-  active: { label: "Actif", color: "bg-green-100 text-green-800" },
-  paused: { label: "En pause", color: "bg-yellow-100 text-yellow-800" },
-  completed: { label: "Termine", color: "bg-blue-100 text-blue-800" },
-  archived: { label: "Archive", color: "bg-muted text-muted-foreground" },
-};
+import {
+  phaseStatusConfig,
+  deliverableStatusConfig,
+  projectStatusConfig,
+} from "@/lib/constants";
 
 type PhaseWithDeliverables = Phase & {
   deliverables: (Deliverable & { files: { id: string }[]; comments: { id: string }[] })[];
@@ -303,7 +272,7 @@ export default function AdminProjectPage() {
 
   if (!project) return null;
 
-  const statusConfig = projectStatusConfig[project.status as keyof typeof projectStatusConfig];
+  const statusConfig = projectStatusConfig[project.status as ProjectStatus];
   const completedCount = phases.filter((p) => p.status === "completed").length;
   const progressPercent = phases.length > 0 ? Math.round((completedCount / phases.length) * 100) : 0;
   const pendingValidations = phases.reduce((acc, phase) => {
@@ -443,7 +412,7 @@ export default function AdminProjectPage() {
       ) : (
         <div className="relative">
           {phases.map((phase, index) => {
-            const config = phaseStatusConfig[phase.status as keyof typeof phaseStatusConfig];
+            const config = phaseStatusConfig[phase.status as PhaseStatus];
             const isActive = phase.status === "in_progress" || phase.status === "review";
             const isCompleted = phase.status === "completed";
             const isPending = phase.status === "pending";
@@ -543,7 +512,7 @@ export default function AdminProjectPage() {
                     <div className="space-y-2">
                       {deliverables.map((deliverable) => {
                         const statusCfg = deliverableStatusConfig[
-                          deliverable.status as keyof typeof deliverableStatusConfig
+                          deliverable.status as DeliverableStatus
                         ];
                         const filesCount = deliverable.files?.length || 0;
                         const commentsCount = deliverable.comments?.length || 0;

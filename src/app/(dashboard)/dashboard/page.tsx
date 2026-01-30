@@ -11,19 +11,14 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import { projectStatusConfig } from "@/lib/constants";
+import type { ProjectStatus } from "@/types/database";
 
-const statusConfig = {
-  active: { label: "Actif", variant: "default" as const, color: "bg-green-500" },
-  paused: { label: "En pause", variant: "secondary" as const, color: "bg-yellow-500" },
-  completed: { label: "Termine", variant: "outline" as const, color: "bg-blue-500" },
-  archived: { label: "Archive", variant: "outline" as const, color: "bg-gray-500" },
-};
-
-const phaseStatusConfig = {
-  pending: { label: "A venir", icon: Clock },
-  in_progress: { label: "En cours", icon: AlertCircle },
-  review: { label: "En revue", icon: AlertCircle },
-  completed: { label: "Termine", icon: CheckCircle2 },
+const phaseStatusIcons = {
+  pending: Clock,
+  in_progress: AlertCircle,
+  review: AlertCircle,
+  completed: CheckCircle2,
 };
 
 export default async function DashboardPage() {
@@ -147,10 +142,10 @@ export default async function DashboardPage() {
         {projects && projects.length > 0 ? (
           <div className="grid gap-3 md:gap-4 md:grid-cols-2">
             {projects.map((project) => {
-              const status = statusConfig[project.status as keyof typeof statusConfig];
+              const status = projectStatusConfig[project.status as ProjectStatus];
               const activePhase = getActivePhase(project.phases);
               const PhaseIcon = activePhase
-                ? phaseStatusConfig[activePhase.status as keyof typeof phaseStatusConfig]?.icon
+                ? phaseStatusIcons[activePhase.status as keyof typeof phaseStatusIcons]
                 : Clock;
 
               return (
@@ -167,7 +162,7 @@ export default async function DashboardPage() {
                       </div>
                       <Badge variant={status.variant}>
                         <span
-                          className={`w-2 h-2 rounded-full mr-2 ${status.color}`}
+                          className={`w-2 h-2 rounded-full mr-2 ${status.dotColor}`}
                         />
                         {status.label}
                       </Badge>

@@ -18,13 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-const statusConfig = {
-  active: { label: "Actif", variant: "default" as const },
-  paused: { label: "En pause", variant: "secondary" as const },
-  completed: { label: "Termine", variant: "outline" as const },
-  archived: { label: "Archive", variant: "outline" as const },
-};
+import { projectStatusConfig } from "@/lib/constants";
+import type { ProjectStatus } from "@/types/database";
 
 export default async function AdminProjectsPage() {
   const supabase = await createClient();
@@ -61,7 +56,7 @@ export default async function AdminProjectsPage() {
       <div className="md:hidden space-y-3">
         {projects && projects.length > 0 ? (
           projects.map((project) => {
-            const status = statusConfig[project.status as keyof typeof statusConfig];
+            const status = projectStatusConfig[project.status as ProjectStatus];
             const completedPhases = project.phases?.filter(
               (p: { status: string }) => p.status === "completed"
             ).length || 0;
@@ -135,7 +130,7 @@ export default async function AdminProjectsPage() {
             <TableBody>
               {projects && projects.length > 0 ? (
                 projects.map((project) => {
-                  const status = statusConfig[project.status as keyof typeof statusConfig];
+                  const status = projectStatusConfig[project.status as ProjectStatus];
                   const completedPhases = project.phases?.filter(
                     (p: { status: string }) => p.status === "completed"
                   ).length || 0;
