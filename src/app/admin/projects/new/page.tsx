@@ -104,7 +104,7 @@ export default function NewProjectPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-4 md:space-y-6">
       <div>
         <Button variant="ghost" size="sm" className="mb-2 -ml-2" asChild>
           <Link href="/admin/projects">
@@ -112,8 +112,8 @@ export default function NewProjectPage() {
             Retour
           </Link>
         </Button>
-        <h1 className="text-3xl font-display uppercase">Nouveau projet</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl font-display uppercase">Nouveau projet</h1>
+        <p className="text-sm md:text-base text-muted-foreground">
           Creez un nouveau projet pour un client
         </p>
       </div>
@@ -190,13 +190,13 @@ export default function NewProjectPage() {
               />
             </div>
 
-            <div className="pt-4 flex gap-3">
-              <Button type="submit" disabled={loading}>
+            <div className="pt-4 flex flex-col-reverse sm:flex-row gap-3">
+              <Button type="button" variant="outline" asChild className="w-full sm:w-auto">
+                <Link href="/admin/projects">Annuler</Link>
+              </Button>
+              <Button type="submit" disabled={loading} className="w-full sm:w-auto">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Creer le projet
-              </Button>
-              <Button type="button" variant="outline" asChild>
-                <Link href="/admin/projects">Annuler</Link>
               </Button>
             </div>
           </CardContent>

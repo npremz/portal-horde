@@ -116,6 +116,23 @@ export interface ActivityLog {
   deliverable?: Deliverable;
 }
 
+export type NotificationType =
+  | "deliverable_ready"
+  | "deliverable_validated"
+  | "revision_requested"
+  | "new_comment";
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  message: string | null;
+  link: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+
 // Default phases template
 export const DEFAULT_PHASES = [
   { name: "Audit", description: "Analyse de l'existant et benchmark concurrentiel" },

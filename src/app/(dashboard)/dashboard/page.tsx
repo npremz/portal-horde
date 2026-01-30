@@ -83,14 +83,14 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-display uppercase">
+        <h1 className="text-2xl md:text-3xl font-display uppercase">
           {isAdmin ? "Dashboard Admin" : "Bienvenue"}
           {!isAdmin && profile?.full_name && `, ${profile.full_name.split(" ")[0]}`}
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-sm md:text-base text-muted-foreground mt-1">
           {isAdmin
             ? "Vue d'ensemble de tous les projets"
             : "Suivez l'avancement de vos projets"}
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 grid-cols-2 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Projets actifs</CardTitle>
@@ -130,19 +130,22 @@ export default async function DashboardPage() {
 
       {/* Projects List */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <h2 className="text-lg md:text-xl font-semibold">
             {isAdmin ? "Tous les projets" : "Vos projets"}
           </h2>
           {isAdmin && (
-            <Button asChild>
-              <Link href="/admin/projects/new">Nouveau projet</Link>
+            <Button asChild size="sm">
+              <Link href="/admin/projects/new">
+                <span className="hidden sm:inline">Nouveau projet</span>
+                <span className="sm:hidden">+ Projet</span>
+              </Link>
             </Button>
           )}
         </div>
 
         {projects && projects.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 md:gap-4 md:grid-cols-2">
             {projects.map((project) => {
               const status = statusConfig[project.status as keyof typeof statusConfig];
               const activePhase = getActivePhase(project.phases);

@@ -244,6 +244,25 @@ export default function DeliverableDetailPage() {
       toast.error("Erreur lors de l'envoi");
     } else {
       setNewComment("");
+
+      // Notify client of new comment from admin
+      const { data: project } = await supabase
+        .from("projects")
+        .select("client_id, name")
+        .eq("id", projectId)
+        .single();
+
+      const clientId = project?.client_id;
+      if (clientId) {
+        await supabase.from("notifications").insert({
+          user_id: clientId,
+          type: "new_comment" as const,
+          title: `Nouveau commentaire de ${currentUser?.full_name || "l'équipe"}`,
+          message: `${deliverable?.title} - ${project?.name}`,
+          link: `/projects/${projectId}/deliverables/${deliverableId}`,
+        });
+      }
+
       fetchData();
     }
 

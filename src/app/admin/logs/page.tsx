@@ -138,10 +138,10 @@ export default function LogsPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4 md:space-y-6">
       <div>
-        <h1 className="text-3xl font-display uppercase">Activite</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl md:text-3xl font-display uppercase">Activite</h1>
+        <p className="text-muted-foreground text-sm md:text-base">
           Historique des actions clients sur le portail
         </p>
       </div>
@@ -155,7 +155,7 @@ export default function LogsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-5">
+          <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
             <div className="space-y-2">
               <Label>Action</Label>
               <Select value={actionFilter} onValueChange={setActionFilter}>
@@ -264,7 +264,7 @@ export default function LogsPage() {
       {/* Pagination */}
       {!loading && logs.length > 0 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs md:text-sm text-muted-foreground">
             Page {page + 1}
           </p>
           <div className="flex gap-2">
@@ -274,8 +274,8 @@ export default function LogsPage() {
               disabled={page === 0}
               onClick={() => setPage(page - 1)}
             >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Precedent
+              <ChevronLeft className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1">Precedent</span>
             </Button>
             <Button
               variant="outline"
@@ -283,8 +283,8 @@ export default function LogsPage() {
               disabled={!hasMore}
               onClick={() => setPage(page + 1)}
             >
-              Suivant
-              <ChevronRight className="h-4 w-4 ml-1" />
+              <span className="hidden sm:inline mr-1">Suivant</span>
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -344,26 +344,28 @@ function LogEntry({ log }: { log: ActivityLog }) {
   });
 
   return (
-    <div className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors">
-      <div className={`p-2 rounded-lg ${colorClass}`}>
+    <div className="flex items-start gap-3 p-3 md:p-4 hover:bg-muted/50 transition-colors">
+      <div className={`p-2 rounded-lg shrink-0 ${colorClass}`}>
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-medium">
-          <span className="text-primary">{userName}</span>{" "}
-          <span className="text-muted-foreground font-normal">{description}</span>
-        </p>
-        {projectName && action !== "view_project" && (
-          <p className="text-sm text-muted-foreground">
-            Projet: {projectName}
-          </p>
-        )}
-      </div>
-      <div className="text-right shrink-0">
-        <Badge variant="outline" className="mb-1">
-          {label}
-        </Badge>
-        <p className="text-xs text-muted-foreground">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-sm md:text-base">
+              <span className="font-medium text-primary">{userName}</span>{" "}
+              <span className="text-muted-foreground">{description}</span>
+            </p>
+            {projectName && action !== "view_project" && (
+              <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
+                Projet: {projectName}
+              </p>
+            )}
+          </div>
+          <Badge variant="outline" className="shrink-0 text-xs hidden md:inline-flex">
+            {label}
+          </Badge>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">
           {formattedDate} {formattedTime}
         </p>
       </div>

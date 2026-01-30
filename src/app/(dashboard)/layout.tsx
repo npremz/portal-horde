@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
+import { MobileHeader } from "@/components/mobile-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -30,7 +31,8 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <AppSidebar user={user} profile={profile} />
       <SidebarInset>
-        <main className="flex-1 p-6">{children}</main>
+        <MobileHeader />
+        <main className="flex-1 p-4 md:p-6">{children}</main>
       </SidebarInset>
       <Toaster />
     </SidebarProvider>

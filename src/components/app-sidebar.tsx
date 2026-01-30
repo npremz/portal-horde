@@ -36,6 +36,7 @@ import {
   ChevronUp,
   Activity,
 } from "lucide-react";
+import { NotificationBell } from "@/components/notification-bell";
 
 interface AppSidebarProps {
   user: User;
@@ -106,20 +107,23 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border p-4">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <Image
-            src="/images/logo.svg"
-            alt="Horde"
-            width={100}
-            height={32}
-            priority
-          />
-          {isAdmin && (
-            <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded font-mono">
-              ADMIN
-            </span>
-          )}
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <Image
+              src="/images/logo.svg"
+              alt="Horde"
+              width={100}
+              height={32}
+              priority
+            />
+            {isAdmin && (
+              <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded font-mono">
+                ADMIN
+              </span>
+            )}
+          </Link>
+          <NotificationBell side="right" align="start" />
+        </div>
       </SidebarHeader>
 
       <SidebarContent>

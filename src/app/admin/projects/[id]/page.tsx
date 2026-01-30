@@ -264,6 +264,29 @@ export default function AdminProjectPage() {
       toast.error("Erreur lors de la mise a jour");
     } else {
       toast.success("Livrable mis a jour");
+
+      // Notify client when deliverable is ready for review
+      if (status === "pending_review") {
+        toast.promise(
+          fetch("/api/notify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "pending_review",
+              deliverableId,
+            }),
+          }).then((res) => {
+            if (!res.ok) throw new Error("Erreur envoi");
+            return res.json();
+          }),
+          {
+            loading: "Envoi de la notification au client...",
+            success: "Notification envoyee au client",
+            error: "Erreur lors de l'envoi de la notification",
+          }
+        );
+      }
+
       fetchProject();
     }
   }

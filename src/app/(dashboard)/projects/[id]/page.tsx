@@ -132,25 +132,25 @@ export default async function ProjectPage({
       )}
 
       {/* Header */}
-      <div className="mb-8">
-        <Button variant="ghost" size="sm" className="mb-4 -ml-2" asChild>
+      <div className="mb-6 md:mb-8">
+        <Button variant="ghost" size="sm" className="mb-3 md:mb-4 -ml-2" asChild>
           <Link href="/dashboard">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Mes projets
           </Link>
         </Button>
 
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-display uppercase tracking-tight">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl md:text-2xl font-display uppercase tracking-tight">
               {project.name}
             </h1>
             {project.description && (
-              <p className="text-muted-foreground mt-1">{project.description}</p>
+              <p className="text-sm md:text-base text-muted-foreground mt-1">{project.description}</p>
             )}
           </div>
           {project.staging_url && (
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild className="self-start shrink-0">
               <a href={project.staging_url} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4 mr-2" />
                 Preview
@@ -160,7 +160,7 @@ export default async function ProjectPage({
         </div>
 
         {/* Progress bar + stats */}
-        <div className="mt-6 p-4 rounded-lg bg-muted/50 border">
+        <div className="mt-4 md:mt-6 p-3 md:p-4 rounded-lg bg-muted/50 border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium">Progression</span>
             <span className="text-sm text-muted-foreground">{progressPercent}%</span>
@@ -171,7 +171,7 @@ export default async function ProjectPage({
               style={{ width: `${progressPercent}%` }}
             />
           </div>
-          <div className="flex gap-4 mt-3 text-sm">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-sm">
             <span className="text-muted-foreground">
               {completedCount}/{sortedPhases.length} etapes
             </span>

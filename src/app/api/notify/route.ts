@@ -84,7 +84,7 @@ export async function POST(request: Request) {
           html,
         });
 
-        // Log email sent
+        // Log email sent and create in-app notification
         if (emailResult.success) {
           await supabase.from("activity_logs").insert({
             user_id: client.id,
@@ -94,6 +94,15 @@ export async function POST(request: Request) {
             metadata: { type: "pending_review", to: client.email },
           });
         }
+
+        // Create in-app notification for client
+        await supabase.from("notifications").insert({
+          user_id: client.id,
+          type: "deliverable_ready",
+          title: `Nouveau livrable à valider`,
+          message: `${deliverable.title} - ${project?.name}`,
+          link: `/projects/${project?.id}/deliverables/${deliverableId}`,
+        });
 
         break;
       }
@@ -140,6 +149,17 @@ export async function POST(request: Request) {
               metadata: { type: approved ? "approved" : "revision_requested", to: admin.email },
             });
           }
+
+          // Create in-app notification for admin
+          await supabase.from("notifications").insert({
+            user_id: admin.id,
+            type: approved ? "deliverable_validated" : "revision_requested",
+            title: approved
+              ? `Livrable validé par ${client?.full_name || "le client"}`
+              : `Révision demandée par ${client?.full_name || "le client"}`,
+            message: `${deliverable.title} - ${project?.name}`,
+            link: `/admin/projects/${project?.id}/deliverables/${deliverableId}`,
+          });
         }
 
         break;

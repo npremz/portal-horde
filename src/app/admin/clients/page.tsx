@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
@@ -11,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { InviteClientDialog } from "@/components/invite-client-dialog";
 
 export default async function AdminClientsPage() {
@@ -42,17 +41,78 @@ export default async function AdminClientsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-display uppercase">Clients</h1>
-          <p className="text-muted-foreground">
+      <div className="flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl md:text-3xl font-display uppercase">Clients</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
             Gerez vos clients et leurs acces
           </p>
         </div>
         <InviteClientDialog />
       </div>
 
-      <Card>
+      {/* Mobile: Cards */}
+      <div className="md:hidden space-y-3">
+        {clients && clients.length > 0 ? (
+          clients.map((client) => {
+            const activeProjects = client.projects?.filter(
+              (p: { status: string }) => p.status === "active"
+            ).length || 0;
+
+            return (
+              <Card key={client.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage src={client.avatar_url || undefined} />
+                      <AvatarFallback>
+                        {getInitials(client.full_name, client.email)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">
+                        {client.full_name || "Non renseigne"}
+                      </p>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {client.email}
+                      </p>
+                      {client.company && (
+                        <p className="text-xs text-muted-foreground">
+                          {client.company}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t">
+                    <Badge variant="outline" className="text-xs">
+                      {client.projects?.length || 0} projet(s)
+                    </Badge>
+                    {activeProjects > 0 && (
+                      <Badge variant="default" className="text-xs">
+                        {activeProjects} actif(s)
+                      </Badge>
+                    )}
+                    <span className="text-xs text-muted-foreground ml-auto">
+                      {new Date(client.created_at).toLocaleDateString("fr-FR")}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })
+        ) : (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground mb-4">Aucun client</p>
+              <InviteClientDialog />
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Desktop: Table */}
+      <Card className="hidden md:block">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
@@ -66,10 +126,9 @@ export default async function AdminClientsPage() {
             <TableBody>
               {clients && clients.length > 0 ? (
                 clients.map((client) => {
-                  const activeProjects =
-                    client.projects?.filter(
-                      (p: { status: string }) => p.status === "active"
-                    ).length || 0;
+                  const activeProjects = client.projects?.filter(
+                    (p: { status: string }) => p.status === "active"
+                  ).length || 0;
 
                   return (
                     <TableRow key={client.id}>
