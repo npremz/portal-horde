@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Check, CheckCheck, FileText, MessageSquare, XCircle } from "lucide-react";
+import { Bell, Check, CheckCheck, ChevronRight, FileText, MessageSquare, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -26,6 +27,7 @@ interface NotificationBellProps {
 
 export function NotificationBell({ side = "bottom", align = "end" }: NotificationBellProps) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   const handleNotificationClick = (notification: typeof notifications[0]) => {
@@ -33,6 +35,7 @@ export function NotificationBell({ side = "bottom", align = "end" }: Notificatio
       markAsRead(notification.id);
     }
     if (notification.link) {
+      setOpen(false);
       router.push(notification.link);
     }
   };
@@ -53,7 +56,7 @@ export function NotificationBell({ side = "bottom", align = "end" }: Notificatio
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
@@ -91,13 +94,15 @@ export function NotificationBell({ side = "bottom", align = "end" }: Notificatio
                 const icon = notificationIcons[notification.type as NotificationType];
                 const isUnread = !notification.read_at;
 
+                const hasLink = !!notification.link;
+
                 return (
                   <button
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
                     className={`w-full text-left p-3 hover:bg-muted/50 transition-colors ${
                       isUnread ? "bg-muted/30" : ""
-                    }`}
+                    } ${hasLink ? "cursor-pointer" : "cursor-default"}`}
                   >
                     <div className="flex gap-3">
                       <div className="shrink-0 mt-0.5">{icon}</div>
@@ -114,11 +119,14 @@ export function NotificationBell({ side = "bottom", align = "end" }: Notificatio
                           {formatTime(notification.created_at)}
                         </p>
                       </div>
-                      {isUnread && (
-                        <div className="shrink-0">
+                      <div className="shrink-0 flex items-center gap-1">
+                        {isUnread && (
                           <div className="h-2 w-2 rounded-full bg-blue-500" />
-                        </div>
-                      )}
+                        )}
+                        {hasLink && (
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
                     </div>
                   </button>
                 );
