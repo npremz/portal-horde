@@ -15,7 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Save, Globe, Linkedin, Instagram, Facebook, Twitter } from "lucide-react";
 import { toast } from "sonner";
-import { clientStatusConfig } from "@/lib/constants";
+import { clientStatusConfig, projectTypes, sectors } from "@/lib/constants";
 import {
   validateEmail,
   validatePhone,
@@ -43,6 +43,8 @@ export interface ClientFormData {
     twitter?: string;
   };
   status: ClientStatus;
+  project_type: string | null;
+  sector: string | null;
   notes: string | null;
 }
 
@@ -55,6 +57,8 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
     website: client?.website || "",
     socials: client?.socials || {},
     status: client?.status || "lead",
+    project_type: client?.project_type || "",
+    sector: client?.sector || "",
     notes: client?.notes || "",
   });
 
@@ -101,6 +105,8 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
         website: websiteResult.sanitized,
         socials: formData.socials,
         status: formData.status,
+        project_type: formData.project_type || null,
+        sector: formData.sector || null,
         notes: notesResult.sanitized,
       });
     } catch (error) {
@@ -188,6 +194,48 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
                         <div className={`h-2 w-2 rounded-full ${config.dotColor}`} />
                         {config.label}
                       </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="project_type">Type de projet</Label>
+              <Select
+                value={formData.project_type || ""}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, project_type: value })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selectionner..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {projectTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="sector">Secteur</Label>
+              <Select
+                value={formData.sector || ""}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, sector: value })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selectionner..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {sectors.map((s) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

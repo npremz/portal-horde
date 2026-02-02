@@ -8,6 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -15,9 +22,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserPlus, Mail, Phone, ExternalLink, Eye, Bell, Calendar } from "lucide-react";
+import { UserPlus, Mail, Phone, ExternalLink, Eye, Bell, Calendar, X } from "lucide-react";
 import { CreateClientDialog } from "@/components/create-client-dialog";
-import { clientStatusConfig } from "@/lib/constants";
+import { clientStatusConfig, projectTypes, sectors } from "@/lib/constants";
 import type { Client } from "@/types/database";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -30,6 +37,9 @@ export default function AdminClientsPage() {
   const [clients, setClients] = useState<ClientWithProjects[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFollowups, setShowFollowups] = useState(false);
+  const [filterProjectType, setFilterProjectType] = useState<string>("");
+  const [filterSector, setFilterSector] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState<string>("");
 
   const fetchClients = async () => {
     const supabase = createClient();
@@ -63,21 +73,56 @@ export default function AdminClientsPage() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  // Filter clients needing followup
-  const filteredClients = showFollowups
-    ? clients.filter(
-        (c) => c.next_followup_date && c.next_followup_date.split("T")[0] <= today
-      )
-    : clients;
+  // Apply all filters
+  let filteredClients = clients;
+
+  if (showFollowups) {
+    filteredClients = filteredClients.filter(
+      (c) => c.next_followup_date && c.next_followup_date.split("T")[0] <= today
+    );
+  }
+
+  if (filterProjectType) {
+    filteredClients = filteredClients.filter((c) => c.project_type === filterProjectType);
+  }
+
+  if (filterSector) {
+    filteredClients = filteredClients.filter((c) => c.sector === filterSector);
+  }
+
+  if (filterStatus) {
+    filteredClients = filteredClients.filter((c) => c.status === filterStatus);
+  }
 
   // Count followups
   const followupCount = clients.filter(
     (c) => c.next_followup_date && c.next_followup_date.split("T")[0] <= today
   ).length;
 
+  // Check if any filter is active
+  const hasActiveFilters = showFollowups || filterProjectType || filterSector || filterStatus;
+
+  const clearAllFilters = () => {
+    setShowFollowups(false);
+    setFilterProjectType("");
+    setFilterSector("");
+    setFilterStatus("");
+  };
+
+  // Get labels for display
+  const getProjectTypeLabel = (value: string | null) => {
+    if (!value) return null;
+    return projectTypes.find((t) => t.value === value)?.label || value;
+  };
+
+  const getSectorLabel = (value: string | null) => {
+    if (!value) return null;
+    return sectors.find((s) => s.value === value)?.label || value;
+  };
+
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <Skeleton className="h-10 w-full" />
         <Skeleton className="h-96 w-full" />
       </div>
@@ -85,23 +130,25 @@ export default function AdminClientsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0">
           <h1 className="text-2xl md:text-3xl font-display uppercase">Clients CRM</h1>
           <p className="text-muted-foreground text-sm md:text-base">
-            Gerez vos clients et leurs projets
+            {filteredClients.length} client{filteredClients.length > 1 ? "s" : ""}
+            {hasActiveFilters && ` (filtre actif)`}
           </p>
         </div>
         <CreateClientDialog onClientCreated={() => fetchClients()} />
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2 items-center">
         <Button
           variant={showFollowups ? "default" : "outline"}
           onClick={() => setShowFollowups(!showFollowups)}
           className="gap-2"
+          size="sm"
         >
           <Bell className="h-4 w-4" />
           A relancer
@@ -111,6 +158,55 @@ export default function AdminClientsPage() {
             </Badge>
           )}
         </Button>
+
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-[140px] h-9">
+            <SelectValue placeholder="Statut" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(clientStatusConfig).map(([status, config]) => (
+              <SelectItem key={status} value={status}>
+                <div className="flex items-center gap-2">
+                  <div className={`h-2 w-2 rounded-full ${config.dotColor}`} />
+                  {config.label}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filterProjectType} onValueChange={setFilterProjectType}>
+          <SelectTrigger className="w-[150px] h-9">
+            <SelectValue placeholder="Type projet" />
+          </SelectTrigger>
+          <SelectContent>
+            {projectTypes.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filterSector} onValueChange={setFilterSector}>
+          <SelectTrigger className="w-[160px] h-9">
+            <SelectValue placeholder="Secteur" />
+          </SelectTrigger>
+          <SelectContent>
+            {sectors.map((s) => (
+              <SelectItem key={s.value} value={s.value}>
+                {s.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {hasActiveFilters && (
+          <Button variant="ghost" size="sm" onClick={clearAllFilters} className="gap-1">
+            <X className="h-4 w-4" />
+            Effacer
+          </Button>
+        )}
       </div>
 
       {/* Mobile: Cards */}
@@ -136,7 +232,7 @@ export default function AdminClientsPage() {
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-medium truncate">{client.name}</p>
                           <Badge className={statusConfig.color} variant="secondary">
                             {statusConfig.label}
@@ -151,11 +247,18 @@ export default function AdminClientsPage() {
                         <p className="text-sm text-muted-foreground truncate">
                           {client.email}
                         </p>
-                        {client.phone && (
-                          <p className="text-xs text-muted-foreground">
-                            {client.phone}
-                          </p>
-                        )}
+                        <div className="flex gap-2 mt-1 flex-wrap">
+                          {getProjectTypeLabel(client.project_type) && (
+                            <Badge variant="outline" className="text-xs">
+                              {getProjectTypeLabel(client.project_type)}
+                            </Badge>
+                          )}
+                          {getSectorLabel(client.sector) && (
+                            <Badge variant="outline" className="text-xs">
+                              {getSectorLabel(client.sector)}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-3 pt-3 border-t flex-wrap">
@@ -167,15 +270,9 @@ export default function AdminClientsPage() {
                           {activeProjects} actif(s)
                         </Badge>
                       )}
-                      {client.profile_id && (
-                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
-                          Compte actif
-                        </Badge>
-                      )}
                       {client.first_contact_date && (
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1 ml-auto">
                           <Calendar className="h-3 w-3" />
-                          1er contact{" "}
                           {formatDistanceToNow(new Date(client.first_contact_date), {
                             addSuffix: true,
                             locale: fr,
@@ -191,10 +288,13 @@ export default function AdminClientsPage() {
         ) : (
           <Card>
             <CardContent className="py-8 text-center">
-              {showFollowups ? (
+              {hasActiveFilters ? (
                 <>
                   <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Aucun client a relancer</p>
+                  <p className="text-muted-foreground">Aucun client correspond aux filtres</p>
+                  <Button variant="link" onClick={clearAllFilters}>
+                    Effacer les filtres
+                  </Button>
                 </>
               ) : (
                 <>
@@ -216,10 +316,10 @@ export default function AdminClientsPage() {
               <TableRow>
                 <TableHead>Client</TableHead>
                 <TableHead>Statut</TableHead>
+                <TableHead>Type / Secteur</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Projets</TableHead>
-                <TableHead>Suivi</TableHead>
-                <TableHead className="w-[100px]"></TableHead>
+                <TableHead className="w-[80px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -273,10 +373,27 @@ export default function AdminClientsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
+                        <div className="flex flex-col gap-1">
+                          {getProjectTypeLabel(client.project_type) && (
+                            <Badge variant="outline" className="w-fit">
+                              {getProjectTypeLabel(client.project_type)}
+                            </Badge>
+                          )}
+                          {getSectorLabel(client.sector) && (
+                            <Badge variant="secondary" className="w-fit">
+                              {getSectorLabel(client.sector)}
+                            </Badge>
+                          )}
+                          {!client.project_type && !client.sector && (
+                            <span className="text-xs text-muted-foreground">-</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
                         <div className="space-y-1">
                           <div className="flex items-center gap-1 text-sm">
                             <Mail className="h-3 w-3 text-muted-foreground" />
-                            {client.email}
+                            <span className="truncate max-w-[180px]">{client.email}</span>
                           </div>
                           {client.phone && (
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -289,39 +406,17 @@ export default function AdminClientsPage() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline">
-                            {client.projects?.length || 0} projet(s)
+                            {client.projects?.length || 0}
                           </Badge>
                           {activeProjects > 0 && (
-                            <Badge variant="default">{activeProjects} actif(s)</Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1 text-xs text-muted-foreground">
-                          {client.first_contact_date ? (
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              1er contact{" "}
-                              {formatDistanceToNow(new Date(client.first_contact_date), {
-                                addSuffix: true,
-                                locale: fr,
-                              })}
-                            </div>
-                          ) : (
-                            <span>Pas encore contacte</span>
-                          )}
-                          {client.profile_id && (
-                            <Badge variant="secondary" className="bg-green-100 text-green-800">
-                              Compte actif
-                            </Badge>
+                            <Badge variant="default">{activeProjects} actif</Badge>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="sm" asChild>
                           <Link href={`/admin/clients/${client.id}`}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            Voir
+                            <Eye className="h-4 w-4" />
                           </Link>
                         </Button>
                       </TableCell>
@@ -331,10 +426,13 @@ export default function AdminClientsPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
-                    {showFollowups ? (
+                    {hasActiveFilters ? (
                       <>
                         <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <p className="text-muted-foreground">Aucun client a relancer</p>
+                        <p className="text-muted-foreground">Aucun client correspond aux filtres</p>
+                        <Button variant="link" onClick={clearAllFilters}>
+                          Effacer les filtres
+                        </Button>
                       </>
                     ) : (
                       <>

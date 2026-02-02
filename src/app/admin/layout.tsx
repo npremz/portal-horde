@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { MobileHeader } from "@/components/mobile-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { canAccessAdmin } from "@/lib/permissions";
 
 export default async function AdminLayout({
   children,
@@ -27,7 +28,7 @@ export default async function AdminLayout({
     .eq("id", user.id)
     .single();
 
-  if (profile?.role !== "admin") {
+  if (!canAccessAdmin(profile?.role)) {
     redirect("/dashboard");
   }
 

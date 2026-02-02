@@ -161,3 +161,31 @@ L'équipe Horde`,
 
 // Followup delay in days
 export const FOLLOWUP_DELAY_DAYS = 10;
+
+// Project types for CRM
+export const projectTypes = [
+  { value: "website", label: "Site vitrine" },
+  { value: "ecommerce", label: "E-commerce" },
+  { value: "webapp", label: "Application web" },
+  { value: "mobile", label: "Application mobile" },
+  { value: "branding", label: "Branding / Identite" },
+  { value: "seo", label: "SEO / Marketing" },
+  { value: "maintenance", label: "Maintenance" },
+  { value: "other", label: "Autre" },
+];
+
+// Business sectors for CRM
+export const sectors = [
+  { value: "restaurant", label: "Restauration / Horeca" },
+  { value: "retail", label: "Commerce / Retail" },
+  { value: "health", label: "Sante / Bien-etre" },
+  { value: "realestate", label: "Immobilier" },
+  { value: "tech", label: "Tech / SaaS" },
+  { value: "finance", label: "Finance / Assurance" },
+  { value: "education", label: "Education / Formation" },
+  { value: "industry", label: "Industrie" },
+  { value: "services", label: "Services B2B" },
+  { value: "nonprofit", label: "Association / ONG" },
+  { value: "creative", label: "Creatif / Media" },
+  { value: "other", label: "Autre" },
+];

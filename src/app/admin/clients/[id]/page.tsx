@@ -31,7 +31,8 @@ import { InviteClientButton } from "@/components/invite-client-button";
 import { SendMessageDialog } from "@/components/send-message-dialog";
 import { MessagesTimeline } from "@/components/messages-timeline";
 import { clientStatusConfig, projectStatusConfig } from "@/lib/constants";
-import type { Client, ClientContact, ClientMessage, Project } from "@/types/database";
+import { hasPermission } from "@/lib/permissions";
+import type { Client, ClientContact, ClientMessage, Project, UserRole } from "@/types/database";
 
 export default function ClientDetailPage() {
   const params = useParams();
@@ -44,9 +45,23 @@ export default function ClientDetailPage() {
   const [messages, setMessages] = useState<ClientMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
 
   const fetchClient = useCallback(async () => {
     const supabase = createClient();
+
+    // Get current user's role
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      if (profile) {
+        setUserRole(profile.role as UserRole);
+      }
+    }
 
     const [clientRes, contactsRes, projectsRes, messagesRes] = await Promise.all([
       supabase.from("clients").select("*").eq("id", clientId).single(),
@@ -100,6 +115,8 @@ export default function ClientDetailPage() {
         website: data.website,
         socials: data.socials,
         status: data.status,
+        project_type: data.project_type,
+        sector: data.sector,
         notes: data.notes,
       })
       .eq("id", clientId);
@@ -221,6 +238,9 @@ export default function ClientDetailPage() {
   }
 
   const statusConfig = clientStatusConfig[client.status];
+  const canSendMessages = hasPermission(userRole ?? undefined, "messages.send");
+  const canInviteClients = hasPermission(userRole ?? undefined, "clients.invite");
+  const canDeleteClients = hasPermission(userRole ?? undefined, "clients.delete");
 
   if (editing) {
     return (
@@ -274,23 +294,29 @@ export default function ClientDetailPage() {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <SendMessageDialog
-              client={client}
-              contacts={contacts}
-              onMessageSent={fetchClient}
-            />
-            <InviteClientButton client={client} onInvited={fetchClient} />
+            {canSendMessages && (
+              <SendMessageDialog
+                client={client}
+                contacts={contacts}
+                onMessageSent={fetchClient}
+              />
+            )}
+            {canInviteClients && (
+              <InviteClientButton client={client} onInvited={fetchClient} />
+            )}
             <Button variant="outline" onClick={() => setEditing(true)}>
               <Edit2 className="h-4 w-4 mr-2" />
               Modifier
             </Button>
-            <Button
-              variant="outline"
-              onClick={handleDeleteClient}
-              className="text-destructive hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            {canDeleteClients && (
+              <Button
+                variant="outline"
+                onClick={handleDeleteClient}
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       </div>

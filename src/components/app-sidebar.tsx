@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "@/components/notification-bell";
 import { FollowupBadge } from "@/components/followup-badge";
+import { canAccessAdmin } from "@/lib/permissions";
 
 interface AppSidebarProps {
   user: User;
@@ -49,6 +50,8 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const isAdmin = profile?.role === "admin";
+  const isEditor = profile?.role === "editor";
+  const canAccessAdminArea = canAccessAdmin(profile?.role);
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -97,7 +100,8 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
     },
   ];
 
-  const navItems = isAdmin ? adminNavItems : clientNavItems;
+  // Editors use the same nav as admins (access to CRM)
+  const navItems = canAccessAdminArea ? adminNavItems : clientNavItems;
 
   const getInitials = (name: string | null, email: string) => {
     if (name) {
@@ -128,6 +132,11 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
                 ADMIN
               </span>
             )}
+            {isEditor && (
+              <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded font-mono">
+                EDITOR
+              </span>
+            )}
           </Link>
           <NotificationBell side="right" align="start" />
         </div>
@@ -149,7 +158,7 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
-                      {isAdmin && item.url === "/admin/clients" && (
+                      {canAccessAdminArea && item.url === "/admin/clients" && (
                         <FollowupBadge className="ml-auto" />
                       )}
                     </Link>

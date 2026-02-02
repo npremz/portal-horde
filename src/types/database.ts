@@ -1,4 +1,4 @@
-export type UserRole = "client" | "admin";
+export type UserRole = "client" | "editor" | "admin";
 export type ProjectStatus = "active" | "paused" | "completed" | "archived";
 export type PhaseStatus = "pending" | "in_progress" | "review" | "completed";
 export type DeliverableStatus =
@@ -49,6 +49,8 @@ export interface Client {
     twitter?: string;
   };
   status: ClientStatus;
+  project_type: string | null;
+  sector: string | null;
   notes: string | null;
   profile_id: string | null;
   first_contact_date: string | null;
