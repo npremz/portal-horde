@@ -1,9 +1,22 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { NextResponse } from "next/server";
 import type { UserRole } from "@/types/database";
+import {
+  generateRequestId,
+  apiError,
+  apiSuccess,
+  apiErrors,
+  AppError,
+  ErrorCode,
+  mapDatabaseError,
+  createLogger,
+} from "@/lib/errors";
+
+const log = createLogger("Users API");
 
 export async function POST(request: Request) {
+  const requestId = generateRequestId();
+
   try {
     // Verify admin user
     const supabase = await createClient();
@@ -12,7 +25,7 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: "Non autorise" }, { status: 401 });
+      return apiErrors.unauthorized(requestId);
     }
 
     const { data: profile } = await supabase
@@ -22,7 +35,7 @@ export async function POST(request: Request) {
       .single();
 
     if (profile?.role !== "admin") {
-      return NextResponse.json({ error: "Non autorise" }, { status: 403 });
+      return apiErrors.forbidden(requestId, "Seuls les administrateurs peuvent créer des utilisateurs");
     }
 
     // Parse request body
@@ -36,18 +49,12 @@ export async function POST(request: Request) {
 
     // Validate required fields
     if (!email || !full_name || !role) {
-      return NextResponse.json(
-        { error: "Email, nom et role requis" },
-        { status: 400 }
-      );
+      return apiErrors.badRequest(requestId, "Email, nom et rôle requis");
     }
 
     // Validate role
     if (!["client", "editor", "admin"].includes(role)) {
-      return NextResponse.json(
-        { error: "Role invalide" },
-        { status: 400 }
-      );
+      return apiErrors.badRequest(requestId, "Rôle invalide");
     }
 
     const adminClient = createAdminClient();
@@ -59,10 +66,7 @@ export async function POST(request: Request) {
     );
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "Un utilisateur avec cet email existe deja" },
-        { status: 400 }
-      );
+      return apiErrors.duplicate(requestId, "Un utilisateur avec cet email existe déjà");
     }
 
     // Create user via invitation (sends magic link email)
@@ -74,17 +78,26 @@ export async function POST(request: Request) {
       });
 
     if (inviteError) {
-      console.error("Error inviting user:", inviteError);
-      return NextResponse.json(
-        { error: "Erreur lors de l'invitation" },
-        { status: 500 }
+      log.error("Failed to invite user", { requestId, email, error: inviteError.message });
+      return apiError(
+        new AppError({
+          code: ErrorCode.EMAIL_SEND_FAILED,
+          message: "Erreur lors de l'envoi de l'invitation",
+          cause: inviteError,
+          requestId,
+        }),
+        requestId
       );
     }
 
     if (!inviteData.user) {
-      return NextResponse.json(
-        { error: "Erreur lors de la creation de l'utilisateur" },
-        { status: 500 }
+      return apiError(
+        new AppError({
+          code: ErrorCode.DATABASE_ERROR,
+          message: "Erreur lors de la création de l'utilisateur",
+          requestId,
+        }),
+        requestId
       );
     }
 
@@ -98,30 +111,35 @@ export async function POST(request: Request) {
     });
 
     if (profileError) {
-      console.error("Error creating profile:", profileError);
-      // Try to clean up the created user
+      log.error("Failed to create profile, cleaning up", {
+        requestId,
+        userId: inviteData.user.id,
+        error: profileError.message,
+      });
+      // Clean up the created user
       await adminClient.auth.admin.deleteUser(inviteData.user.id);
-      return NextResponse.json(
-        { error: "Erreur lors de la creation du profil" },
-        { status: 500 }
-      );
+
+      const dbError = mapDatabaseError(profileError, requestId);
+      if (dbError) {
+        return apiError(dbError, requestId);
+      }
+      return apiErrors.database(requestId, "Erreur lors de la création du profil");
     }
 
-    return NextResponse.json({
-      success: true,
-      user: {
+    log.info("User created successfully", { requestId, userId: inviteData.user.id, email, role });
+
+    return apiSuccess(
+      {
         id: inviteData.user.id,
         email,
         full_name,
         role,
         company: company || null,
       },
-    });
-  } catch (error) {
-    console.error("Create user error:", error);
-    return NextResponse.json(
-      { error: "Erreur lors de la creation" },
-      { status: 500 }
+      undefined,
+      201
     );
+  } catch (error) {
+    return apiError(error, requestId, { url: "/api/users" });
   }
 }

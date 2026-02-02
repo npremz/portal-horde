@@ -270,3 +270,109 @@ npm run test:e2e:ui   # Run E2E tests with UI
    - Test invalid key (-> 401)
 
 4. Verify RLS policies work correctly for both admin and client access
+
+## Error Handling System (Completed)
+
+- [x] Create error codes and messages (`src/lib/errors/error-codes.ts`)
+  - ErrorCode enum with 13 error types (UNKNOWN, UNAUTHORIZED, NOT_FOUND, etc.)
+  - French error messages for all codes
+  - HTTP status code mapping for all errors
+
+- [x] Create AppError class (`src/lib/errors/app-error.ts`)
+  - Custom error class with code, statusCode, requestId, timestamp
+  - `fromUnknown()` static method for catch blocks
+  - `toJSON()` for API responses
+
+- [x] Create database error mapper (`src/lib/errors/db-error-mapper.ts`)
+  - Maps PostgreSQL error codes to AppError
+  - Helpers: `isNotFoundError()`, `isDuplicateError()`, `isAuthError()`
+  - Extracts user-friendly messages from constraint violations
+
+- [x] Create critical error email template (`src/lib/email/templates/critical-error.ts`)
+  - Red alert header with timestamp
+  - Error details table (code, requestId, URL)
+  - Stack trace section (code block)
+  - Auto-generated alert footer
+
+- [x] Create structured logger (`src/lib/errors/logger.ts`)
+  - Log levels: debug, info, warn, error, critical
+  - Formatted output: `[Horde] [Prefix] [LEVEL] timestamp - message {context}`
+  - `createLogger(prefix)` for module-specific loggers
+  - `critical()` sends email notification to admin
+  - Anti-spam: 5min cooldown per message, 10 emails/hour max
+  - Env vars: `ADMIN_EMAIL`, `DISABLE_ERROR_EMAILS`
+
+- [x] Create API response helpers (`src/lib/errors/api-response.ts`)
+  - `generateRequestId()`: Unique request tracking
+  - `apiError()`: Standardized error response with logging
+  - `apiSuccess<T>()`: Standardized success response
+  - `apiErrors.*`: Shortcut helpers (unauthorized, forbidden, notFound, etc.)
+
+- [x] Create Error Boundaries
+  - `src/app/global-error.tsx`: Critical errors (standalone HTML)
+  - `src/app/error.tsx`: Root route errors
+  - `src/app/(dashboard)/error.tsx`: Dashboard errors
+  - `src/app/admin/error.tsx`: Admin errors
+  - All show: icon, message, reference, retry/home buttons
+
+- [x] Create useAsync hook (`src/hooks/use-async.ts`)
+  - Loading, error, success states
+  - Retry with exponential backoff
+  - Toast notifications on error (sonner)
+  - Parses API error response format
+  - `useFetch()` variant for fetch operations
+
+- [x] Migrate `/api/users/route.ts` as reference
+  - Uses `generateRequestId()`, `apiErrors.*`, `apiSuccess()`
+  - Uses `createLogger()` for structured logging
+  - Uses `mapDatabaseError()` for DB errors
+
+- [x] Write unit tests (49 new tests)
+  - `src/lib/__tests__/errors.test.ts` (33 tests)
+  - `src/hooks/__tests__/use-async.test.ts` (16 tests)
+  - Updated `src/app/api/users/__tests__/route.test.ts` (8 tests)
+
+### API Response Format
+```typescript
+// Success
+{ data: T, meta?: Record<string, unknown> }
+
+// Error
+{ error: { code: ErrorCode, message: string, requestId?: string } }
+```
+
+### Console Log Format
+```
+[Horde] [ModuleName] [ERROR] 2024-01-15T10:30:00.000Z - Message {"requestId":"req_abc","code":"NOT_FOUND"}
+```
+
+### Environment Variables
+```
+ADMIN_EMAIL=admin@hordeagence.com
+DISABLE_ERROR_EMAILS=false
+```
+
+### Migration Guide (Other Routes)
+```typescript
+import {
+  generateRequestId,
+  apiError,
+  apiSuccess,
+  apiErrors,
+  createLogger,
+  mapDatabaseError,
+} from "@/lib/errors";
+
+const log = createLogger("MyRoute");
+
+export async function POST(request: Request) {
+  const requestId = generateRequestId();
+  try {
+    if (!user) return apiErrors.unauthorized(requestId);
+    if (dbError) return apiError(mapDatabaseError(dbError, requestId), requestId);
+    return apiSuccess(data, undefined, 201);
+  } catch (error) {
+    return apiError(error, requestId);
+  }
+}
+```

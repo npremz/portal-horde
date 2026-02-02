@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "../route";
+import { ErrorCode } from "@/lib/errors";
 
 // Mock Supabase
 vi.mock("@/lib/supabase/server", () => ({
@@ -49,7 +50,7 @@ describe("POST /api/users", () => {
     const data = await response.json();
 
     expect(response.status).toBe(401);
-    expect(data.error).toBe("Non autorise");
+    expect(data.error.code).toBe(ErrorCode.UNAUTHORIZED);
   });
 
   it("returns 403 if user is not admin", async () => {
@@ -82,7 +83,7 @@ describe("POST /api/users", () => {
     const data = await response.json();
 
     expect(response.status).toBe(403);
-    expect(data.error).toBe("Non autorise");
+    expect(data.error.code).toBe(ErrorCode.FORBIDDEN);
   });
 
   it("returns 400 if required fields are missing", async () => {
@@ -115,7 +116,8 @@ describe("POST /api/users", () => {
     const data1 = await response1.json();
 
     expect(response1.status).toBe(400);
-    expect(data1.error).toBe("Email, nom et role requis");
+    expect(data1.error.code).toBe(ErrorCode.VALIDATION_ERROR);
+    expect(data1.error.message).toBe("Email, nom et rôle requis");
 
     // Missing full_name
     const request2 = createMockRequest({
@@ -127,7 +129,7 @@ describe("POST /api/users", () => {
     const data2 = await response2.json();
 
     expect(response2.status).toBe(400);
-    expect(data2.error).toBe("Email, nom et role requis");
+    expect(data2.error.code).toBe(ErrorCode.VALIDATION_ERROR);
   });
 
   it("returns 400 for invalid role", async () => {
@@ -160,10 +162,11 @@ describe("POST /api/users", () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe("Role invalide");
+    expect(data.error.code).toBe(ErrorCode.VALIDATION_ERROR);
+    expect(data.error.message).toBe("Rôle invalide");
   });
 
-  it("returns 400 if user with email already exists", async () => {
+  it("returns 409 if user with email already exists", async () => {
     const mockFrom = vi.fn().mockReturnValue({
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
@@ -206,8 +209,9 @@ describe("POST /api/users", () => {
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(data.error).toBe("Un utilisateur avec cet email existe deja");
+    expect(response.status).toBe(409);
+    expect(data.error.code).toBe(ErrorCode.DUPLICATE_ENTRY);
+    expect(data.error.message).toBe("Un utilisateur avec cet email existe déjà");
   });
 
   it("creates user successfully", async () => {
@@ -259,9 +263,8 @@ describe("POST /api/users", () => {
     const response = await POST(request);
     const data = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(data.success).toBe(true);
-    expect(data.user).toEqual({
+    expect(response.status).toBe(201);
+    expect(data.data).toEqual({
       id: "new-user-id",
       email: "new@example.com",
       full_name: "New User",
@@ -323,9 +326,32 @@ describe("POST /api/users", () => {
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(200);
-      expect(data.success).toBe(true);
-      expect(data.user.role).toBe(role);
+      expect(response.status).toBe(201);
+      expect(data.data.role).toBe(role);
     }
+  });
+
+  it("includes requestId in error responses", async () => {
+    mockCreateClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: null },
+          error: null,
+        }),
+      },
+      from: vi.fn(),
+    } as never);
+
+    const request = createMockRequest({
+      email: "test@example.com",
+      full_name: "Test User",
+      role: "client",
+    });
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(data.error.requestId).toBeDefined();
+    expect(data.error.requestId).toMatch(/^req_/);
   });
 });
