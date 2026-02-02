@@ -81,7 +81,7 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
   const adminNavItems = [
     {
       title: "Dashboard",
-      url: "/dashboard",
+      url: "/admin/dashboard",
       icon: LayoutDashboard,
     },
     {

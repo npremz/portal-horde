@@ -96,6 +96,31 @@ profiles (auth) -> clients (profile_id) -> projects (client_id)
 6. Admin can filter "A relancer" to see clients needing followup
 7. Sidebar badge shows count of pending followups
 
+## Dashboard Analytics (Completed)
+
+- [x] Install recharts dependency
+- [x] Create API route `/api/dashboard/stats` with aggregated stats
+- [x] Create dashboard components:
+  - `stats-cards.tsx`: 4 KPI cards (Total Clients, Pipeline Actif, Projets Actifs, A Relancer)
+  - `pipeline-chart.tsx`: Horizontal bar chart of clients by CRM status
+  - `projects-chart.tsx`: Donut chart of projects by status
+  - `activity-chart.tsx`: Line chart of messages and actions over 30 days
+  - `followup-table.tsx`: Table of clients needing followup
+  - `active-projects-table.tsx`: Table of active projects with progress
+- [x] Create admin dashboard page at `/admin/dashboard`
+- [x] Update navigation in `app-sidebar.tsx` to point admins to `/admin/dashboard`
+
+### Dashboard Features
+- 4 KPI cards with icons and secondary metrics
+- Pipeline CRM bar chart showing distribution by status
+- Projects donut chart with total in center
+- 30-day activity line chart (messages + client actions)
+- Top 5 clients needing followup with days overdue indicator
+- Top 5 active projects with progress bars
+- Responsive design (2 columns on desktop, stack on mobile)
+- Loading skeletons for all components
+- Admin/Editor only access (verified in API route)
+
 ## Next Steps (Manual)
 
 1. Run migrations on Supabase:
