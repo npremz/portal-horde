@@ -42,22 +42,46 @@ export default async function DashboardPage() {
   const isAdmin = profile?.role === "admin";
 
   // Get projects based on role
-  let projectsQuery = supabase
-    .from("projects")
-    .select(
+  let projects;
+
+  if (isAdmin) {
+    // Admin: Get all projects with client info from clients table
+    const { data } = await supabase
+      .from("projects")
+      .select(
+        `
+        *,
+        client:clients!projects_client_id_fkey(id, name, email),
+        phases(id, name, status, order_index)
       `
-      *,
-      client:profiles!projects_client_id_fkey(full_name, company),
-      phases(id, name, status, order_index)
-    `
-    )
-    .order("updated_at", { ascending: false });
+      )
+      .order("updated_at", { ascending: false });
+    projects = data;
+  } else {
+    // Client: Get projects via clients table (profile_id link)
+    // First, find the client record linked to this profile
+    const { data: clientRecord } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("profile_id", user.id)
+      .single();
 
-  if (!isAdmin) {
-    projectsQuery = projectsQuery.eq("client_id", user.id);
+    if (clientRecord) {
+      const { data } = await supabase
+        .from("projects")
+        .select(
+          `
+          *,
+          phases(id, name, status, order_index)
+        `
+        )
+        .eq("client_id", clientRecord.id)
+        .order("updated_at", { ascending: false });
+      projects = data;
+    } else {
+      projects = [];
+    }
   }
-
-  const { data: projects } = await projectsQuery;
 
   // Calculate stats
   const activeProjects = projects?.filter((p) => p.status === "active").length || 0;
@@ -156,7 +180,7 @@ export default async function DashboardPage() {
                         <CardTitle className="text-lg">{project.name}</CardTitle>
                         {isAdmin && project.client && (
                           <p className="text-sm text-muted-foreground">
-                            {project.client.company || project.client.full_name}
+                            {project.client.name}
                           </p>
                         )}
                       </div>

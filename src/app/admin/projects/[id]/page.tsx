@@ -54,7 +54,7 @@ import type {
   Project,
   Phase,
   Deliverable,
-  Profile,
+  Client,
   PhaseStatus,
   DeliverableStatus,
   ProjectStatus,
@@ -76,7 +76,7 @@ export default function AdminProjectPage() {
 
   const [project, setProject] = useState<Project | null>(null);
   const [phases, setPhases] = useState<PhaseWithDeliverables[]>([]);
-  const [client, setClient] = useState<Profile | null>(null);
+  const [client, setClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Phase management
@@ -106,7 +106,7 @@ export default function AdminProjectPage() {
 
     if (projectData.client_id) {
       const { data: clientData } = await supabase
-        .from("profiles")
+        .from("clients")
         .select("*")
         .eq("id", projectData.client_id)
         .single();
@@ -323,16 +323,14 @@ export default function AdminProjectPage() {
         {/* Info row */}
         <div className="mt-4 flex items-center gap-6 text-sm">
           {client ? (
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span>{client.full_name || client.email}</span>
-              {client.company && (
-                <span className="text-muted-foreground flex items-center gap-1">
-                  <Building className="h-3 w-3" />
-                  {client.company}
-                </span>
-              )}
-            </div>
+            <Link
+              href={`/admin/clients/${client.id}`}
+              className="flex items-center gap-2 hover:text-primary transition-colors"
+            >
+              <Building className="h-4 w-4 text-muted-foreground" />
+              <span>{client.name}</span>
+              <span className="text-muted-foreground">({client.email})</span>
+            </Link>
           ) : (
             <span className="text-muted-foreground">Aucun client assigne</span>
           )}

@@ -29,7 +29,7 @@ export default async function AdminProjectsPage() {
     .select(
       `
       *,
-      client:profiles!projects_client_id_fkey(id, full_name, company, email),
+      client:clients!projects_client_id_fkey(id, name, email),
       phases(id, status)
     `
     )
@@ -76,7 +76,7 @@ export default async function AdminProjectsPage() {
                         </div>
                         {project.client && (
                           <p className="text-sm text-muted-foreground truncate">
-                            {project.client.company || project.client.full_name}
+                            {project.client.name}
                           </p>
                         )}
                         <div className="flex items-center gap-2 mt-2">
@@ -150,14 +150,17 @@ export default async function AdminProjectsPage() {
                       </TableCell>
                       <TableCell>
                         {project.client ? (
-                          <div>
+                          <Link
+                            href={`/admin/clients/${project.client.id}`}
+                            className="hover:text-primary transition-colors"
+                          >
                             <p className="font-medium">
-                              {project.client.company || project.client.full_name}
+                              {project.client.name}
                             </p>
                             <p className="text-sm text-muted-foreground">
                               {project.client.email}
                             </p>
-                          </div>
+                          </Link>
                         ) : (
                           <span className="text-muted-foreground">Non assigne</span>
                         )}

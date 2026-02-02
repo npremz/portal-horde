@@ -7,6 +7,22 @@ export type DeliverableStatus =
   | "approved"
   | "revision_requested";
 
+// CRM types
+export type ClientStatus =
+  | "lead"
+  | "contacted"
+  | "in_project"
+  | "pending_review"
+  | "completed"
+  | "archived";
+
+export type ContactRole =
+  | "decision_maker"
+  | "technical"
+  | "billing"
+  | "marketing"
+  | "other";
+
 export interface Profile {
   id: string;
   email: string;
@@ -14,6 +30,53 @@ export interface Profile {
   avatar_url: string | null;
   company: string | null;
   role: UserRole;
+  created_at: string;
+}
+
+// CRM Client (business entity, independent of user account)
+export interface Client {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  website: string | null;
+  socials: {
+    linkedin?: string;
+    instagram?: string;
+    facebook?: string;
+    twitter?: string;
+  };
+  status: ClientStatus;
+  notes: string | null;
+  profile_id: string | null;
+  created_at: string;
+  updated_at: string;
+  // Relations
+  profile?: Profile;
+  contacts?: ClientContact[];
+  projects?: Project[];
+}
+
+// Contact within a client organization
+export interface ClientContact {
+  id: string;
+  client_id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  role: ContactRole;
+  is_primary: boolean;
+  notes: string | null;
+  created_at: string;
+}
+
+// Reusable phase template
+export interface PhaseTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  order_index: number;
+  is_default: boolean;
   created_at: string;
 }
 
@@ -27,7 +90,7 @@ export interface Project {
   created_at: string;
   updated_at: string;
   // Relations
-  client?: Profile;
+  client?: Client;  // Now references Client instead of Profile
   phases?: Phase[];
 }
 

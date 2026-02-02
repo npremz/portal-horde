@@ -178,3 +178,105 @@ export function validateEmail(email: string): { valid: boolean; sanitized: strin
 
   return { valid: true, sanitized };
 }
+
+/**
+ * Validate phone number (flexible format)
+ */
+export function validatePhone(phone: string | null): { valid: boolean; sanitized: string | null; error?: string } {
+  if (!phone) {
+    return { valid: true, sanitized: null };
+  }
+
+  // Remove all spaces, dashes, parentheses, and dots for normalization
+  const cleaned = phone.replace(/[\s\-().]/g, "");
+
+  // Allow + at start for international
+  const phoneRegex = /^\+?[0-9]{7,15}$/;
+  if (!phoneRegex.test(cleaned)) {
+    return { valid: false, sanitized: null, error: "Numéro de téléphone invalide" };
+  }
+
+  // Keep original formatting but sanitized
+  const sanitized = sanitizeString(phone);
+  return { valid: true, sanitized };
+}
+
+/**
+ * Validate website URL
+ */
+export function validateWebsite(url: string | null): { valid: boolean; sanitized: string | null; error?: string } {
+  if (!url) {
+    return { valid: true, sanitized: null };
+  }
+
+  let sanitized = sanitizeString(url);
+
+  // Add https:// if no protocol
+  if (sanitized && !sanitized.match(/^https?:\/\//)) {
+    sanitized = `https://${sanitized}`;
+  }
+
+  try {
+    const parsed = new URL(sanitized);
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      return { valid: false, sanitized: null, error: "L'URL doit commencer par http:// ou https://" };
+    }
+    return { valid: true, sanitized };
+  } catch {
+    return { valid: false, sanitized: null, error: "URL invalide" };
+  }
+}
+
+/**
+ * Validate social media URLs
+ */
+export function validateSocials(socials: Record<string, string | undefined> | null): {
+  valid: boolean;
+  sanitized: Record<string, string> | null;
+  error?: string;
+} {
+  if (!socials) {
+    return { valid: true, sanitized: null };
+  }
+
+  const validKeys = ["linkedin", "instagram", "facebook", "twitter"];
+  const sanitized: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(socials)) {
+    if (!validKeys.includes(key)) {
+      continue; // Ignore invalid keys
+    }
+
+    if (!value) {
+      continue;
+    }
+
+    const urlResult = validateWebsite(value);
+    if (!urlResult.valid) {
+      return { valid: false, sanitized: null, error: `URL ${key} invalide: ${urlResult.error}` };
+    }
+
+    if (urlResult.sanitized) {
+      sanitized[key] = urlResult.sanitized;
+    }
+  }
+
+  return { valid: true, sanitized: Object.keys(sanitized).length > 0 ? sanitized : null };
+}
+
+/**
+ * Validate notes/text area content
+ */
+export function validateNotes(notes: string | null): { valid: boolean; sanitized: string | null; error?: string } {
+  if (!notes) {
+    return { valid: true, sanitized: null };
+  }
+
+  const sanitized = sanitizeString(notes);
+
+  if (sanitized.length > 10000) {
+    return { valid: false, sanitized: null, error: "Les notes sont trop longues (max 10000 caractères)" };
+  }
+
+  return { valid: true, sanitized };
+}

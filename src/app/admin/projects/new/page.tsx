@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,19 +22,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
-import type { Profile } from "@/types/database";
+import { PhaseTemplatesSelector } from "@/components/phase-templates-selector";
+import { CreateClientDialog } from "@/components/create-client-dialog";
+import type { Client } from "@/types/database";
 import { validateName, validateDescription, validateUrl } from "@/lib/validation";
+
+interface SelectedPhase {
+  id: string;
+  name: string;
+  description: string | null;
+  isCustom: boolean;
+}
 
 export default function NewProjectPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const preselectedClientId = searchParams.get("client");
+
   const [loading, setLoading] = useState(false);
-  const [clients, setClients] = useState<Profile[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [selectedPhases, setSelectedPhases] = useState<SelectedPhase[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    client_id: "",
+    client_id: preselectedClientId || "",
     staging_url: "",
   });
 
@@ -42,10 +55,9 @@ export default function NewProjectPage() {
     const fetchClients = async () => {
       const supabase = createClient();
       const { data } = await supabase
-        .from("profiles")
+        .from("clients")
         .select("*")
-        .eq("role", "client")
-        .order("full_name");
+        .order("name");
 
       if (data) {
         setClients(data);
@@ -54,6 +66,26 @@ export default function NewProjectPage() {
 
     fetchClients();
   }, []);
+
+  // Update client_id when preselected client changes
+  useEffect(() => {
+    if (preselectedClientId) {
+      setFormData((prev) => ({ ...prev, client_id: preselectedClientId }));
+    }
+  }, [preselectedClientId]);
+
+  const handleClientCreated = (newClientId: string) => {
+    // Refresh clients list and select the new client
+    const fetchClients = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from("clients").select("*").order("name");
+      if (data) {
+        setClients(data);
+        setFormData((prev) => ({ ...prev, client_id: newClientId }));
+      }
+    };
+    fetchClients();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +106,19 @@ export default function NewProjectPage() {
     const urlValidation = validateUrl(formData.staging_url);
     if (!urlValidation.valid) {
       toast.error(urlValidation.error);
+      return;
+    }
+
+    // Validate phases
+    if (selectedPhases.length === 0) {
+      toast.error("Selectionnez au moins une phase");
+      return;
+    }
+
+    // Check that all phases have names
+    const emptyPhase = selectedPhases.find((p) => !p.name.trim());
+    if (emptyPhase) {
+      toast.error("Toutes les phases doivent avoir un nom");
       return;
     }
 
@@ -99,12 +144,46 @@ export default function NewProjectPage() {
       return;
     }
 
-    toast.success("Projet cree - ajoutez les etapes");
+    // Create phases
+    const phasesData = selectedPhases.map((phase, index) => ({
+      project_id: project.id,
+      name: phase.name.trim(),
+      description: phase.description?.trim() || null,
+      order_index: index,
+      status: "pending" as const,
+    }));
+
+    const { error: phasesError } = await supabase
+      .from("phases")
+      .insert(phasesData);
+
+    if (phasesError) {
+      // Rollback: delete the project
+      await supabase.from("projects").delete().eq("id", project.id);
+      toast.error("Erreur lors de la creation des phases");
+      setLoading(false);
+      return;
+    }
+
+    // Update client status if needed
+    if (formData.client_id) {
+      const client = clients.find((c) => c.id === formData.client_id);
+      if (client && (client.status === "lead" || client.status === "contacted")) {
+        await supabase
+          .from("clients")
+          .update({ status: "in_project" })
+          .eq("id", formData.client_id);
+      }
+    }
+
+    toast.success("Projet cree avec succes");
     router.push(`/admin/projects/${project.id}`);
   };
 
+  const selectedClient = clients.find((c) => c.id === formData.client_id);
+
   return (
-    <div className="max-w-2xl mx-auto space-y-4 md:space-y-6">
+    <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
       <div>
         <Button variant="ghost" size="sm" className="mb-2 -ml-2" asChild>
           <Link href="/admin/projects">
@@ -114,16 +193,16 @@ export default function NewProjectPage() {
         </Button>
         <h1 className="text-2xl md:text-3xl font-display uppercase">Nouveau projet</h1>
         <p className="text-sm md:text-base text-muted-foreground">
-          Creez un nouveau projet pour un client
+          Creez un nouveau projet et configurez ses phases
         </p>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Informations du projet</CardTitle>
             <CardDescription>
-              Vous pourrez ajouter les etapes apres la creation
+              Definissez les informations de base du projet
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -154,7 +233,10 @@ export default function NewProjectPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="client">Client</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="client">Client</Label>
+                <CreateClientDialog onClientCreated={handleClientCreated} />
+              </div>
               <Select
                 value={formData.client_id}
                 onValueChange={(value) =>
@@ -167,14 +249,21 @@ export default function NewProjectPage() {
                 <SelectContent>
                   {clients.map((client) => (
                     <SelectItem key={client.id} value={client.id}>
-                      {client.company || client.full_name || client.email}
+                      {client.name}
+                      {client.email && (
+                        <span className="text-muted-foreground ml-2">
+                          ({client.email})
+                        </span>
+                      )}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                Vous pouvez assigner un client plus tard
-              </p>
+              {selectedClient && !selectedClient.profile_id && (
+                <p className="text-xs text-muted-foreground">
+                  Ce client n'a pas encore de compte. Pensez a l'inviter au portail.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -189,18 +278,23 @@ export default function NewProjectPage() {
                 placeholder="https://staging.example.com"
               />
             </div>
-
-            <div className="pt-4 flex flex-col-reverse sm:flex-row gap-3">
-              <Button type="button" variant="outline" asChild className="w-full sm:w-auto">
-                <Link href="/admin/projects">Annuler</Link>
-              </Button>
-              <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Creer le projet
-              </Button>
-            </div>
           </CardContent>
         </Card>
+
+        <PhaseTemplatesSelector
+          value={selectedPhases}
+          onChange={setSelectedPhases}
+        />
+
+        <div className="flex flex-col-reverse sm:flex-row gap-3">
+          <Button type="button" variant="outline" asChild className="w-full sm:w-auto">
+            <Link href="/admin/projects">Annuler</Link>
+          </Button>
+          <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Creer le projet
+          </Button>
+        </div>
       </form>
     </div>
   );

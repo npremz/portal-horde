@@ -59,8 +59,18 @@ export default async function ProjectPage({
     .eq("id", user.id)
     .single();
 
-  if (profile?.role !== "admin" && project.client_id !== user.id) {
-    notFound();
+  // Check access: admin can see all, clients can only see their own projects
+  if (profile?.role !== "admin") {
+    // For clients, check if they have access via clients table
+    const { data: clientRecord } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("profile_id", user.id)
+      .single();
+
+    if (!clientRecord || project.client_id !== clientRecord.id) {
+      notFound();
+    }
   }
 
   const sortedPhases = project.phases

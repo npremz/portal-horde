@@ -25,7 +25,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import type { Profile, Project, ProjectStatus } from "@/types/database";
+import type { Client, Project, ProjectStatus } from "@/types/database";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,7 +44,7 @@ export default function EditProjectPage() {
   const projectId = params.id as string;
 
   const [project, setProject] = useState<Project | null>(null);
-  const [clients, setClients] = useState<Profile[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -86,10 +86,9 @@ export default function EditProjectPage() {
 
     // Fetch clients
     const { data: clientsData } = await supabase
-      .from("profiles")
+      .from("clients")
       .select("*")
-      .eq("role", "client")
-      .order("full_name");
+      .order("name");
 
     setClients(clientsData || []);
     setLoading(false);
@@ -201,8 +200,8 @@ export default function EditProjectPage() {
                   <SelectItem value="none">Aucun client</SelectItem>
                   {clients.map((client) => (
                     <SelectItem key={client.id} value={client.id}>
-                      {client.full_name || client.email}
-                      {client.company && ` (${client.company})`}
+                      {client.name}
+                      {client.email && ` (${client.email})`}
                     </SelectItem>
                   ))}
                 </SelectContent>
