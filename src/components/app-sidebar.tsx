@@ -37,6 +37,7 @@ import {
   ChevronUp,
   Activity,
   HelpCircle,
+  Key,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notification-bell";
 import { FollowupBadge } from "@/components/followup-badge";
@@ -107,6 +108,11 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
             title: "Utilisateurs",
             url: "/admin/users",
             icon: UserCog,
+          },
+          {
+            title: "Cles API",
+            url: "/admin/api-keys",
+            icon: Key,
           },
         ]
       : []),

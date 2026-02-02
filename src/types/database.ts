@@ -25,6 +25,30 @@ export type ContactRole =
 
 export type MessageType = "prospecting" | "followup" | "custom";
 
+// API Key permissions
+export type ApiPermission =
+  | "clients:read"
+  | "clients:write"
+  | "clients:delete"
+  | "messages:send"
+  | "stats:read";
+
+// API Key for bot/agent authentication
+export interface ApiKey {
+  id: string;
+  profile_id: string;
+  name: string;
+  key_hash: string;
+  key_prefix: string;
+  permissions: ApiPermission[];
+  is_active: boolean;
+  expires_at: string | null;
+  last_used_at: string | null;
+  created_at: string;
+  // Relations
+  profile?: Profile;
+}
+
 export interface Profile {
   id: string;
   email: string;

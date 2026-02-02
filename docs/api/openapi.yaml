@@ -1,0 +1,477 @@
+openapi: 3.1.0
+info:
+  title: Horde Portal Bot API
+  version: 1.0.0
+  description: API REST pour bots et agents CRM
+
+servers:
+  - url: https://portal.hordeagence.com/api/v1
+    description: Production
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: "API Key au format: horde_xxxxx"
+
+  schemas:
+    Client:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        status:
+          $ref: '#/components/schemas/ClientStatus'
+        project_type:
+          type: string
+        sector:
+          type: string
+        website:
+          type: string
+        notes:
+          type: string
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+
+    ClientStatus:
+      type: string
+      enum: [lead, contacted, in_project, pending_review, completed, archived]
+
+    Contact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        role:
+          $ref: '#/components/schemas/ContactRole'
+        is_primary:
+          type: boolean
+        notes:
+          type: string
+
+    ContactRole:
+      type: string
+      enum: [decision_maker, technical, billing, marketing, other]
+
+    ClientListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Client'
+        meta:
+          type: object
+          properties:
+            total:
+              type: integer
+            page:
+              type: integer
+            per_page:
+              type: integer
+
+    Stats:
+      type: object
+      properties:
+        counts:
+          type: object
+          properties:
+            clients:
+              type: integer
+            pipeline:
+              type: integer
+            projects:
+              type: integer
+            followups:
+              type: integer
+        clients_by_status:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                $ref: '#/components/schemas/ClientStatus'
+              count:
+                type: integer
+        projects_by_status:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: integer
+        metrics:
+          type: object
+          properties:
+            conversion_rate:
+              type: integer
+            messages_30d:
+              type: integer
+            new_clients_30d:
+              type: integer
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+paths:
+  /clients:
+    get:
+      summary: List clients
+      tags: [Clients]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/ClientStatus'
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of clients
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create client
+      tags: [Clients]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                status:
+                  $ref: '#/components/schemas/ClientStatus'
+                project_type:
+                  type: string
+                sector:
+                  type: string
+                website:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        '201':
+          description: Client created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Client'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict (email exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /clients/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      summary: Get client details
+      tags: [Clients]
+      responses:
+        '200':
+          description: Client details with contacts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      summary: Update client
+      tags: [Clients]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                status:
+                  $ref: '#/components/schemas/ClientStatus'
+                project_type:
+                  type: string
+                sector:
+                  type: string
+                website:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Client updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Client'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete client
+      tags: [Clients]
+      responses:
+        '200':
+          description: Client deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /clients/{id}/contacts:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      summary: List contacts for a client
+      tags: [Contacts]
+      responses:
+        '200':
+          description: List of contacts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+        '404':
+          description: Client not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Add contact to client
+      tags: [Contacts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                role:
+                  $ref: '#/components/schemas/ContactRole'
+                is_primary:
+                  type: boolean
+                notes:
+                  type: string
+      responses:
+        '201':
+          description: Contact created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Contact'
+        '404':
+          description: Client not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /contacts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    patch:
+      summary: Update contact
+      tags: [Contacts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                role:
+                  $ref: '#/components/schemas/ContactRole'
+                is_primary:
+                  type: boolean
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Contact updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Contact'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete contact
+      tags: [Contacts]
+      responses:
+        '200':
+          description: Contact deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /stats:
+    get:
+      summary: Get dashboard statistics
+      tags: [Stats]
+      responses:
+        '200':
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

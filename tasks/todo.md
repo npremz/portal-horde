@@ -167,26 +167,106 @@ npm run test:e2e:ui   # Run E2E tests with UI
 - API routes: > 80%
 - E2E critical paths: 100%
 
+## Bot API System (Completed)
+
+- [x] Database migration `20_api_keys.sql`
+  - api_keys table (id, profile_id, name, key_hash, key_prefix, permissions, is_active, expires_at, last_used_at)
+  - Indexes and RLS policies (admin only)
+  - Function to update last_used_at
+
+- [x] TypeScript types
+  - `ApiPermission` type (clients:read, clients:write, clients:delete, messages:send, stats:read)
+  - `ApiKey` interface
+
+- [x] API authentication helper `src/lib/api-auth.ts`
+  - `generateApiKey()`: Creates key with hash and prefix
+  - `validateApiKey()`: Validates and returns auth info
+  - `hasApiPermission()`: Checks permission
+  - `extractApiKey()`: Parses Authorization header
+  - `API_PERMISSIONS`: Permission definitions
+
+- [x] Bot API endpoints `/api/v1/`
+  - `GET /clients`: List with pagination, filters
+  - `POST /clients`: Create client
+  - `GET /clients/:id`: Get details with contacts
+  - `PATCH /clients/:id`: Update client
+  - `DELETE /clients/:id`: Delete client
+  - `GET /clients/:id/contacts`: List contacts
+  - `POST /clients/:id/contacts`: Add contact
+  - `PATCH /contacts/:id`: Update contact
+  - `DELETE /contacts/:id`: Delete contact
+  - `GET /stats`: Dashboard statistics
+
+- [x] Admin API for key management `/api/api-keys/`
+  - `GET`: List all keys
+  - `POST`: Create key (returns full key once)
+  - `PATCH /:id`: Update (toggle active, permissions)
+  - `DELETE /:id`: Delete key
+
+- [x] Admin UI `/admin/api-keys`
+  - Page with table of keys
+  - Create dialog (shows key once)
+  - Permissions selector
+  - Toggle active/inactive
+  - Delete confirmation
+
+- [x] Documentation
+  - `docs/api/BOT_API.md`: Markdown quick reference
+  - `docs/api/openapi.yaml`: OpenAPI 3.1 specification
+
+- [x] Navigation
+  - Added "Cles API" to admin sidebar
+
+### API Response Format
+- Minimal JSON to save tokens
+- Null fields omitted
+- Pagination with meta object
+
+### Tests (54 tests)
+- [x] `src/lib/__tests__/api-auth.test.ts` (27 tests)
+  - `generateApiKey()`: Key format, hash, prefix, uniqueness
+  - `hashApiKey()`: Consistency, SHA-256 format
+  - `hasApiPermission()`: Permission checking
+  - `extractApiKey()`: Header parsing
+  - `validateApiKey()`: Auth validation, expiry, disabled keys
+- [x] `src/app/api/v1/clients/__tests__/route.test.ts` (12 tests)
+  - Auth: 401 missing key, 401 invalid key, 403 missing permission
+  - GET: Pagination, status filter, null field omission
+  - POST: Validation, creation, duplicate email handling
+- [x] `src/app/api/v1/stats/__tests__/route.test.ts` (6 tests)
+  - Auth: 401/403 handling
+  - Stats calculation, conversion rate, pending followups
+- [x] `src/app/api/api-keys/__tests__/route.test.ts` (9 tests)
+  - Admin-only access (401, 403)
+  - Key listing, creation with permissions
+  - Full key returned only once on creation
+
 ## Next Steps (Manual)
 
-1. Run migrations on Supabase:
-   ```bash
-   supabase db push
-   ```
-
-2. Test the CRM workflow:
+1. Test the CRM workflow:
    - Create a client without account
    - Add contacts
    - Create a project with selected phases
    - Invite the client
    - Verify client can log in and see their project
 
-3. Test the prospection workflow:
+2. Test the prospection workflow:
    - Send a first message to a client
    - Verify first_contact_date is set
    - Verify next_followup_date is set (now + 10 days)
    - Verify message appears in timeline
    - Verify client status changes to "contacted"
    - Wait/modify date to test "A relancer" filter
+
+3. Test the Bot API:
+   - Create an API key from `/admin/api-keys`
+   - Copy the key (shown once)
+   - Test with curl:
+     ```bash
+     curl -H "Authorization: Bearer horde_xxx" \
+       https://portal.hordeagence.com/api/v1/clients
+     ```
+   - Test permission errors (missing permission -> 403)
+   - Test invalid key (-> 401)
 
 4. Verify RLS policies work correctly for both admin and client access
