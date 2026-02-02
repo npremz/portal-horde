@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -17,7 +18,26 @@ interface ActivityChartProps {
   loading?: boolean;
 }
 
+// Theme colors
+const themeColors = {
+  light: {
+    text: "#4C4B4B",
+    border: "#B1B1B1",
+    background: "#ffffff",
+    foreground: "#222121",
+  },
+  dark: {
+    text: "#B1B1B1",
+    border: "#4C4B4B",
+    background: "#2d2c2c",
+    foreground: "#F4F3F3",
+  },
+};
+
 export function ActivityChart({ data, loading }: ActivityChartProps) {
+  const { resolvedTheme } = useTheme();
+  const colors = themeColors[resolvedTheme === "dark" ? "dark" : "light"];
+
   if (loading) {
     return (
       <Card>
@@ -66,17 +86,19 @@ export function ActivityChart({ data, loading }: ActivityChartProps) {
                 <LineChart data={chartData} margin={{ left: -20, right: 10, top: 5, bottom: 0 }}>
                   <XAxis
                     dataKey="shortDate"
-                    tick={{ fontSize: 8 }}
+                    tick={{ fontSize: 8, fill: colors.text }}
                     interval={4}
                     tickMargin={4}
+                    stroke={colors.border}
                   />
-                  <YAxis tick={{ fontSize: 10 }} width={30} />
+                  <YAxis tick={{ fontSize: 10, fill: colors.text }} width={30} stroke={colors.border} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "hsl(var(--background))",
-                      border: "1px solid hsl(var(--border))",
+                      backgroundColor: colors.background,
+                      border: `1px solid ${colors.border}`,
                       borderRadius: "6px",
                       fontSize: "12px",
+                      color: colors.foreground,
                     }}
                     labelFormatter={(label) => `${label}`}
                   />
@@ -84,7 +106,7 @@ export function ActivityChart({ data, loading }: ActivityChartProps) {
                     verticalAlign="top"
                     height={24}
                     formatter={(value) => (
-                      <span className="text-[10px]">
+                      <span style={{ color: colors.text, fontSize: "10px" }}>
                         {value === "messages" ? "Msg" : "Actions"}
                       </span>
                     )}
@@ -115,22 +137,24 @@ export function ActivityChart({ data, loading }: ActivityChartProps) {
                 <LineChart data={chartData} margin={{ left: 0, right: 20 }}>
                   <XAxis
                     dataKey="displayDate"
-                    tick={{ fontSize: 10 }}
+                    tick={{ fontSize: 10, fill: colors.text }}
                     interval="preserveStartEnd"
                     tickMargin={8}
+                    stroke={colors.border}
                   />
-                  <YAxis tick={{ fontSize: 12 }} width={30} />
+                  <YAxis tick={{ fontSize: 12, fill: colors.text }} width={30} stroke={colors.border} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "hsl(var(--background))",
-                      border: "1px solid hsl(var(--border))",
+                      backgroundColor: colors.background,
+                      border: `1px solid ${colors.border}`,
                       borderRadius: "6px",
+                      color: colors.foreground,
                     }}
                     labelFormatter={(label) => `Date: ${label}`}
                   />
                   <Legend
                     formatter={(value) => (
-                      <span className="text-sm">
+                      <span style={{ color: colors.text, fontSize: "14px" }}>
                         {value === "messages" ? "Messages" : "Actions clients"}
                       </span>
                     )}

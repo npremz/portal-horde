@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 import { NotificationBell } from "@/components/notification-bell";
 import { FollowupBadge } from "@/components/followup-badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { canAccessAdmin } from "@/lib/permissions";
 
 interface AppSidebarProps {
@@ -137,6 +138,15 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
               width={100}
               height={32}
               priority
+              className="dark:hidden"
+            />
+            <Image
+              src="/images/logo-dark.svg"
+              alt="Horde"
+              width={100}
+              height={32}
+              priority
+              className="hidden dark:block"
             />
             {isAdmin && (
               <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded font-mono">
@@ -149,7 +159,10 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
               </span>
             )}
           </Link>
-          <NotificationBell side="right" align="start" />
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <NotificationBell side="right" align="start" />
+          </div>
         </div>
       </SidebarHeader>
 

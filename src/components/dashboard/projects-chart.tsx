@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -25,7 +26,26 @@ const statusColors: Record<ProjectStatus, string> = {
   archived: "#9ca3af",
 };
 
+// Theme colors
+const themeColors = {
+  light: {
+    text: "#4C4B4B",
+    border: "#B1B1B1",
+    background: "#ffffff",
+    foreground: "#222121",
+  },
+  dark: {
+    text: "#B1B1B1",
+    border: "#4C4B4B",
+    background: "#2d2c2c",
+    foreground: "#F4F3F3",
+  },
+};
+
 export function ProjectsChart({ data, loading }: ProjectsChartProps) {
+  const { resolvedTheme } = useTheme();
+  const colors = themeColors[resolvedTheme === "dark" ? "dark" : "light"];
+
   if (loading) {
     return (
       <Card>
@@ -80,17 +100,18 @@ export function ProjectsChart({ data, loading }: ProjectsChartProps) {
                   <Tooltip
                     formatter={(value, name) => [String(value), name]}
                     contentStyle={{
-                      backgroundColor: "hsl(var(--background))",
-                      border: "1px solid hsl(var(--border))",
+                      backgroundColor: colors.background,
+                      border: `1px solid ${colors.border}`,
                       borderRadius: "6px",
                       fontSize: "12px",
+                      color: colors.foreground,
                     }}
                   />
                   <Legend
                     verticalAlign="bottom"
                     height={36}
                     formatter={(value) => (
-                      <span className="text-xs text-muted-foreground">{value}</span>
+                      <span style={{ color: colors.text, fontSize: "12px" }}>{value}</span>
                     )}
                   />
                   <text
@@ -98,7 +119,9 @@ export function ProjectsChart({ data, loading }: ProjectsChartProps) {
                     y="45%"
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="fill-foreground font-bold text-xl"
+                    fill={colors.foreground}
+                    fontWeight="bold"
+                    fontSize="20px"
                   >
                     {total}
                   </text>
@@ -125,14 +148,15 @@ export function ProjectsChart({ data, loading }: ProjectsChartProps) {
                   <Tooltip
                     formatter={(value, name) => [String(value), name]}
                     contentStyle={{
-                      backgroundColor: "hsl(var(--background))",
-                      border: "1px solid hsl(var(--border))",
+                      backgroundColor: colors.background,
+                      border: `1px solid ${colors.border}`,
                       borderRadius: "6px",
+                      color: colors.foreground,
                     }}
                   />
                   <Legend
                     formatter={(value) => (
-                      <span className="text-sm text-muted-foreground">{value}</span>
+                      <span style={{ color: colors.text, fontSize: "14px" }}>{value}</span>
                     )}
                   />
                   <text
@@ -140,7 +164,9 @@ export function ProjectsChart({ data, loading }: ProjectsChartProps) {
                     y="50%"
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="fill-foreground font-bold text-2xl"
+                    fill={colors.foreground}
+                    fontWeight="bold"
+                    fontSize="24px"
                   >
                     {total}
                   </text>

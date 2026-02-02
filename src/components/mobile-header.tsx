@@ -6,6 +6,7 @@ import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { NotificationBell } from "@/components/notification-bell";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function MobileHeader() {
   const { toggleSidebar, isMobile } = useSidebar();
@@ -26,10 +27,22 @@ export function MobileHeader() {
             width={80}
             height={26}
             priority
+            className="dark:hidden"
+          />
+          <Image
+            src="/images/logo-dark.svg"
+            alt="Horde"
+            width={80}
+            height={26}
+            priority
+            className="hidden dark:block"
           />
         </Link>
       </div>
-      <NotificationBell />
+      <div className="flex items-center gap-1">
+        <ThemeToggle />
+        <NotificationBell />
+      </div>
     </header>
   );
 }

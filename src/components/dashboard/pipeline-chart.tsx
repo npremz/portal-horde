@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -40,7 +41,26 @@ const shortLabels: Record<ClientStatus, string> = {
   archived: "Archive",
 };
 
+// Theme colors
+const themeColors = {
+  light: {
+    text: "#4C4B4B",
+    border: "#B1B1B1",
+    background: "#ffffff",
+    foreground: "#222121",
+  },
+  dark: {
+    text: "#B1B1B1",
+    border: "#4C4B4B",
+    background: "#2d2c2c",
+    foreground: "#F4F3F3",
+  },
+};
+
 export function PipelineChart({ data, loading }: PipelineChartProps) {
+  const { resolvedTheme } = useTheme();
+  const colors = themeColors[resolvedTheme === "dark" ? "dark" : "light"];
+
   if (loading) {
     return (
       <Card>
@@ -85,18 +105,20 @@ export function PipelineChart({ data, loading }: PipelineChartProps) {
                 <BarChart data={sortedData} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
                   <XAxis
                     dataKey="shortLabel"
-                    tick={{ fontSize: 10 }}
+                    tick={{ fontSize: 10, fill: colors.text }}
                     interval={0}
                     tickMargin={4}
+                    stroke={colors.border}
                   />
-                  <YAxis tick={{ fontSize: 10 }} width={30} />
+                  <YAxis tick={{ fontSize: 10, fill: colors.text }} width={30} stroke={colors.border} />
                   <Tooltip
                     formatter={(value) => [String(value), "Clients"]}
                     contentStyle={{
-                      backgroundColor: "hsl(var(--background))",
-                      border: "1px solid hsl(var(--border))",
+                      backgroundColor: colors.background,
+                      border: `1px solid ${colors.border}`,
                       borderRadius: "6px",
                       fontSize: "12px",
+                      color: colors.foreground,
                     }}
                   />
                   <Bar dataKey="count" radius={[4, 4, 0, 0]}>
@@ -111,19 +133,21 @@ export function PipelineChart({ data, loading }: PipelineChartProps) {
             <div className="hidden md:block h-[250px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={sortedData} layout="vertical" margin={{ left: 0, right: 20 }}>
-                  <XAxis type="number" tick={{ fontSize: 12 }} />
+                  <XAxis type="number" tick={{ fontSize: 12, fill: colors.text }} stroke={colors.border} />
                   <YAxis
                     type="category"
                     dataKey="label"
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: 12, fill: colors.text }}
                     width={100}
+                    stroke={colors.border}
                   />
                   <Tooltip
                     formatter={(value) => [String(value), "Clients"]}
                     contentStyle={{
-                      backgroundColor: "hsl(var(--background))",
-                      border: "1px solid hsl(var(--border))",
+                      backgroundColor: colors.background,
+                      border: `1px solid ${colors.border}`,
                       borderRadius: "6px",
+                      color: colors.foreground,
                     }}
                   />
                   <Bar dataKey="count" radius={[0, 4, 4, 0]}>

@@ -121,6 +121,52 @@ profiles (auth) -> clients (profile_id) -> projects (client_id)
 - Loading skeletons for all components
 - Admin/Editor only access (verified in API route)
 
+## Test Suite (Completed)
+
+- [x] Install test dependencies (Vitest, RTL, Playwright, MSW)
+- [x] Create test configuration (vitest.config.ts, playwright.config.ts)
+- [x] Create test utilities and mocks
+  - MSW handlers for API mocking
+  - Test fixtures for clients, projects, users
+  - Custom render function with user event support
+- [x] Write unit tests (115 tests)
+  - `validation.ts`: 67 tests for all sanitization and validation functions
+  - `permissions.ts`: 20 tests for role-based access control
+  - `utils.ts`: 21 tests for cn(), getFileIcon(), formatFileSize(), formatDate()
+  - `activity.ts`: 7 tests for actionLabels and actionColors
+- [x] Write API integration tests (21 tests)
+  - `/api/dashboard/stats`: Auth, role checks, stats calculation
+  - `/api/users`: User creation, validation, role checks
+  - `/api/contact`: Contact form validation and email sending
+- [x] Write component tests (19 tests)
+  - `StatsCards`: Loading states, KPI display, null handling
+  - `PipelineChart`: Empty states, data rendering
+  - `ThemeToggle`: Theme switching functionality
+- [x] Write E2E tests (Playwright)
+  - `auth.spec.ts`: Login page, redirects, public pages
+  - `permissions.spec.ts`: Route protection, unauthenticated access
+  - `contact.spec.ts`: Contact form validation
+  - `smoke.spec.ts`: App health, responsive design
+- [x] Create GitHub Actions CI/CD workflow
+  - Unit tests with coverage
+  - Lint check
+  - Build verification
+  - E2E tests with Playwright
+
+### Test Commands
+```bash
+npm test              # Run unit tests in watch mode
+npm run test:coverage # Run tests with coverage report
+npm run test:e2e      # Run E2E tests
+npm run test:e2e:ui   # Run E2E tests with UI
+```
+
+### Coverage Targets
+- Global: > 70%
+- lib/: > 90%
+- API routes: > 80%
+- E2E critical paths: 100%
+
 ## Next Steps (Manual)
 
 1. Run migrations on Supabase:
