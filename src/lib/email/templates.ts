@@ -423,6 +423,108 @@ interface CommentEmailParams {
   portalUrl?: string;
 }
 
+// ============================================
+// CONTACT FORM EMAIL (for ADMIN)
+// ============================================
+
+interface ContactFormEmailParams {
+  name: string;
+  email: string;
+  company: string | null;
+  category: string;
+  subject: string;
+  message: string;
+  portalUrl?: string;
+}
+
+const categoryLabels: Record<string, string> = {
+  question: "Question générale",
+  project: "Question sur un projet",
+  technical: "Problème technique",
+  billing: "Facturation",
+  other: "Autre",
+};
+
+export function contactFormEmail(params: ContactFormEmailParams): string {
+  const {
+    name,
+    email,
+    company,
+    category,
+    subject,
+    message,
+    portalUrl = "https://portal.hordeagence.com"
+  } = params;
+
+  const content = `
+    <!-- Main content -->
+    <tr>
+      <td class="content" style="padding: 40px 32px 24px;">
+        <p style="margin: 0 0 8px;">
+          ${createBadge(categoryLabels[category] || category, "blue")}
+        </p>
+        <h1 style="margin: 16px 0; font-size: 22px; font-weight: 700; color: ${brandColors.primary}; line-height: 1.3;">
+          Nouveau message de contact
+        </h1>
+        <p style="margin: 0; font-size: 15px; color: ${brandColors.primaryLight}; line-height: 1.6;">
+          Un client a envoyé un message via le formulaire de contact du portail.
+        </p>
+      </td>
+    </tr>
+
+    <!-- Contact info -->
+    <tr>
+      <td style="padding: 0 32px 24px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: ${brandColors.background}; border-radius: 8px;">
+          <tr>
+            <td style="padding: 20px 24px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                ${createInfoRow("Nom", name)}
+                ${createInfoRow("Email", email)}
+                ${company ? createInfoRow("Entreprise", company) : ""}
+                ${createInfoRow("Catégorie", categoryLabels[category] || category)}
+                ${createInfoRow("Sujet", subject)}
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- Message -->
+    <tr>
+      <td style="padding: 0 32px 32px;">
+        <p style="margin: 0 0 12px; font-size: 13px; font-weight: 600; color: ${brandColors.muted}; text-transform: uppercase; letter-spacing: 1px;">
+          Message
+        </p>
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: ${brandColors.white}; border-radius: 8px; border: 1px solid ${brandColors.border};">
+          <tr>
+            <td style="padding: 20px 24px;">
+              <p style="margin: 0; font-size: 14px; color: ${brandColors.primaryLight}; line-height: 1.8; white-space: pre-wrap;">
+${message}
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- Reply CTA -->
+    <tr>
+      <td align="center" style="padding: 0 32px 40px;">
+        ${createButton(`Répondre à ${name}`, `mailto:${email}?subject=Re: ${encodeURIComponent(subject)}`)}
+      </td>
+    </tr>
+  `;
+
+  return wrapTemplate(
+    content,
+    `[Contact] ${subject}`,
+    `${name} vous a envoyé un message : ${subject}`,
+    portalUrl
+  );
+}
+
 export function newCommentEmail(params: CommentEmailParams): string {
   const {
     recipientName,

@@ -35,6 +35,7 @@ import {
   LogOut,
   ChevronUp,
   Activity,
+  HelpCircle,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notification-bell";
 
@@ -64,6 +65,11 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
       title: "Mes projets",
       url: "/projects",
       icon: FolderKanban,
+    },
+    {
+      title: "Contact",
+      url: "/contact",
+      icon: HelpCircle,
     },
   ];
 
@@ -180,17 +186,13 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
                 side="top"
                 className="w-[--radix-popper-anchor-width]"
               >
-                {isAdmin && (
-                  <>
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin/settings">
-                        <Settings className="mr-2 h-4 w-4" />
-                        Parametres
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Parametres
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleSignOut}
                   className="text-destructive focus:text-destructive"

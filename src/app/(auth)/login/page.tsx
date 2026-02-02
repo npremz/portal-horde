@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Image from "next/image";
+import Link from "next/link";
 import { Loader2, Mail } from "lucide-react";
 
 export default function LoginPage() {
@@ -123,6 +124,26 @@ export default function LoginPage() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Footer links */}
+      <div className="fixed bottom-4 left-0 right-0 flex justify-center gap-4 text-xs text-muted-foreground">
+        <Link href="/legal" className="hover:text-foreground transition-colors">
+          Mentions légales
+        </Link>
+        <span>•</span>
+        <Link href="/privacy" className="hover:text-foreground transition-colors">
+          Confidentialité
+        </Link>
+        <span>•</span>
+        <a
+          href="https://hordeagence.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-foreground transition-colors"
+        >
+          hordeagence.com
+        </a>
+      </div>
     </div>
   );
 }
