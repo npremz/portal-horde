@@ -586,3 +586,60 @@ export function newCommentEmail(params: CommentEmailParams): string {
     portalUrl
   );
 }
+
+// ============================================
+// PROSPECTING EMAIL (CRM)
+// ============================================
+
+interface ProspectingEmailParams {
+  subject: string;
+  content: string;
+  portalUrl?: string;
+}
+
+export function prospectingEmail(params: ProspectingEmailParams): string {
+  const {
+    subject,
+    content: messageContent,
+    portalUrl = "https://portal.hordeagence.com"
+  } = params;
+
+  // Convert newlines to <br> for HTML display
+  const htmlContent = messageContent.replace(/\n/g, "<br>");
+
+  const content = `
+    <!-- Main content -->
+    <tr>
+      <td class="content" style="padding: 40px 32px;">
+        <p style="margin: 0; font-size: 15px; color: ${brandColors.primaryLight}; line-height: 1.8;">
+          ${htmlContent}
+        </p>
+      </td>
+    </tr>
+  `;
+
+  return wrapTemplate(
+    content,
+    subject,
+    messageContent.substring(0, 150) + (messageContent.length > 150 ? "..." : ""),
+    portalUrl
+  );
+}
+
+// Helper to replace template variables
+export function replaceTemplateVariables(
+  template: string,
+  variables: {
+    nom?: string;
+    prenom?: string;
+    entreprise?: string;
+    email?: string;
+  }
+): string {
+  let result = template;
+  if (variables.nom) result = result.replace(/\{\{nom\}\}/g, variables.nom);
+  if (variables.prenom) result = result.replace(/\{\{prenom\}\}/g, variables.prenom);
+  if (variables.entreprise) result = result.replace(/\{\{entreprise\}\}/g, variables.entreprise);
+  if (variables.email) result = result.replace(/\{\{email\}\}/g, variables.email);
+  return result;
+}

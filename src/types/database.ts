@@ -23,6 +23,8 @@ export type ContactRole =
   | "marketing"
   | "other";
 
+export type MessageType = "prospecting" | "followup" | "custom";
+
 export interface Profile {
   id: string;
   email: string;
@@ -49,12 +51,15 @@ export interface Client {
   status: ClientStatus;
   notes: string | null;
   profile_id: string | null;
+  first_contact_date: string | null;
+  next_followup_date: string | null;
   created_at: string;
   updated_at: string;
   // Relations
   profile?: Profile;
   contacts?: ClientContact[];
   projects?: Project[];
+  messages?: ClientMessage[];
 }
 
 // Contact within a client organization
@@ -68,6 +73,21 @@ export interface ClientContact {
   is_primary: boolean;
   notes: string | null;
   created_at: string;
+}
+
+// Message sent to a client (CRM prospection history)
+export interface ClientMessage {
+  id: string;
+  client_id: string;
+  contact_id: string | null;
+  subject: string;
+  content: string;
+  sent_at: string;
+  sent_by: string | null;
+  message_type: MessageType;
+  // Relations
+  contact?: ClientContact;
+  sender?: Profile;
 }
 
 // Reusable phase template

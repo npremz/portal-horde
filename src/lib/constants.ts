@@ -1,4 +1,4 @@
-import type { DeliverableStatus, PhaseStatus, ProjectStatus, ClientStatus, ContactRole } from "@/types/database";
+import type { DeliverableStatus, PhaseStatus, ProjectStatus, ClientStatus, ContactRole, MessageType } from "@/types/database";
 
 export const deliverableStatusConfig: Record<
   DeliverableStatus,
@@ -113,3 +113,51 @@ export const contactRoleConfig: Record<
     description: "Autre rôle",
   },
 };
+
+// Message type configuration
+export const messageTypeConfig: Record<
+  MessageType,
+  { label: string; color: string }
+> = {
+  prospecting: {
+    label: "Prospection",
+    color: "bg-blue-100 text-blue-800",
+  },
+  followup: {
+    label: "Relance",
+    color: "bg-orange-100 text-orange-800",
+  },
+  custom: {
+    label: "Personnalisé",
+    color: "bg-gray-100 text-gray-800",
+  },
+};
+
+// Prospecting email templates
+export const prospectingTemplates = {
+  default: {
+    subject: "{{entreprise}} - Collaboration avec Horde",
+    content: `Bonjour {{prenom}},
+
+Je me permets de vous contacter au sujet de {{entreprise}}.
+
+[Votre message personnalisé]
+
+Cordialement,
+L'équipe Horde`,
+  },
+  followup: {
+    subject: "Re: {{entreprise}} - Suite à notre premier contact",
+    content: `Bonjour {{prenom}},
+
+Je me permets de revenir vers vous concernant notre échange au sujet de {{entreprise}}.
+
+[Votre message de relance]
+
+Cordialement,
+L'équipe Horde`,
+  },
+};
+
+// Followup delay in days
+export const FOLLOWUP_DELAY_DAYS = 10;

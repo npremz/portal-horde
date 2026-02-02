@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -20,25 +21,62 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { UserPlus, Loader2 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { UserPlus, Loader2, Globe, Linkedin, Instagram, Facebook, Twitter } from "lucide-react";
 import { toast } from "sonner";
 import { clientStatusConfig } from "@/lib/constants";
-import { validateEmail, validatePhone, validateName } from "@/lib/validation";
+import {
+  validateEmail,
+  validatePhone,
+  validateName,
+  validateWebsite,
+  validateNotes,
+} from "@/lib/validation";
 import type { ClientStatus } from "@/types/database";
 
 interface CreateClientDialogProps {
   onClientCreated?: (clientId: string) => void;
 }
 
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  website: string;
+  status: ClientStatus;
+  notes: string;
+  socials: {
+    linkedin?: string;
+    instagram?: string;
+    facebook?: string;
+    twitter?: string;
+  };
+}
+
+const emptyForm: FormData = {
+  name: "",
+  email: "",
+  phone: "",
+  website: "",
+  status: "lead",
+  notes: "",
+  socials: {},
+};
+
 export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    status: "lead" as ClientStatus,
-  });
+  const [formData, setFormData] = useState<FormData>(emptyForm);
+
+  const updateSocial = (key: string, value: string) => {
+    setFormData({
+      ...formData,
+      socials: {
+        ...formData.socials,
+        [key]: value || undefined,
+      },
+    });
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +100,18 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
       return;
     }
 
+    const websiteResult = validateWebsite(formData.website || null);
+    if (!websiteResult.valid) {
+      toast.error(websiteResult.error);
+      return;
+    }
+
+    const notesResult = validateNotes(formData.notes || null);
+    if (!notesResult.valid) {
+      toast.error(notesResult.error);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -73,7 +123,10 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
           name: nameResult.sanitized,
           email: emailResult.sanitized,
           phone: phoneResult.sanitized,
+          website: websiteResult.sanitized,
           status: formData.status,
+          notes: notesResult.sanitized,
+          socials: formData.socials,
         })
         .select("id")
         .single();
@@ -86,7 +139,7 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
       }
 
       toast.success(`Client "${nameResult.sanitized}" cree`);
-      setFormData({ name: "", email: "", phone: "", status: "lead" });
+      setFormData(emptyForm);
       setOpen(false);
 
       if (onClientCreated && data) {
@@ -101,84 +154,198 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
     }
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      setFormData(emptyForm);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button>
           <UserPlus className="h-4 w-4 mr-2" />
           Nouveau client
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Creer un nouveau client</DialogTitle>
           <DialogDescription>
-            Ajoutez un client au CRM. Vous pourrez l'inviter au portail plus tard.
+            Ajoutez un client au CRM avec toutes ses informations.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleCreate} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="client_name">Nom / Entreprise *</Label>
-            <Input
-              id="client_name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              placeholder="Nom du client"
-              required
-            />
+        <form onSubmit={handleCreate} className="space-y-6">
+          {/* Informations principales */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-muted-foreground">Informations principales</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="client_name">Nom / Entreprise *</Label>
+                <Input
+                  id="client_name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  placeholder="Nom du client"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="client_email">Email *</Label>
+                <Input
+                  id="client_email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  placeholder="contact@entreprise.com"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="client_phone">Telephone</Label>
+                <Input
+                  id="client_phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  placeholder="+33 6 12 34 56 78"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="client_status">Statut</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value: ClientStatus) =>
+                    setFormData({ ...formData, status: value })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(clientStatusConfig).map(([status, config]) => (
+                      <SelectItem key={status} value={status}>
+                        <div className="flex items-center gap-2">
+                          <div className={`h-2 w-2 rounded-full ${config.dotColor}`} />
+                          {config.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="client_website">Site web</Label>
+              <div className="relative">
+                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="client_website"
+                  type="url"
+                  value={formData.website}
+                  onChange={(e) =>
+                    setFormData({ ...formData, website: e.target.value })
+                  }
+                  placeholder="https://exemple.com"
+                  className="pl-10"
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="client_email">Email *</Label>
-            <Input
-              id="client_email"
-              type="email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              placeholder="contact@entreprise.com"
-              required
-            />
+          <Separator />
+
+          {/* Reseaux sociaux */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-muted-foreground">Reseaux sociaux</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="client_linkedin">LinkedIn</Label>
+                <div className="relative">
+                  <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="client_linkedin"
+                    type="url"
+                    value={formData.socials.linkedin || ""}
+                    onChange={(e) => updateSocial("linkedin", e.target.value)}
+                    placeholder="https://linkedin.com/company/..."
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="client_instagram">Instagram</Label>
+                <div className="relative">
+                  <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="client_instagram"
+                    type="url"
+                    value={formData.socials.instagram || ""}
+                    onChange={(e) => updateSocial("instagram", e.target.value)}
+                    placeholder="https://instagram.com/..."
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="client_facebook">Facebook</Label>
+                <div className="relative">
+                  <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="client_facebook"
+                    type="url"
+                    value={formData.socials.facebook || ""}
+                    onChange={(e) => updateSocial("facebook", e.target.value)}
+                    placeholder="https://facebook.com/..."
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="client_twitter">Twitter / X</Label>
+                <div className="relative">
+                  <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="client_twitter"
+                    type="url"
+                    value={formData.socials.twitter || ""}
+                    onChange={(e) => updateSocial("twitter", e.target.value)}
+                    placeholder="https://twitter.com/..."
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="client_phone">Telephone</Label>
-            <Input
-              id="client_phone"
-              type="tel"
-              value={formData.phone}
-              onChange={(e) =>
-                setFormData({ ...formData, phone: e.target.value })
-              }
-              placeholder="+33 6 12 34 56 78"
-            />
-          </div>
+          <Separator />
 
-          <div className="space-y-2">
-            <Label htmlFor="client_status">Statut</Label>
-            <Select
-              value={formData.status}
-              onValueChange={(value: ClientStatus) =>
-                setFormData({ ...formData, status: value })
+          {/* Notes */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-muted-foreground">Notes internes</h3>
+            <Textarea
+              id="client_notes"
+              value={formData.notes}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
               }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(clientStatusConfig).map(([status, config]) => (
-                  <SelectItem key={status} value={status}>
-                    <div className="flex items-center gap-2">
-                      <div className={`h-2 w-2 rounded-full ${config.dotColor}`} />
-                      {config.label}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Notes internes (visibles uniquement par les admins)..."
+              rows={3}
+            />
           </div>
 
           <div className="flex gap-3 pt-2">

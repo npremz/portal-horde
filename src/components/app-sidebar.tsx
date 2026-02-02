@@ -38,6 +38,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notification-bell";
+import { FollowupBadge } from "@/components/followup-badge";
 
 interface AppSidebarProps {
   user: User;
@@ -143,11 +144,14 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.url}
+                    isActive={pathname === item.url || pathname.startsWith(item.url + "/")}
                   >
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
+                      {isAdmin && item.url === "/admin/clients" && (
+                        <FollowupBadge className="ml-auto" />
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

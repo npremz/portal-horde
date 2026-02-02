@@ -52,6 +52,50 @@
 profiles (auth) -> clients (profile_id) -> projects (client_id)
 ```
 
+## Prospection System (Completed)
+
+- [x] Database migrations
+  - `14_message_type_enum.sql`: message_type enum (prospecting, followup, custom)
+  - `15_client_messages_table.sql`: client_messages table with RLS
+  - `16_clients_contact_fields.sql`: first_contact_date and next_followup_date columns
+
+- [x] TypeScript types and constants
+  - Added `MessageType`, `ClientMessage` types
+  - Added `messageTypeConfig` and `prospectingTemplates` constants
+  - Added `FOLLOWUP_DELAY_DAYS` constant (10 days)
+
+- [x] Email template
+  - Added `prospectingEmail()` function with clean HTML template
+  - Added `replaceTemplateVariables()` helper for {{nom}}, {{prenom}}, {{entreprise}}, {{email}}
+
+- [x] UI Components
+  - `send-message-dialog.tsx`: Dialog with contact selector, template editor, type selector
+  - `messages-timeline.tsx`: Message history display
+  - `followup-badge.tsx`: Badge showing count of clients to follow up
+
+- [x] API Route
+  - `api/clients/[id]/message/route.ts`: Send email, record in history, update dates/status
+
+- [x] Page Updates
+  - Client detail page: Added SendMessageDialog button and MessagesTimeline
+  - Clients list page: Added "A relancer" filter with badge
+  - Sidebar: Added FollowupBadge next to "Clients" menu item
+
+### Prospection Workflow
+
+1. Admin goes to client detail page
+2. Clicks "Envoyer un message" button
+3. Selects contact, message type (template auto-fills)
+4. Customizes and sends message
+5. System:
+   - Sends email via Resend
+   - Records message in client_messages
+   - Sets first_contact_date (if first message)
+   - Sets next_followup_date = now + 10 days
+   - Updates client status to "contacted" (if was "lead")
+6. Admin can filter "A relancer" to see clients needing followup
+7. Sidebar badge shows count of pending followups
+
 ## Next Steps (Manual)
 
 1. Run migrations on Supabase:
@@ -59,11 +103,19 @@ profiles (auth) -> clients (profile_id) -> projects (client_id)
    supabase db push
    ```
 
-2. Test the workflow:
+2. Test the CRM workflow:
    - Create a client without account
    - Add contacts
    - Create a project with selected phases
    - Invite the client
    - Verify client can log in and see their project
 
-3. Verify RLS policies work correctly for both admin and client access
+3. Test the prospection workflow:
+   - Send a first message to a client
+   - Verify first_contact_date is set
+   - Verify next_followup_date is set (now + 10 days)
+   - Verify message appears in timeline
+   - Verify client status changes to "contacted"
+   - Wait/modify date to test "A relancer" filter
+
+4. Verify RLS policies work correctly for both admin and client access

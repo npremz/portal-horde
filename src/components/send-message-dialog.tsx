@@ -1,0 +1,326 @@
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Mail, Loader2, Send } from "lucide-react";
+import { toast } from "sonner";
+import { prospectingTemplates, messageTypeConfig } from "@/lib/constants";
+import { replaceTemplateVariables } from "@/lib/email/templates";
+import type { Client, ClientContact, MessageType } from "@/types/database";
+
+const CLIENT_EMAIL_ID = "__client__";
+
+interface Recipient {
+  id: string;
+  name: string;
+  email: string;
+  isClient?: boolean;
+}
+
+interface SendMessageDialogProps {
+  client: Client;
+  contacts: ClientContact[];
+  onMessageSent?: () => void;
+  trigger?: React.ReactNode;
+}
+
+export function SendMessageDialog({
+  client,
+  contacts,
+  onMessageSent,
+  trigger,
+}: SendMessageDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedRecipientId, setSelectedRecipientId] = useState<string>("");
+  const [messageType, setMessageType] = useState<MessageType>("prospecting");
+  const [subject, setSubject] = useState("");
+  const [content, setContent] = useState("");
+
+  // Build list of recipients: client email + contacts with email
+  const recipients = useMemo(() => {
+    const list: Recipient[] = [];
+
+    // Add client email as first option
+    if (client.email) {
+      list.push({
+        id: CLIENT_EMAIL_ID,
+        name: client.name,
+        email: client.email,
+        isClient: true,
+      });
+    }
+
+    // Add contacts with email
+    contacts.forEach((c) => {
+      if (c.email) {
+        list.push({
+          id: c.id,
+          name: c.name,
+          email: c.email,
+        });
+      }
+    });
+
+    return list;
+  }, [client, contacts]);
+
+  // Get selected recipient
+  const selectedRecipient = recipients.find((r) => r.id === selectedRecipientId);
+
+  // Extract first name from name
+  const getFirstName = (name: string) => {
+    return name.split(" ")[0];
+  };
+
+  // Apply template with variables
+  const applyTemplate = (type: MessageType) => {
+    const template = type === "followup"
+      ? prospectingTemplates.followup
+      : prospectingTemplates.default;
+
+    const recipient = recipients.find((r) => r.id === selectedRecipientId);
+
+    const variables = {
+      nom: recipient?.name || "",
+      prenom: recipient ? getFirstName(recipient.name) : "",
+      entreprise: client.name,
+      email: recipient?.email || "",
+    };
+
+    setSubject(replaceTemplateVariables(template.subject, variables));
+    setContent(replaceTemplateVariables(template.content, variables));
+  };
+
+  // Initialize with template when dialog opens or recipient changes
+  useEffect(() => {
+    if (open && selectedRecipientId) {
+      applyTemplate(messageType);
+    }
+  }, [open, selectedRecipientId]);
+
+  // Update template when type changes
+  const handleTypeChange = (type: MessageType) => {
+    setMessageType(type);
+    if (type !== "custom") {
+      applyTemplate(type);
+    }
+  };
+
+  // Auto-select first recipient
+  useEffect(() => {
+    if (open && recipients.length > 0 && !selectedRecipientId) {
+      // Prefer primary contact if they have email
+      const primaryContact = contacts.find((c) => c.is_primary && c.email);
+      if (primaryContact) {
+        setSelectedRecipientId(primaryContact.id);
+      } else {
+        setSelectedRecipientId(recipients[0].id);
+      }
+    }
+  }, [open, recipients, contacts, selectedRecipientId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedRecipientId) {
+      toast.error("Selectionnez un destinataire");
+      return;
+    }
+
+    if (!subject.trim()) {
+      toast.error("Le sujet est requis");
+      return;
+    }
+
+    if (!content.trim()) {
+      toast.error("Le contenu est requis");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const isClientEmail = selectedRecipientId === CLIENT_EMAIL_ID;
+
+      const response = await fetch(`/api/clients/${client.id}/message`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contact_id: isClientEmail ? null : selectedRecipientId,
+          recipient_email: isClientEmail ? client.email : null,
+          recipient_name: isClientEmail ? client.name : null,
+          subject,
+          content,
+          message_type: messageType,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erreur lors de l'envoi");
+      }
+
+      toast.success("Message envoye");
+      setOpen(false);
+
+      // Reset form
+      setSubject("");
+      setContent("");
+      setMessageType("prospecting");
+
+      onMessageSent?.();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Erreur lors de l'envoi"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      // Reset on close
+      setSubject("");
+      setContent("");
+      setSelectedRecipientId("");
+      setMessageType("prospecting");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        {trigger || (
+          <Button>
+            <Mail className="h-4 w-4 mr-2" />
+            Envoyer un message
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Envoyer un message</DialogTitle>
+          <DialogDescription>
+            Envoyer un email a {client.name}
+          </DialogDescription>
+        </DialogHeader>
+
+        {recipients.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>Aucune adresse email disponible</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="contact">Destinataire *</Label>
+                <Select
+                  value={selectedRecipientId}
+                  onValueChange={setSelectedRecipientId}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selectionner un destinataire" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {recipients.map((recipient) => (
+                      <SelectItem key={recipient.id} value={recipient.id}>
+                        {recipient.name} ({recipient.email})
+                        {recipient.isClient && " - Principal"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="type">Type de message</Label>
+                <Select
+                  value={messageType}
+                  onValueChange={(v) => handleTypeChange(v as MessageType)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(messageTypeConfig).map(([type, config]) => (
+                      <SelectItem key={type} value={type}>
+                        {config.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="subject">Sujet *</Label>
+              <Input
+                id="subject"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="Sujet de l'email"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="content">Message *</Label>
+              <Textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Contenu du message..."
+                rows={10}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                Variables disponibles : {"{{nom}}"}, {"{{prenom}}"}, {"{{entreprise}}"}, {"{{email}}"}
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <Button type="submit" disabled={loading}>
+                {loading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="mr-2 h-4 w-4" />
+                )}
+                Envoyer
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Annuler
+              </Button>
+            </div>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}

@@ -28,8 +28,10 @@ import { toast } from "sonner";
 import { ClientForm, type ClientFormData } from "@/components/client-form";
 import { ContactsSection } from "@/components/contacts-section";
 import { InviteClientButton } from "@/components/invite-client-button";
+import { SendMessageDialog } from "@/components/send-message-dialog";
+import { MessagesTimeline } from "@/components/messages-timeline";
 import { clientStatusConfig, projectStatusConfig } from "@/lib/constants";
-import type { Client, ClientContact, Project } from "@/types/database";
+import type { Client, ClientContact, ClientMessage, Project } from "@/types/database";
 
 export default function ClientDetailPage() {
   const params = useParams();
@@ -39,13 +41,14 @@ export default function ClientDetailPage() {
   const [client, setClient] = useState<Client | null>(null);
   const [contacts, setContacts] = useState<ClientContact[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [messages, setMessages] = useState<ClientMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
 
   const fetchClient = useCallback(async () => {
     const supabase = createClient();
 
-    const [clientRes, contactsRes, projectsRes] = await Promise.all([
+    const [clientRes, contactsRes, projectsRes, messagesRes] = await Promise.all([
       supabase.from("clients").select("*").eq("id", clientId).single(),
       supabase
         .from("client_contacts")
@@ -58,6 +61,11 @@ export default function ClientDetailPage() {
         .select("*")
         .eq("client_id", clientId)
         .order("created_at", { ascending: false }),
+      supabase
+        .from("client_messages")
+        .select("*, contact:client_contacts(*)")
+        .eq("client_id", clientId)
+        .order("sent_at", { ascending: false }),
     ]);
 
     if (clientRes.data) {
@@ -68,6 +76,9 @@ export default function ClientDetailPage() {
     }
     if (projectsRes.data) {
       setProjects(projectsRes.data);
+    }
+    if (messagesRes.data) {
+      setMessages(messagesRes.data);
     }
 
     setLoading(false);
@@ -263,6 +274,11 @@ export default function ClientDetailPage() {
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
+            <SendMessageDialog
+              client={client}
+              contacts={contacts}
+              onMessageSent={fetchClient}
+            />
             <InviteClientButton client={client} onInvited={fetchClient} />
             <Button variant="outline" onClick={() => setEditing(true)}>
               <Edit2 className="h-4 w-4 mr-2" />
@@ -378,6 +394,9 @@ export default function ClientDetailPage() {
             onDeleteContact={handleDeleteContact}
             onSetPrimary={handleSetPrimaryContact}
           />
+
+          {/* Messages section */}
+          <MessagesTimeline messages={messages} />
 
           {/* Notes */}
           {client.notes && (

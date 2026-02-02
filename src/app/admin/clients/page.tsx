@@ -1,8 +1,12 @@
-import { createClient } from "@/lib/supabase/server";
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -11,23 +15,42 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserPlus, Building2, Mail, Phone, ExternalLink, Eye } from "lucide-react";
+import { UserPlus, Mail, Phone, ExternalLink, Eye, Bell, Calendar } from "lucide-react";
 import { CreateClientDialog } from "@/components/create-client-dialog";
 import { clientStatusConfig } from "@/lib/constants";
 import type { Client } from "@/types/database";
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 
-export default async function AdminClientsPage() {
-  const supabase = await createClient();
+type ClientWithProjects = Client & {
+  projects?: { id: string; name: string; status: string }[];
+};
 
-  const { data: clients } = await supabase
-    .from("clients")
-    .select(
+export default function AdminClientsPage() {
+  const [clients, setClients] = useState<ClientWithProjects[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showFollowups, setShowFollowups] = useState(false);
+
+  const fetchClients = async () => {
+    const supabase = createClient();
+
+    const { data } = await supabase
+      .from("clients")
+      .select(
+        `
+        *,
+        projects:projects!projects_client_id_fkey(id, name, status)
       `
-      *,
-      projects:projects!projects_client_id_fkey(id, name, status)
-    `
-    )
-    .order("created_at", { ascending: false });
+      )
+      .order("created_at", { ascending: false });
+
+    setClients(data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
 
   const getInitials = (name: string) => {
     return name
@@ -38,6 +61,29 @@ export default async function AdminClientsPage() {
       .slice(0, 2);
   };
 
+  const today = new Date().toISOString().split("T")[0];
+
+  // Filter clients needing followup
+  const filteredClients = showFollowups
+    ? clients.filter(
+        (c) => c.next_followup_date && c.next_followup_date.split("T")[0] <= today
+      )
+    : clients;
+
+  // Count followups
+  const followupCount = clients.filter(
+    (c) => c.next_followup_date && c.next_followup_date.split("T")[0] <= today
+  ).length;
+
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto space-y-6">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -47,17 +93,37 @@ export default async function AdminClientsPage() {
             Gerez vos clients et leurs projets
           </p>
         </div>
-        <CreateClientDialog />
+        <CreateClientDialog onClientCreated={() => fetchClients()} />
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-2">
+        <Button
+          variant={showFollowups ? "default" : "outline"}
+          onClick={() => setShowFollowups(!showFollowups)}
+          className="gap-2"
+        >
+          <Bell className="h-4 w-4" />
+          A relancer
+          {followupCount > 0 && (
+            <Badge variant={showFollowups ? "secondary" : "destructive"} className="ml-1">
+              {followupCount}
+            </Badge>
+          )}
+        </Button>
       </div>
 
       {/* Mobile: Cards */}
       <div className="md:hidden space-y-3">
-        {clients && clients.length > 0 ? (
-          clients.map((client: Client & { projects?: { id: string; name: string; status: string }[] }) => {
+        {filteredClients.length > 0 ? (
+          filteredClients.map((client) => {
             const statusConfig = clientStatusConfig[client.status];
             const activeProjects = client.projects?.filter(
               (p) => p.status === "active"
             ).length || 0;
+            const needsFollowup =
+              client.next_followup_date &&
+              client.next_followup_date.split("T")[0] <= today;
 
             return (
               <Link key={client.id} href={`/admin/clients/${client.id}`}>
@@ -75,6 +141,12 @@ export default async function AdminClientsPage() {
                           <Badge className={statusConfig.color} variant="secondary">
                             {statusConfig.label}
                           </Badge>
+                          {needsFollowup && (
+                            <Badge variant="destructive">
+                              <Bell className="h-3 w-3 mr-1" />
+                              Relancer
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-sm text-muted-foreground truncate">
                           {client.email}
@@ -86,7 +158,7 @@ export default async function AdminClientsPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-3 pt-3 border-t">
+                    <div className="flex items-center gap-2 mt-3 pt-3 border-t flex-wrap">
                       <Badge variant="outline" className="text-xs">
                         {client.projects?.length || 0} projet(s)
                       </Badge>
@@ -100,9 +172,16 @@ export default async function AdminClientsPage() {
                           Compte actif
                         </Badge>
                       )}
-                      <span className="text-xs text-muted-foreground ml-auto">
-                        {new Date(client.created_at).toLocaleDateString("fr-FR")}
-                      </span>
+                      {client.first_contact_date && (
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          1er contact{" "}
+                          {formatDistanceToNow(new Date(client.first_contact_date), {
+                            addSuffix: true,
+                            locale: fr,
+                          })}
+                        </span>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -112,9 +191,18 @@ export default async function AdminClientsPage() {
         ) : (
           <Card>
             <CardContent className="py-8 text-center">
-              <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground mb-4">Aucun client</p>
-              <CreateClientDialog />
+              {showFollowups ? (
+                <>
+                  <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">Aucun client a relancer</p>
+                </>
+              ) : (
+                <>
+                  <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground mb-4">Aucun client</p>
+                  <CreateClientDialog onClientCreated={() => fetchClients()} />
+                </>
+              )}
             </CardContent>
           </Card>
         )}
@@ -130,17 +218,20 @@ export default async function AdminClientsPage() {
                 <TableHead>Statut</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Projets</TableHead>
-                <TableHead>Compte</TableHead>
+                <TableHead>Suivi</TableHead>
                 <TableHead className="w-[100px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {clients && clients.length > 0 ? (
-                clients.map((client: Client & { projects?: { id: string; name: string; status: string }[] }) => {
+              {filteredClients.length > 0 ? (
+                filteredClients.map((client) => {
                   const statusConfig = clientStatusConfig[client.status];
                   const activeProjects = client.projects?.filter(
                     (p) => p.status === "active"
                   ).length || 0;
+                  const needsFollowup =
+                    client.next_followup_date &&
+                    client.next_followup_date.split("T")[0] <= today;
 
                   return (
                     <TableRow key={client.id}>
@@ -168,10 +259,18 @@ export default async function AdminClientsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={statusConfig.color} variant="secondary">
-                          <div className={`h-2 w-2 rounded-full ${statusConfig.dotColor} mr-1.5`} />
-                          {statusConfig.label}
-                        </Badge>
+                        <div className="flex flex-col gap-1">
+                          <Badge className={statusConfig.color} variant="secondary">
+                            <div className={`h-2 w-2 rounded-full ${statusConfig.dotColor} mr-1.5`} />
+                            {statusConfig.label}
+                          </Badge>
+                          {needsFollowup && (
+                            <Badge variant="destructive" className="w-fit">
+                              <Bell className="h-3 w-3 mr-1" />
+                              A relancer
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
@@ -198,15 +297,25 @@ export default async function AdminClientsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        {client.profile_id ? (
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">
-                            Actif
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-muted-foreground">
-                            Non invite
-                          </Badge>
-                        )}
+                        <div className="space-y-1 text-xs text-muted-foreground">
+                          {client.first_contact_date ? (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              1er contact{" "}
+                              {formatDistanceToNow(new Date(client.first_contact_date), {
+                                addSuffix: true,
+                                locale: fr,
+                              })}
+                            </div>
+                          ) : (
+                            <span>Pas encore contacte</span>
+                          )}
+                          {client.profile_id && (
+                            <Badge variant="secondary" className="bg-green-100 text-green-800">
+                              Compte actif
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="sm" asChild>
@@ -222,9 +331,18 @@ export default async function AdminClientsPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
-                    <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground mb-4">Aucun client</p>
-                    <CreateClientDialog />
+                    {showFollowups ? (
+                      <>
+                        <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">Aucun client a relancer</p>
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground mb-4">Aucun client</p>
+                        <CreateClientDialog onClientCreated={() => fetchClients()} />
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               )}
