@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = "Horde Portal <portal@hordeagence.com>";
+const FROM_EMAIL = "Nicolas Premont <nico@hordeagence.com>";
 
 interface SendEmailParams {
   to: string;

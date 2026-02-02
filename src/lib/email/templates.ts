@@ -588,7 +588,7 @@ export function newCommentEmail(params: CommentEmailParams): string {
 }
 
 // ============================================
-// PROSPECTING EMAIL (CRM)
+// PROSPECTING EMAIL (CRM) - Simple personal style
 // ============================================
 
 interface ProspectingEmailParams {
@@ -598,32 +598,26 @@ interface ProspectingEmailParams {
 }
 
 export function prospectingEmail(params: ProspectingEmailParams): string {
-  const {
-    subject,
-    content: messageContent,
-    portalUrl = "https://portal.hordeagence.com"
-  } = params;
+  const { content: messageContent } = params;
 
+  // Simple plain-text style email - no fancy branding
   // Convert newlines to <br> for HTML display
   const htmlContent = messageContent.replace(/\n/g, "<br>");
 
-  const content = `
-    <!-- Main content -->
-    <tr>
-      <td class="content" style="padding: 40px 32px;">
-        <p style="margin: 0; font-size: 15px; color: ${brandColors.primaryLight}; line-height: 1.8;">
-          ${htmlContent}
-        </p>
-      </td>
-    </tr>
-  `;
-
-  return wrapTemplate(
-    content,
-    subject,
-    messageContent.substring(0, 150) + (messageContent.length > 150 ? "..." : ""),
-    portalUrl
-  );
+  return `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #333;">
+  <div style="max-width: 600px;">
+    ${htmlContent}
+  </div>
+</body>
+</html>
+  `.trim();
 }
 
 // Helper to replace template variables

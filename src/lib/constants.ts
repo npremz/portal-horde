@@ -1,4 +1,4 @@
-import type { DeliverableStatus, PhaseStatus, ProjectStatus, ClientStatus, ContactRole, MessageType } from "@/types/database";
+import type { DeliverableStatus, PhaseStatus, ProjectStatus, ClientStatus, ContactRole, MessageType, UserRole } from "@/types/database";
 
 export const deliverableStatusConfig: Record<
   DeliverableStatus,
@@ -136,26 +136,25 @@ export const messageTypeConfig: Record<
 // Prospecting email templates
 export const prospectingTemplates = {
   default: {
-    subject: "{{entreprise}} - Collaboration avec Horde",
-    content: `Bonjour {{prenom}},
+    subject: "{{entreprise}}",
+    content: `Salut {{prenom}},
 
-Je me permets de vous contacter au sujet de {{entreprise}}.
+Je suis tombe sur {{entreprise}} et j'ai bien aime ce que vous faites.
 
-[Votre message personnalisé]
+[Ton message]
 
-Cordialement,
-L'équipe Horde`,
+A bientot,
+Nico`,
   },
   followup: {
-    subject: "Re: {{entreprise}} - Suite à notre premier contact",
-    content: `Bonjour {{prenom}},
+    subject: "Re: {{entreprise}}",
+    content: `Hey {{prenom}},
 
-Je me permets de revenir vers vous concernant notre échange au sujet de {{entreprise}}.
+Je te relance vite fait, t'as eu le temps de jeter un oeil?
 
-[Votre message de relance]
+[Ton message]
 
-Cordialement,
-L'équipe Horde`,
+Nico`,
   },
 };
 
@@ -189,3 +188,25 @@ export const sectors = [
   { value: "creative", label: "Creatif / Media" },
   { value: "other", label: "Autre" },
 ];
+
+// User role configuration
+export const userRoleConfig: Record<
+  UserRole,
+  { label: string; color: string; description: string }
+> = {
+  client: {
+    label: "Client",
+    color: "bg-gray-100 text-gray-800",
+    description: "Acces au portail client uniquement",
+  },
+  editor: {
+    label: "Editeur",
+    color: "bg-blue-100 text-blue-800",
+    description: "Peut gerer les clients et contacts",
+  },
+  admin: {
+    label: "Admin",
+    color: "bg-purple-100 text-purple-800",
+    description: "Acces complet au systeme",
+  },
+};

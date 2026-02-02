@@ -31,6 +31,7 @@ import {
   LayoutDashboard,
   FolderKanban,
   Users,
+  UserCog,
   Settings,
   LogOut,
   ChevronUp,
@@ -98,6 +99,16 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
       url: "/admin/logs",
       icon: Activity,
     },
+    // Admin only - not visible to editors
+    ...(isAdmin
+      ? [
+          {
+            title: "Utilisateurs",
+            url: "/admin/users",
+            icon: UserCog,
+          },
+        ]
+      : []),
   ];
 
   // Editors use the same nav as admins (access to CRM)

@@ -8,7 +8,8 @@ export type Permission =
   | "messages.view"
   | "messages.send"
   | "clients.invite"
-  | "projects.manage";
+  | "projects.manage"
+  | "users.manage";
 
 const rolePermissions: Record<UserRole, Permission[]> = {
   client: [],
@@ -27,6 +28,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     "messages.send",
     "clients.invite",
     "projects.manage",
+    "users.manage",
   ],
 };
 
