@@ -83,7 +83,7 @@ export default function GlobalError({
               color: "#222121",
             }}
           >
-            Une erreur critique s'est produite
+            Une erreur critique s&apos;est produite
           </h1>
 
           {/* Description */}
@@ -95,7 +95,7 @@ export default function GlobalError({
               lineHeight: 1.6,
             }}
           >
-            L'application a rencontré un problème inattendu. Notre équipe a été notifiée.
+            L&apos;application a rencontré un problème inattendu. Notre équipe a été notifiée.
           </p>
 
           {/* Error reference */}
@@ -136,6 +136,7 @@ export default function GlobalError({
             >
               Réessayer
             </button>
+{/* eslint-disable-next-line @next/next/no-html-link-for-pages -- global-error renders outside Next.js context */}
             <a
               href="/"
               style={{
@@ -149,7 +150,7 @@ export default function GlobalError({
                 textDecoration: "none",
               }}
             >
-              Retour à l'accueil
+              Retour à l&apos;accueil
             </a>
           </div>
         </div>

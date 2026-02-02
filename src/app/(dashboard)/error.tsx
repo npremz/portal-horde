@@ -35,13 +35,13 @@ export default function DashboardError({
 
         {/* Title */}
         <h1 className="text-2xl font-semibold mb-3">
-          Une erreur s'est produite
+          Une erreur s&apos;est produite
         </h1>
 
         {/* Description */}
         <p className="text-muted-foreground mb-6">
-          Nous n'avons pas pu charger cette page. Veuillez réessayer ou
-          retourner à l'accueil du dashboard.
+          Nous n&apos;avons pas pu charger cette page. Veuillez réessayer ou
+          retourner à l&apos;accueil du dashboard.
         </p>
 
         {/* Error reference */}

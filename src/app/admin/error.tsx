@@ -35,12 +35,12 @@ export default function AdminError({
 
         {/* Title */}
         <h1 className="text-2xl font-semibold mb-3">
-          Erreur d'administration
+          Erreur d&apos;administration
         </h1>
 
         {/* Description */}
         <p className="text-muted-foreground mb-6">
-          Une erreur s'est produite dans l'espace d'administration.
+          Une erreur s&apos;est produite dans l&apos;espace d&apos;administration.
           Veuillez réessayer ou retourner au panneau admin.
         </p>
 
