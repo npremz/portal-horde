@@ -30,12 +30,10 @@ export default defineConfig({
       use: { ...devices["Pixel 5"] },
     },
   ],
-  webServer: process.env.CI
-    ? undefined
-    : {
-        command: "npm run dev",
-        url: "http://localhost:3000",
-        reuseExistingServer: !process.env.CI,
-        timeout: 120000,
-      },
+  webServer: {
+    command: process.env.CI ? "npm run start" : "npm run dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000,
+  },
 });
