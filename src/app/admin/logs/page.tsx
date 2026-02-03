@@ -120,11 +120,13 @@ export default function LogsPage() {
   }, [supabase, page, actionFilter, userFilter, projectFilter, dateFrom, dateTo]);
 
   useEffect(() => {
-    fetchLogs();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchLogs();
   }, [fetchLogs]);
 
   // Reset page when filters change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(0);
   }, [actionFilter, userFilter, projectFilter, dateFrom, dateTo]);
 

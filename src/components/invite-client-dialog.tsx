@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -66,7 +65,7 @@ export function InviteClientDialog() {
         <DialogHeader>
           <DialogTitle>Inviter un nouveau client</DialogTitle>
           <DialogDescription>
-            Un email d'invitation sera envoye au client pour creer son compte.
+            Un email d&apos;invitation sera envoye au client pour creer son compte.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleInvite} className="space-y-4">
@@ -104,7 +103,7 @@ export function InviteClientDialog() {
               onChange={(e) =>
                 setFormData({ ...formData, company: e.target.value })
               }
-              placeholder="Nom de l'entreprise"
+              placeholder="Nom de l&apos;entreprise"
             />
           </div>
 
@@ -115,7 +114,7 @@ export function InviteClientDialog() {
               ) : (
                 <Mail className="mr-2 h-4 w-4" />
               )}
-              Envoyer l'invitation
+              Envoyer l&apos;invitation
             </Button>
             <Button
               type="button"

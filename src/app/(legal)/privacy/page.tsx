@@ -14,7 +14,7 @@ export default function PrivacyPage() {
       </p>
 
       <p>
-        Horde Agence Web s'engage à protéger votre vie privée. Cette politique de confidentialité
+        Horde Agence Web s&apos;engage à protéger votre vie privée. Cette politique de confidentialité
         explique comment nous collectons, utilisons et protégeons vos données personnelles lorsque
         vous utilisez notre portail client.
       </p>
@@ -30,11 +30,11 @@ export default function PrivacyPage() {
       <h2>2. Données collectées</h2>
       <p>Nous collectons les données suivantes :</p>
 
-      <h3>2.1 Données d'identification</h3>
+      <h3>2.1 Données d&apos;identification</h3>
       <ul>
         <li>Nom et prénom</li>
         <li>Adresse email</li>
-        <li>Nom de l'entreprise (optionnel)</li>
+        <li>Nom de l&apos;entreprise (optionnel)</li>
         <li>Photo de profil (optionnel)</li>
       </ul>
 
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
       <h2>3. Finalités du traitement</h2>
       <p>Vos données sont utilisées pour :</p>
       <ul>
-        <li>Vous permettre d'accéder à votre espace client</li>
+        <li>Vous permettre d&apos;accéder à votre espace client</li>
         <li>Assurer le suivi de vos projets</li>
         <li>Vous envoyer des notifications relatives à vos projets</li>
         <li>Améliorer nos services et votre expérience utilisateur</li>
@@ -67,9 +67,9 @@ export default function PrivacyPage() {
       <h2>4. Base légale du traitement</h2>
       <p>Le traitement de vos données repose sur :</p>
       <ul>
-        <li><strong>L'exécution du contrat</strong> : le traitement est nécessaire à la fourniture de nos services</li>
-        <li><strong>L'intérêt légitime</strong> : amélioration de nos services, sécurité du site</li>
-        <li><strong>Le consentement</strong> : pour l'envoi de communications marketing (si applicable)</li>
+        <li><strong>L&apos;exécution du contrat</strong> : le traitement est nécessaire à la fourniture de nos services</li>
+        <li><strong>L&apos;intérêt légitime</strong> : amélioration de nos services, sécurité du site</li>
+        <li><strong>Le consentement</strong> : pour l&apos;envoi de communications marketing (si applicable)</li>
       </ul>
 
       <h2>5. Destinataires des données</h2>
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
       <ul>
         <li><strong>Supabase</strong> (hébergement de la base de données) - UE/US</li>
         <li><strong>Vercel</strong> (hébergement du site) - US</li>
-        <li><strong>Resend</strong> (envoi d'emails) - US</li>
+        <li><strong>Resend</strong> (envoi d&apos;emails) - US</li>
       </ul>
       <p>
         Ces prestataires sont soumis à des clauses contractuelles garantissant la protection de vos
@@ -94,19 +94,19 @@ export default function PrivacyPage() {
       <h2>7. Vos droits</h2>
       <p>Conformément au RGPD, vous disposez des droits suivants :</p>
       <ul>
-        <li><strong>Droit d'accès</strong> : obtenir la confirmation que vos données sont traitées et en obtenir une copie</li>
+        <li><strong>Droit d&apos;accès</strong> : obtenir la confirmation que vos données sont traitées et en obtenir une copie</li>
         <li><strong>Droit de rectification</strong> : faire corriger vos données inexactes ou incomplètes</li>
-        <li><strong>Droit à l'effacement</strong> : demander la suppression de vos données</li>
+        <li><strong>Droit à l&apos;effacement</strong> : demander la suppression de vos données</li>
         <li><strong>Droit à la limitation</strong> : demander la limitation du traitement de vos données</li>
         <li><strong>Droit à la portabilité</strong> : recevoir vos données dans un format structuré</li>
-        <li><strong>Droit d'opposition</strong> : vous opposer au traitement de vos données</li>
+        <li><strong>Droit d&apos;opposition</strong> : vous opposer au traitement de vos données</li>
       </ul>
       <p>
         Pour exercer ces droits, contactez-nous à :{" "}
         <a href="mailto:hello@hordeagence.com">hello@hordeagence.com</a>
       </p>
       <p>
-        Vous avez également le droit d'introduire une réclamation auprès de l'Autorité de protection
+        Vous avez également le droit d&apos;introduire une réclamation auprès de l&apos;Autorité de protection
         des données (APD) : <a href="https://www.autoriteprotectiondonnees.be" target="_blank" rel="noopener noreferrer">www.autoriteprotectiondonnees.be</a>
       </p>
 
@@ -126,10 +126,10 @@ export default function PrivacyPage() {
       </p>
       <ul>
         <li><strong>Cookie de session</strong> : maintient votre connexion active</li>
-        <li><strong>Cookie d'authentification</strong> : sécurise votre accès au portail</li>
+        <li><strong>Cookie d&apos;authentification</strong> : sécurise votre accès au portail</li>
       </ul>
       <p>
-        Aucun cookie publicitaire, de traçage ou d'analyse tiers n'est utilisé.
+        Aucun cookie publicitaire, de traçage ou d&apos;analyse tiers n&apos;est utilisé.
       </p>
 
       <h2>10. Transferts internationaux</h2>

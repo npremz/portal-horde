@@ -55,7 +55,8 @@ export function PhaseTemplatesSelector({
       setLoading(false);
     }
 
-    loadTemplates();
+    void loadTemplates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const movePhase = (index: number, direction: "up" | "down") => {

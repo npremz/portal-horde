@@ -59,7 +59,8 @@ export default function AdminClientsPage() {
   };
 
   useEffect(() => {
-    fetchClients();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchClients();
   }, []);
 
   const getInitials = (name: string) => {

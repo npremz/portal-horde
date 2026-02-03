@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -43,7 +43,7 @@ export default function EditProjectPage() {
   const router = useRouter();
   const projectId = params.id as string;
 
-  const [project, setProject] = useState<Project | null>(null);
+  const [, setProject] = useState<Project | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -57,11 +57,7 @@ export default function EditProjectPage() {
 
   const supabase = createClient();
 
-  useEffect(() => {
-    fetchData();
-  }, [projectId]);
-
-  async function fetchData() {
+  const fetchData = useCallback(async () => {
     setLoading(true);
 
     // Fetch project
@@ -92,7 +88,12 @@ export default function EditProjectPage() {
 
     setClients(clientsData || []);
     setLoading(false);
-  }
+  }, [projectId, router, supabase]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchData();
+  }, [fetchData]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

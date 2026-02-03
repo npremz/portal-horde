@@ -38,7 +38,7 @@ export default function NotFound() {
             Page introuvable
           </h1>
           <p className="text-muted-foreground mb-8">
-            Oups ! La page que vous recherchez n'existe pas ou a été déplacée.
+            Oups ! La page que vous recherchez n&apos;existe pas ou a été déplacée.
           </p>
 
           {/* Actions */}

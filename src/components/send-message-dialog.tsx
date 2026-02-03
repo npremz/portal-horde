@@ -83,8 +83,6 @@ export function SendMessageDialog({
     return list;
   }, [client, contacts]);
 
-  // Get selected recipient
-  const selectedRecipient = recipients.find((r) => r.id === selectedRecipientId);
 
   // Extract first name from name
   const getFirstName = (name: string) => {
@@ -115,6 +113,7 @@ export function SendMessageDialog({
     if (open && selectedRecipientId) {
       applyTemplate(messageType);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, selectedRecipientId]);
 
   // Update template when type changes

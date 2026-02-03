@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Loader2, Plus } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { PhaseTemplatesSelector } from "@/components/phase-templates-selector";
 import { CreateClientDialog } from "@/components/create-client-dialog";
@@ -64,12 +64,13 @@ export default function NewProjectPage() {
       }
     };
 
-    fetchClients();
+    void fetchClients();
   }, []);
 
   // Update client_id when preselected client changes
   useEffect(() => {
     if (preselectedClientId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData((prev) => ({ ...prev, client_id: preselectedClientId }));
     }
   }, [preselectedClientId]);
@@ -261,7 +262,7 @@ export default function NewProjectPage() {
               </Select>
               {selectedClient && !selectedClient.profile_id && (
                 <p className="text-xs text-muted-foreground">
-                  Ce client n'a pas encore de compte. Pensez a l'inviter au portail.
+                  Ce client n&apos;a pas encore de compte. Pensez a l&apos;inviter au portail.
                 </p>
               )}
             </div>

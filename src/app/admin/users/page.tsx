@@ -41,7 +41,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  UserCog,
   MoreHorizontal,
   Shield,
   Trash2,
@@ -53,7 +52,7 @@ import { toast } from "sonner";
 import { CreateUserDialog } from "@/components/create-user-dialog";
 import { EditUserRoleDialog } from "@/components/edit-user-role-dialog";
 import { userRoleConfig } from "@/lib/constants";
-import type { Profile, UserRole } from "@/types/database";
+import type { Profile } from "@/types/database";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -469,9 +468,9 @@ export default function AdminUsersPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer l'utilisateur ?</AlertDialogTitle>
+            <AlertDialogTitle>Supprimer l&apos;utilisateur ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action est irreversible. L'utilisateur{" "}
+              Cette action est irreversible. L&apos;utilisateur{" "}
               <strong>
                 {deletingUser?.full_name || deletingUser?.email}
               </strong>{" "}

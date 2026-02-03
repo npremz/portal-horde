@@ -76,7 +76,7 @@ export function ValidationCard({ onValidate, disabled = false }: ValidationCardP
           <DialogHeader>
             <DialogTitle>Confirmer la validation</DialogTitle>
             <DialogDescription>
-              Vous confirmez que ce livrable correspond à vos attentes et qu'il peut être considéré comme validé.
+              Vous confirmez que ce livrable correspond à vos attentes et qu&apos;il peut être considéré comme validé.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -108,7 +108,7 @@ export function ValidationCard({ onValidate, disabled = false }: ValidationCardP
           <DialogHeader>
             <DialogTitle>Demander une révision</DialogTitle>
             <DialogDescription>
-              Expliquez les modifications souhaitées pour aider l'équipe à comprendre vos attentes.
+              Expliquez les modifications souhaitées pour aider l&apos;équipe à comprendre vos attentes.
             </DialogDescription>
           </DialogHeader>
           <Textarea

@@ -130,7 +130,8 @@ export function useDeliverableData({
   }, [deliverableId, projectId, router, supabase, redirectOnError, logView]);
 
   useEffect(() => {
-    fetchData();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchData();
   }, [fetchData]);
 
   return {

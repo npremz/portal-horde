@@ -10,11 +10,6 @@ interface RateLimitEntry {
   resetAt: number;
 }
 
-interface RateLimitConfig {
-  maxRequests: number;
-  windowMs: number;
-}
-
 // In-memory store - resets on cold start
 const store = new Map<string, RateLimitEntry>();
 

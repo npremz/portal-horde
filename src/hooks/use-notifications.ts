@@ -27,7 +27,8 @@ export function useNotifications() {
 
   // Initial fetch
   useEffect(() => {
-    fetchNotifications();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchNotifications();
   }, [fetchNotifications]);
 
   // Real-time subscription

@@ -52,7 +52,7 @@ export default function AdminApiKeysPage() {
             Cles API
           </h1>
           <p className="text-muted-foreground text-sm md:text-base">
-            Gerez les cles d'acces pour les bots et agents
+            Gerez les cles d&apos;acces pour les bots et agents
           </p>
         </div>
         <CreateKeyDialog onKeyCreated={() => fetchKeys()} />

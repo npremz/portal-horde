@@ -77,11 +77,6 @@ export default async function ProjectPage({
     ? [...project.phases].sort((a: Phase, b: Phase) => a.order_index - b.order_index)
     : [];
 
-  // Find current phase index
-  const currentPhaseIndex = sortedPhases.findIndex(
-    (p: Phase) => p.status === "in_progress" || p.status === "review"
-  );
-
   // Count pending validations
   const pendingValidations = sortedPhases.reduce((acc: number, phase: Phase & { deliverables?: Deliverable[] }) => {
     return acc + (phase.deliverables?.filter(d => d.status === "pending_review").length || 0);

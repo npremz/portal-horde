@@ -159,7 +159,7 @@ export function CreateKeyDialog({ onKeyCreated }: CreateKeyDialogProps) {
                 className="w-full"
                 onClick={() => handleOpenChange(false)}
               >
-                J'ai copie ma cle
+                J&apos;ai copie ma cle
               </Button>
             </div>
           </>

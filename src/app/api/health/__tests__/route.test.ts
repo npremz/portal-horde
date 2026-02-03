@@ -8,13 +8,21 @@ vi.mock("@/lib/supabase/admin", () => ({
 
 import { createAdminClient } from "@/lib/supabase/admin";
 
+// Type for our mock Supabase client
+interface MockSupabaseClient {
+  from: ReturnType<typeof vi.fn>;
+  auth: {
+    getSession: ReturnType<typeof vi.fn>;
+  };
+}
+
 describe("GET /api/health", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("returns healthy status when all checks pass", async () => {
-    const mockSupabase = {
+    const mockSupabase: MockSupabaseClient = {
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           limit: vi.fn().mockResolvedValue({ data: [{ id: "1" }], error: null }),
@@ -24,7 +32,7 @@ describe("GET /api/health", () => {
         getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
       },
     };
-    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any);
+    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as ReturnType<typeof createAdminClient>);
 
     const response = await GET();
     const body = await response.json();
@@ -38,7 +46,7 @@ describe("GET /api/health", () => {
   });
 
   it("returns degraded status when database check fails", async () => {
-    const mockSupabase = {
+    const mockSupabase: MockSupabaseClient = {
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           limit: vi.fn().mockResolvedValue({ data: null, error: { message: "Connection failed" } }),
@@ -48,7 +56,7 @@ describe("GET /api/health", () => {
         getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
       },
     };
-    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any);
+    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as ReturnType<typeof createAdminClient>);
 
     const response = await GET();
     const body = await response.json();
@@ -61,7 +69,7 @@ describe("GET /api/health", () => {
   });
 
   it("returns degraded status when auth check fails", async () => {
-    const mockSupabase = {
+    const mockSupabase: MockSupabaseClient = {
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           limit: vi.fn().mockResolvedValue({ data: [{ id: "1" }], error: null }),
@@ -71,7 +79,7 @@ describe("GET /api/health", () => {
         getSession: vi.fn().mockResolvedValue({ data: null, error: { message: "Auth service unavailable" } }),
       },
     };
-    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any);
+    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as ReturnType<typeof createAdminClient>);
 
     const response = await GET();
     const body = await response.json();
@@ -83,7 +91,7 @@ describe("GET /api/health", () => {
   });
 
   it("returns unhealthy status when all checks fail", async () => {
-    const mockSupabase = {
+    const mockSupabase: MockSupabaseClient = {
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           limit: vi.fn().mockResolvedValue({ data: null, error: { message: "DB error" } }),
@@ -93,7 +101,7 @@ describe("GET /api/health", () => {
         getSession: vi.fn().mockResolvedValue({ data: null, error: { message: "Auth error" } }),
       },
     };
-    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any);
+    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as ReturnType<typeof createAdminClient>);
 
     const response = await GET();
     const body = await response.json();
@@ -105,7 +113,7 @@ describe("GET /api/health", () => {
   });
 
   it("handles database exception gracefully", async () => {
-    const mockSupabase = {
+    const mockSupabase: MockSupabaseClient = {
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           limit: vi.fn().mockRejectedValue(new Error("Network timeout")),
@@ -115,7 +123,7 @@ describe("GET /api/health", () => {
         getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
       },
     };
-    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any);
+    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as ReturnType<typeof createAdminClient>);
 
     const response = await GET();
     const body = await response.json();
@@ -125,7 +133,7 @@ describe("GET /api/health", () => {
   });
 
   it("handles auth exception gracefully", async () => {
-    const mockSupabase = {
+    const mockSupabase: MockSupabaseClient = {
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           limit: vi.fn().mockResolvedValue({ data: [{ id: "1" }], error: null }),
@@ -135,7 +143,7 @@ describe("GET /api/health", () => {
         getSession: vi.fn().mockRejectedValue(new Error("Auth service crashed")),
       },
     };
-    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any);
+    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as ReturnType<typeof createAdminClient>);
 
     const response = await GET();
     const body = await response.json();
@@ -145,7 +153,7 @@ describe("GET /api/health", () => {
   });
 
   it("includes timestamp in ISO format", async () => {
-    const mockSupabase = {
+    const mockSupabase: MockSupabaseClient = {
       from: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           limit: vi.fn().mockResolvedValue({ data: [{ id: "1" }], error: null }),
@@ -155,7 +163,7 @@ describe("GET /api/health", () => {
         getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
       },
     };
-    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as any);
+    vi.mocked(createAdminClient).mockReturnValue(mockSupabase as ReturnType<typeof createAdminClient>);
 
     const response = await GET();
     const body = await response.json();

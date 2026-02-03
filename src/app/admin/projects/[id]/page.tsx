@@ -39,11 +39,9 @@ import {
   CheckCircle2,
   FileText,
   MessageSquare,
-  User,
   Building,
   ChevronRight,
   MoreHorizontal,
-  GripVertical,
   ChevronUp,
   ChevronDown,
   Trash2,
@@ -61,7 +59,6 @@ import type {
 } from "@/types/database";
 import {
   phaseStatusConfig,
-  deliverableStatusConfig,
   projectStatusConfig,
 } from "@/lib/constants";
 
@@ -133,7 +130,8 @@ export default function AdminProjectPage() {
   }, [projectId, router, supabase]);
 
   useEffect(() => {
-    fetchProject();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchProject();
   }, [fetchProject]);
 
   async function addPhase() {
@@ -381,7 +379,7 @@ export default function AdminProjectPage() {
               </DialogDescription>
             </DialogHeader>
             <Input
-              placeholder="Nom de l'etape (ex: Maquette page contact)"
+              placeholder="Nom de l&apos;etape (ex: Maquette page contact)"
               value={newPhaseName}
               onChange={(e) => setNewPhaseName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addPhase()}
@@ -509,9 +507,6 @@ export default function AdminProjectPage() {
                     {/* Deliverables */}
                     <div className="space-y-2">
                       {deliverables.map((deliverable) => {
-                        const statusCfg = deliverableStatusConfig[
-                          deliverable.status as DeliverableStatus
-                        ];
                         const filesCount = deliverable.files?.length || 0;
                         const commentsCount = deliverable.comments?.length || 0;
                         const needsAction = deliverable.status === "pending_review";
@@ -597,7 +592,7 @@ export default function AdminProjectPage() {
       <Dialog open={!!editingPhase} onOpenChange={(open) => !open && setEditingPhase(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Renommer l'etape</DialogTitle>
+            <DialogTitle>Renommer l&apos;etape</DialogTitle>
           </DialogHeader>
           <Input
             value={editPhaseName}

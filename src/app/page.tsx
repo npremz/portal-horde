@@ -79,7 +79,7 @@ export default async function HomePage() {
             Portail Client Horde
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-display uppercase tracking-tight max-w-4xl mx-auto">
-            L'avancement de votre projet,{" "}
+            L&apos;avancement de votre projet,{" "}
             <span className="text-primary">centralisé</span>
           </h1>
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -190,7 +190,7 @@ export default async function HomePage() {
             Prêt à suivre votre projet ?
           </h2>
           <p className="mt-4 text-primary-foreground/80 max-w-xl mx-auto">
-            Connectez-vous avec l'email utilisé lors de votre devis pour accéder
+            Connectez-vous avec l&apos;email utilisé lors de votre devis pour accéder
             à votre espace client.
           </p>
           <Button

@@ -46,7 +46,7 @@ describe("GET /api/api-keys", () => {
       from: vi.fn(),
     } as never);
 
-    const request = createMockRequest();
+    createMockRequest(); // Creates mock request (unused but maintains test structure)
     const response = await GET();
     const data = await response.json();
 

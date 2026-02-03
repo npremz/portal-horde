@@ -122,7 +122,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
         <DialogHeader>
           <DialogTitle>Inviter un utilisateur</DialogTitle>
           <DialogDescription>
-            Un email d'invitation sera envoye a l'utilisateur.
+            Un email d&apos;invitation sera envoye a l&apos;utilisateur.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleCreate} className="space-y-4">
@@ -187,7 +187,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
               onChange={(e) =>
                 setFormData({ ...formData, company: e.target.value })
               }
-              placeholder="Nom de l'entreprise (optionnel)"
+              placeholder="Nom de l&apos;entreprise (optionnel)"
             />
           </div>
 
@@ -198,7 +198,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
               ) : (
                 <UserPlus className="mr-2 h-4 w-4" />
               )}
-              Envoyer l'invitation
+              Envoyer l&apos;invitation
             </Button>
             <Button
               type="button"

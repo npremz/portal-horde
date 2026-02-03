@@ -86,7 +86,7 @@ export function InviteClientButton({
           <DialogHeader>
             <DialogTitle>Inviter {client.name} au portail</DialogTitle>
             <DialogDescription>
-              Un email d'invitation sera envoye pour creer un compte et acceder au portail client.
+              Un email d&apos;invitation sera envoye pour creer un compte et acceder au portail client.
             </DialogDescription>
           </DialogHeader>
 
@@ -108,8 +108,8 @@ export function InviteClientButton({
               <div className="flex items-start gap-2 text-sm text-yellow-600 bg-yellow-50 rounded-lg p-3">
                 <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <p>
-                  Ce client est encore au statut "Lead". Son statut passera
-                  automatiquement a "En projet" apres l'invitation.
+                  Ce client est encore au statut &quot;Lead&quot;. Son statut passera
+                  automatiquement a &quot;En projet&quot; apres l&apos;invitation.
                 </p>
               </div>
             )}
@@ -121,7 +121,7 @@ export function InviteClientButton({
                 ) : (
                   <Mail className="mr-2 h-4 w-4" />
                 )}
-                Envoyer l'invitation
+                Envoyer l&apos;invitation
               </Button>
               <Button
                 variant="outline"

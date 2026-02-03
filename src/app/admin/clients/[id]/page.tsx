@@ -100,7 +100,8 @@ export default function ClientDetailPage() {
   }, [clientId]);
 
   useEffect(() => {
-    fetchClient();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchClient();
   }, [fetchClient]);
 
   const handleSaveClient = async (data: ClientFormData) => {

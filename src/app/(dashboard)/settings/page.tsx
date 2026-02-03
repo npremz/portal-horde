@@ -52,7 +52,8 @@ export default function SettingsPage() {
   }, [supabase, router]);
 
   useEffect(() => {
-    fetchProfile();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchProfile();
   }, [fetchProfile]);
 
   async function handleSaveProfile() {
@@ -183,7 +184,7 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle>Profil</CardTitle>
           <CardDescription>
-            Ces informations sont visibles par l'équipe Horde
+            Ces informations sont visibles par l&apos;équipe Horde
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -218,7 +219,7 @@ export default function SettingsPage() {
             <div>
               <p className="font-medium">{profile.full_name || profile.email}</p>
               <p className="text-sm text-muted-foreground">
-                Cliquez sur l'icône pour changer votre photo
+                Cliquez sur l&apos;icône pour changer votre photo
               </p>
             </div>
           </div>
@@ -265,7 +266,7 @@ export default function SettingsPage() {
                 className="bg-muted"
               />
               <p className="text-xs text-muted-foreground">
-                L'email ne peut pas être modifié. Contactez-nous si besoin.
+                L&apos;email ne peut pas être modifié. Contactez-nous si besoin.
               </p>
             </div>
           </div>
@@ -301,7 +302,7 @@ export default function SettingsPage() {
           </div>
           <Separator />
           <div>
-            <p className="font-medium mb-2">Besoin d'aide ?</p>
+            <p className="font-medium mb-2">Besoin d&apos;aide ?</p>
             <Button variant="outline" asChild>
               <a href="/contact">Nous contacter</a>
             </Button>

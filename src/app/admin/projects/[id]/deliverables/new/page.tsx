@@ -59,8 +59,8 @@ export default function NewDeliverablePage() {
       }
     }
 
-    fetchPhases();
-  }, [projectId, preselectedPhase]);
+    void fetchPhases();
+  }, [projectId, preselectedPhase, supabase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
