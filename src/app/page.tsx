@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/ui/logo";
 import {
   FolderKanban,
   FileCheck,
@@ -55,13 +55,7 @@ export default async function HomePage() {
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Image
-            src="/images/logo.svg"
-            alt="Horde"
-            width={100}
-            height={32}
-            priority
-          />
+          <Logo width={100} height={32} />
           <Button asChild>
             <Link href="/login">
               Se connecter
@@ -210,12 +204,7 @@ export default async function HomePage() {
       {/* Footer */}
       <footer className="py-8 border-t">
         <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Image
-            src="/images/logo.svg"
-            alt="Horde"
-            width={80}
-            height={26}
-          />
+          <Logo width={80} height={26} />
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Horde. Tous droits réservés.
           </p>

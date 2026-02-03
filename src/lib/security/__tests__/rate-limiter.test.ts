@@ -131,34 +131,48 @@ describe("rate-limiter", () => {
   });
 
   describe("getRateLimitType", () => {
-    it("returns login for /login", () => {
-      expect(getRateLimitType("/login")).toBe("login");
+    it("returns login for POST /auth/callback", () => {
+      expect(getRateLimitType("/auth/callback", "POST")).toBe("login");
     });
 
-    it("returns login for /auth/callback", () => {
-      expect(getRateLimitType("/auth/callback")).toBe("login");
+    it("returns null for GET /auth/callback (not a login attempt)", () => {
+      expect(getRateLimitType("/auth/callback", "GET")).toBeNull();
     });
 
-    it("returns contactForm for /api/contact", () => {
-      expect(getRateLimitType("/api/contact")).toBe("contactForm");
+    it("returns null for GET /login page (not rate limited)", () => {
+      expect(getRateLimitType("/login", "GET")).toBeNull();
     });
 
-    it("returns apiPublic for /api/v1/* routes", () => {
-      expect(getRateLimitType("/api/v1/clients")).toBe("apiPublic");
-      expect(getRateLimitType("/api/v1/clients/123")).toBe("apiPublic");
-      expect(getRateLimitType("/api/v1/stats")).toBe("apiPublic");
+    it("returns contactForm for POST /api/contact", () => {
+      expect(getRateLimitType("/api/contact", "POST")).toBe("contactForm");
     });
 
-    it("returns apiAuth for other /api/* routes", () => {
-      expect(getRateLimitType("/api/users")).toBe("apiAuth");
-      expect(getRateLimitType("/api/dashboard/stats")).toBe("apiAuth");
-      expect(getRateLimitType("/api/api-keys")).toBe("apiAuth");
+    it("returns null for GET /api/contact", () => {
+      expect(getRateLimitType("/api/contact", "GET")).toBeNull();
+    });
+
+    it("returns apiPublic for /api/v1/* routes (any method)", () => {
+      expect(getRateLimitType("/api/v1/clients", "GET")).toBe("apiPublic");
+      expect(getRateLimitType("/api/v1/clients", "POST")).toBe("apiPublic");
+      expect(getRateLimitType("/api/v1/clients/123", "GET")).toBe("apiPublic");
+      expect(getRateLimitType("/api/v1/stats", "GET")).toBe("apiPublic");
+    });
+
+    it("returns apiAuth for POST/PUT/DELETE /api/* routes", () => {
+      expect(getRateLimitType("/api/users", "POST")).toBe("apiAuth");
+      expect(getRateLimitType("/api/dashboard/stats", "PUT")).toBe("apiAuth");
+      expect(getRateLimitType("/api/api-keys", "DELETE")).toBe("apiAuth");
+    });
+
+    it("returns null for GET /api/* routes (reads not rate limited)", () => {
+      expect(getRateLimitType("/api/users", "GET")).toBeNull();
+      expect(getRateLimitType("/api/dashboard/stats", "GET")).toBeNull();
     });
 
     it("returns null for non-API routes", () => {
-      expect(getRateLimitType("/")).toBeNull();
-      expect(getRateLimitType("/dashboard")).toBeNull();
-      expect(getRateLimitType("/admin/clients")).toBeNull();
+      expect(getRateLimitType("/", "GET")).toBeNull();
+      expect(getRateLimitType("/dashboard", "GET")).toBeNull();
+      expect(getRateLimitType("/admin/clients", "GET")).toBeNull();
     });
   });
 

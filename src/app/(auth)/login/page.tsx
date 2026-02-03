@@ -12,8 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import Image from "next/image";
 import Link from "next/link";
+import { Logo } from "@/components/ui/logo";
 import { Loader2, Mail } from "lucide-react";
 
 export default function LoginPage() {
@@ -58,13 +58,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 text-center">
           <div className="flex justify-center">
-            <Image
-              src="/images/logo.svg"
-              alt="Horde"
-              width={120}
-              height={40}
-              priority
-            />
+            <Logo width={120} height={40} />
           </div>
           <div>
             <CardTitle className="text-2xl font-display uppercase">

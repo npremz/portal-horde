@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/ui/logo";
 import { ArrowLeft } from "lucide-react";
 
 export default function LegalLayout({
@@ -14,13 +14,7 @@ export default function LegalLayout({
       <header className="border-b">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/images/logo.svg"
-              alt="Horde"
-              width={80}
-              height={26}
-              priority
-            />
+            <Logo width={80} height={26} />
           </Link>
           <Button variant="ghost" size="sm" asChild>
             <Link href="/login">

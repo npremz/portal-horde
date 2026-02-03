@@ -62,9 +62,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check rate limiting for applicable routes
-  const rateLimitType = getRateLimitType(pathname);
+  const rateLimitType = getRateLimitType(pathname, method);
+  let rateLimitResult: ReturnType<typeof checkRateLimit> | null = null;
   if (rateLimitType) {
-    const result = checkRateLimit(ip, rateLimitType);
+    rateLimitResult = checkRateLimit(ip, rateLimitType);
+    const result = rateLimitResult;
 
     if (!result.allowed) {
       const response = NextResponse.json(
@@ -107,11 +109,9 @@ export async function middleware(request: NextRequest) {
   // Add request ID header
   response.headers.set("X-Request-ID", requestId);
 
-  // Add rate limit headers if applicable
-  if (rateLimitType) {
-    const result = checkRateLimit(ip, rateLimitType);
-    // Re-check to get current state (we already incremented above)
-    const rateLimitHeaders = getRateLimitHeaders(result);
+  // Add rate limit headers if applicable (use cached result, don't re-check)
+  if (rateLimitResult) {
+    const rateLimitHeaders = getRateLimitHeaders(rateLimitResult);
     for (const [key, value] of Object.entries(rateLimitHeaders)) {
       response.headers.set(key, value);
     }

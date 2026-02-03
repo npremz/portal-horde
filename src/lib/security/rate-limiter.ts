@@ -129,16 +129,17 @@ export function getRateLimitHeaders(result: RateLimitResult): Record<string, str
 }
 
 /**
- * Determine which rate limit type to use based on the request path.
+ * Determine which rate limit type to use based on the request path and method.
  */
-export function getRateLimitType(pathname: string): RateLimitType | null {
-  // Login endpoint
-  if (pathname === "/login" || pathname === "/auth/callback") {
+export function getRateLimitType(pathname: string, method?: string): RateLimitType | null {
+  // Login rate limiting only for POST to auth callback (actual login attempts)
+  // GET requests to /login page should not be rate limited
+  if (pathname === "/auth/callback" && method === "POST") {
     return "login";
   }
 
-  // Contact form
-  if (pathname === "/api/contact") {
+  // Contact form (POST only)
+  if (pathname === "/api/contact" && method === "POST") {
     return "contactForm";
   }
 
@@ -147,8 +148,8 @@ export function getRateLimitType(pathname: string): RateLimitType | null {
     return "apiPublic";
   }
 
-  // Other API routes
-  if (pathname.startsWith("/api/")) {
+  // Other API routes (only rate limit mutations, not reads)
+  if (pathname.startsWith("/api/") && method !== "GET") {
     return "apiAuth";
   }
 
