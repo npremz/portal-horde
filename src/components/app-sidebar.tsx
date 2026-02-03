@@ -70,7 +70,7 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
     },
     {
       title: "Mes projets",
-      url: "/projects",
+      url: "/dashboard",
       icon: FolderKanban,
     },
     {
