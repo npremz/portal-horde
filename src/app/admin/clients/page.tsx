@@ -238,7 +238,7 @@ export default function AdminClientsPage() {
       {/* Mobile: Cards */}
       <div className="md:hidden space-y-3">
         {filteredClients.length > 0 ? (
-          filteredClients.map((client) => {
+          filteredClients.map((client, index) => {
             const statusConfig = clientStatusConfig[client.status];
             const activeProjects = client.projects?.filter(
               (p) => p.status === "active"
@@ -252,10 +252,15 @@ export default function AdminClientsPage() {
                 <CardContent className="p-4">
                   <Link href={`/admin/clients/${client.id}`}>
                     <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm font-medium text-primary">
-                          {getInitials(client.name)}
+                      <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                        <span className="text-xs text-muted-foreground font-mono">
+                          {index + 1}
                         </span>
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <span className="text-sm font-medium text-primary">
+                            {getInitials(client.name)}
+                          </span>
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -364,6 +369,7 @@ export default function AdminClientsPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[50px]">#</TableHead>
                 <TableHead>Client</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Type / Secteur</TableHead>
@@ -374,7 +380,7 @@ export default function AdminClientsPage() {
             </TableHeader>
             <TableBody>
               {filteredClients.length > 0 ? (
-                filteredClients.map((client) => {
+                filteredClients.map((client, index) => {
                   const statusConfig = clientStatusConfig[client.status];
                   const activeProjects = client.projects?.filter(
                     (p) => p.status === "active"
@@ -385,6 +391,9 @@ export default function AdminClientsPage() {
 
                   return (
                     <TableRow key={client.id}>
+                      <TableCell className="text-muted-foreground font-mono text-sm">
+                        {index + 1}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -501,7 +510,7 @@ export default function AdminClientsPage() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     {hasActiveFilters ? (
                       <>
                         <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
