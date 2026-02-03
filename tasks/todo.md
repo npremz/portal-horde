@@ -376,3 +376,97 @@ export async function POST(request: Request) {
   }
 }
 ```
+
+---
+
+## Production Readiness (Completed - 2026-02-03)
+
+### Phase 1: Security
+
+- [x] **Security Headers** (`next.config.ts`)
+  - CSP (Content-Security-Policy)
+  - X-Frame-Options: DENY
+  - X-Content-Type-Options: nosniff
+  - Referrer-Policy: strict-origin-when-cross-origin
+  - Permissions-Policy
+  - HSTS (production only)
+
+- [x] **CORS Configuration** (`src/middleware.ts`)
+  - Allowed origins via `ALLOWED_ORIGINS` env var
+  - CORS headers on `/api/*` routes
+  - Preflight (OPTIONS) handling
+
+- [x] **Rate Limiting** (`src/lib/security/rate-limiter.ts`, `src/middleware.ts`)
+  - In-memory sliding window rate limiter
+  - API public (`/api/v1/*`): 100 req/min
+  - API auth (`/api/*`): 30 req/min
+  - Contact form: 5 req/min
+  - Login: 5 attempts/15min
+
+### Phase 2: Validation & Robustesse
+
+- [x] **Environment Validation** (`src/lib/env.ts`, `src/lib/supabase/*.ts`)
+  - Zod schema for client vars
+  - Zod schema for server vars
+  - Fail-fast on startup
+  - TypeScript types
+  - Updated Supabase files to use validated env
+
+- [x] **Health Check** (`src/app/api/health/route.ts`)
+  - GET `/api/health` endpoint
+  - Database connectivity check
+  - Auth service check
+  - Version and timestamp
+
+- [x] **API Request Validation** (`src/lib/api/schemas.ts`, `src/lib/api/validate-request.ts`)
+  - Zod schemas for all entities
+  - `validateBody()`, `validateQuery()`, `validateId()` helpers
+  - Uniform error responses
+
+### Phase 3: Monitoring
+
+- [x] **Structured Logging** (`src/middleware.ts`)
+  - Request ID on all requests
+  - Duration tracking
+  - JSON log format
+  - IP logging for rate limit debug
+
+### Phase 4: DevOps
+
+- [x] **Deploy Pipeline** (`.github/workflows/deploy.yml`)
+  - GitHub Actions workflow
+  - Lint + Test + Build steps
+  - Preview deploy for PRs
+  - Production deploy for main
+  - Smoke tests post-deploy
+
+- [x] **Deployment Guide** (`tasks/deployment-guide.md`)
+  - GitHub secrets configuration
+  - Vercel env vars setup
+  - Rollback procedure
+  - Pre-deploy checklist
+  - Troubleshooting guide
+
+### Files Created/Modified
+
+| File | Action |
+|------|--------|
+| `next.config.ts` | Modified - Added security headers |
+| `src/middleware.ts` | Modified - CORS, rate limiting, logging |
+| `.env.example` | Modified - Added new env vars |
+| `src/lib/env.ts` | Created - Environment validation |
+| `src/lib/security/rate-limiter.ts` | Created - Rate limiting |
+| `src/lib/supabase/client.ts` | Modified - Use validated env |
+| `src/lib/supabase/server.ts` | Modified - Use validated env |
+| `src/lib/supabase/admin.ts` | Modified - Use validated env |
+| `src/lib/supabase/middleware.ts` | Modified - Use validated env |
+| `src/app/api/health/route.ts` | Created - Health endpoint |
+| `src/lib/api/schemas.ts` | Created - Zod schemas |
+| `src/lib/api/validate-request.ts` | Created - Validation utilities |
+| `.github/workflows/deploy.yml` | Created - CI/CD pipeline |
+| `tasks/deployment-guide.md` | Created - Documentation |
+
+### Verification Results
+
+- ✅ `npm run build` - Success
+- ✅ `npm test` - 259 tests passed
