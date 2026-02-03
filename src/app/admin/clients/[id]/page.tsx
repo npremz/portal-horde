@@ -11,6 +11,8 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
   Mail,
   Phone,
   Globe,
@@ -46,6 +48,12 @@ export default function ClientDetailPage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [adjacentClients, setAdjacentClients] = useState<{
+    prev: { id: string; name: string } | null;
+    next: { id: string; name: string } | null;
+    currentIndex: number;
+    total: number;
+  }>({ prev: null, next: null, currentIndex: 0, total: 0 });
 
   const fetchClient = useCallback(async () => {
     const supabase = createClient();
@@ -63,7 +71,7 @@ export default function ClientDetailPage() {
       }
     }
 
-    const [clientRes, contactsRes, projectsRes, messagesRes] = await Promise.all([
+    const [clientRes, contactsRes, projectsRes, messagesRes, allClientsRes] = await Promise.all([
       supabase.from("clients").select("*").eq("id", clientId).single(),
       supabase
         .from("client_contacts")
@@ -81,6 +89,10 @@ export default function ClientDetailPage() {
         .select("*, contact:client_contacts(*)")
         .eq("client_id", clientId)
         .order("sent_at", { ascending: false }),
+      supabase
+        .from("clients")
+        .select("id, name")
+        .order("created_at", { ascending: false }),
     ]);
 
     if (clientRes.data) {
@@ -94,6 +106,18 @@ export default function ClientDetailPage() {
     }
     if (messagesRes.data) {
       setMessages(messagesRes.data);
+    }
+
+    // Calculate adjacent clients for navigation
+    if (allClientsRes.data) {
+      const clientsList = allClientsRes.data;
+      const currentIndex = clientsList.findIndex((c) => c.id === clientId);
+      setAdjacentClients({
+        prev: currentIndex > 0 ? clientsList[currentIndex - 1] : null,
+        next: currentIndex < clientsList.length - 1 ? clientsList[currentIndex + 1] : null,
+        currentIndex: currentIndex + 1,
+        total: clientsList.length,
+      });
     }
 
     setLoading(false);
@@ -273,12 +297,51 @@ export default function ClientDetailPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <Button variant="ghost" size="sm" className="mb-2 -ml-2" asChild>
-          <Link href="/admin/clients">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Clients
-          </Link>
-        </Button>
+        <div className="flex items-center justify-between mb-2 -ml-2">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/admin/clients">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Clients
+            </Link>
+          </Button>
+
+          {/* Navigation between clients */}
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-muted-foreground mr-2">
+              {adjacentClients.currentIndex}/{adjacentClients.total}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!adjacentClients.prev}
+              asChild={!!adjacentClients.prev}
+              title={adjacentClients.prev?.name}
+            >
+              {adjacentClients.prev ? (
+                <Link href={`/admin/clients/${adjacentClients.prev.id}`}>
+                  <ChevronLeft className="h-4 w-4" />
+                </Link>
+              ) : (
+                <span><ChevronLeft className="h-4 w-4" /></span>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!adjacentClients.next}
+              asChild={!!adjacentClients.next}
+              title={adjacentClients.next?.name}
+            >
+              {adjacentClients.next ? (
+                <Link href={`/admin/clients/${adjacentClients.next.id}`}>
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              ) : (
+                <span><ChevronRight className="h-4 w-4" /></span>
+              )}
+            </Button>
+          </div>
+        </div>
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-3 flex-wrap">
