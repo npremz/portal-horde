@@ -5,6 +5,7 @@ import {
   extractApiKey,
 } from "@/lib/api-auth";
 import { NextResponse } from "next/server";
+import { updateClientSchema } from "@/lib/api/schemas";
 
 /**
  * GET /api/v1/clients/:id
@@ -111,24 +112,20 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const allowedFields = [
-    "name",
-    "email",
-    "phone",
-    "website",
-    "status",
-    "notes",
-    "project_type",
-    "sector",
-    "socials",
-    "first_contact_date",
-    "next_followup_date",
-  ];
+  const parsed = updateClientSchema.safeParse(body);
+  if (!parsed.success) {
+    const firstError = parsed.error.issues[0];
+    return NextResponse.json(
+      { error: `${firstError.path.join(".")}: ${firstError.message}` },
+      { status: 400 }
+    );
+  }
 
+  // Filter out undefined values to only update provided fields
   const updates: Record<string, unknown> = {};
-  for (const field of allowedFields) {
-    if (field in body) {
-      updates[field] = body[field];
+  for (const [key, value] of Object.entries(parsed.data)) {
+    if (value !== undefined) {
+      updates[key] = value;
     }
   }
 

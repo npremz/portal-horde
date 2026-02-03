@@ -327,3 +327,33 @@ Tous les champs sont optionnels. Seuls les URLs valides sont acceptees.
 | `pending_review` | En attente de validation |
 | `completed` | Projet termine |
 | `archived` | Archive |
+
+### Types de projet (project_type)
+
+| Valeur | Description |
+|--------|-------------|
+| `website` | Site vitrine |
+| `ecommerce` | E-commerce |
+| `webapp` | Application web |
+| `mobile` | Application mobile |
+| `branding` | Branding / Identite |
+| `seo` | SEO / Marketing |
+| `maintenance` | Maintenance |
+| `other` | Autre |
+
+### Secteurs (sector)
+
+| Valeur | Description |
+|--------|-------------|
+| `restaurant` | Restauration / Horeca |
+| `retail` | Commerce / Retail |
+| `health` | Sante / Bien-etre |
+| `realestate` | Immobilier |
+| `tech` | Tech / SaaS |
+| `finance` | Finance / Assurance |
+| `education` | Education / Formation |
+| `industry` | Industrie |
+| `services` | Services B2B |
+| `nonprofit` | Association / ONG |
+| `creative` | Creatif / Media |
+| `other` | Autre |

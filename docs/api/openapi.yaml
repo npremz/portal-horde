@@ -39,9 +39,9 @@ components:
         status:
           $ref: '#/components/schemas/ClientStatus'
         project_type:
-          type: string
+          $ref: '#/components/schemas/ProjectType'
         sector:
-          type: string
+          $ref: '#/components/schemas/Sector'
         notes:
           type: string
         socials:
@@ -77,6 +77,16 @@ components:
     ClientStatus:
       type: string
       enum: [lead, contacted, in_project, pending_review, completed, archived]
+
+    ProjectType:
+      type: string
+      enum: [website, ecommerce, webapp, mobile, branding, seo, maintenance, other]
+      description: Type de projet
+
+    Sector:
+      type: string
+      enum: [restaurant, retail, health, realestate, tech, finance, education, industry, services, nonprofit, creative, other]
+      description: Secteur d'activite du client
 
     Contact:
       type: object
@@ -237,9 +247,9 @@ paths:
                 status:
                   $ref: '#/components/schemas/ClientStatus'
                 project_type:
-                  type: string
+                  $ref: '#/components/schemas/ProjectType'
                 sector:
-                  type: string
+                  $ref: '#/components/schemas/Sector'
                 notes:
                   type: string
                 socials:
@@ -316,9 +326,9 @@ paths:
                 status:
                   $ref: '#/components/schemas/ClientStatus'
                 project_type:
-                  type: string
+                  $ref: '#/components/schemas/ProjectType'
                 sector:
-                  type: string
+                  $ref: '#/components/schemas/Sector'
                 notes:
                   type: string
                 socials:

@@ -6,6 +6,7 @@ import {
 } from "@/lib/api-auth";
 import { NextResponse } from "next/server";
 import type { ClientStatus } from "@/types/database";
+import { createClientSchema } from "@/lib/api/schemas";
 
 /**
  * GET /api/v1/clients
@@ -101,14 +102,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { name, email, phone, website, status, notes, project_type, sector, socials } = body;
-
-  if (!name || !email) {
+  const parsed = createClientSchema.safeParse(body);
+  if (!parsed.success) {
+    const firstError = parsed.error.issues[0];
     return NextResponse.json(
-      { error: "name and email are required" },
+      { error: `${firstError.path.join(".")}: ${firstError.message}` },
       { status: 400 }
     );
   }
+
+  const { name, email, phone, website, status, notes, project_type, sector, socials } = parsed.data;
 
   const supabase = createAdminClient();
 

@@ -18,6 +18,32 @@ const clientStatusSchema = z.enum([
   "archived",
 ]);
 
+const projectTypeSchema = z.enum([
+  "website",
+  "ecommerce",
+  "webapp",
+  "mobile",
+  "branding",
+  "seo",
+  "maintenance",
+  "other",
+]);
+
+const sectorSchema = z.enum([
+  "restaurant",
+  "retail",
+  "health",
+  "realestate",
+  "tech",
+  "finance",
+  "education",
+  "industry",
+  "services",
+  "nonprofit",
+  "creative",
+  "other",
+]);
+
 const socialsSchema = z
   .object({
     linkedin: z.string().url().optional(),
@@ -34,8 +60,8 @@ export const createClientSchema = z.object({
   website: z.string().url().optional().nullable(),
   status: clientStatusSchema.optional().default("lead"),
   notes: z.string().max(5000).optional().nullable(),
-  project_type: z.string().max(100).optional().nullable(),
-  sector: z.string().max(100).optional().nullable(),
+  project_type: projectTypeSchema.optional().nullable(),
+  sector: sectorSchema.optional().nullable(),
   socials: socialsSchema,
 });
 
@@ -46,8 +72,8 @@ export const updateClientSchema = z.object({
   website: z.string().url().optional().nullable(),
   status: clientStatusSchema.optional(),
   notes: z.string().max(5000).optional().nullable(),
-  project_type: z.string().max(100).optional().nullable(),
-  sector: z.string().max(100).optional().nullable(),
+  project_type: projectTypeSchema.optional().nullable(),
+  sector: sectorSchema.optional().nullable(),
   socials: socialsSchema,
   first_contact_date: z.string().datetime().optional().nullable(),
   next_followup_date: z.string().datetime().optional().nullable(),
