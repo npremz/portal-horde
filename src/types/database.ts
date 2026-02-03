@@ -79,6 +79,7 @@ export interface Client {
   profile_id: string | null;
   first_contact_date: string | null;
   next_followup_date: string | null;
+  is_priority: boolean;
   created_at: string;
   updated_at: string;
   // Relations

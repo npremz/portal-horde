@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserPlus, Mail, Phone, ExternalLink, Eye, Bell, Calendar, X, Trash2 } from "lucide-react";
+import { UserPlus, Mail, Phone, ExternalLink, Eye, Bell, Calendar, X, Trash2, Star, ArrowUpDown } from "lucide-react";
 import { CreateClientDialog } from "@/components/create-client-dialog";
 import {
   AlertDialog,
@@ -49,9 +49,11 @@ export default function AdminClientsPage() {
   const [clients, setClients] = useState<ClientWithProjects[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFollowups, setShowFollowups] = useState(false);
+  const [showPriority, setShowPriority] = useState(false);
   const [filterProjectType, setFilterProjectType] = useState<string>("");
   const [filterSector, setFilterSector] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
+  const [sortBy, setSortBy] = useState<"date" | "name" | "priority">("date");
 
   const fetchClients = async () => {
     const supabase = createClient();
@@ -95,6 +97,10 @@ export default function AdminClientsPage() {
     );
   }
 
+  if (showPriority) {
+    filteredClients = filteredClients.filter((c) => c.is_priority);
+  }
+
   if (filterProjectType) {
     filteredClients = filteredClients.filter((c) => c.project_type === filterProjectType);
   }
@@ -107,16 +113,33 @@ export default function AdminClientsPage() {
     filteredClients = filteredClients.filter((c) => c.status === filterStatus);
   }
 
-  // Count followups
+  // Sort clients
+  filteredClients = [...filteredClients].sort((a, b) => {
+    if (sortBy === "name") {
+      return a.name.localeCompare(b.name);
+    }
+    if (sortBy === "priority") {
+      if (a.is_priority !== b.is_priority) {
+        return a.is_priority ? -1 : 1;
+      }
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+    // Default: date
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
+  // Count followups and priority
   const followupCount = clients.filter(
     (c) => c.next_followup_date && c.next_followup_date.split("T")[0] <= today
   ).length;
+  const priorityCount = clients.filter((c) => c.is_priority).length;
 
   // Check if any filter is active
-  const hasActiveFilters = showFollowups || filterProjectType || filterSector || filterStatus;
+  const hasActiveFilters = showFollowups || showPriority || filterProjectType || filterSector || filterStatus;
 
   const clearAllFilters = () => {
     setShowFollowups(false);
+    setShowPriority(false);
     setFilterProjectType("");
     setFilterSector("");
     setFilterStatus("");
@@ -144,6 +167,28 @@ export default function AdminClientsPage() {
 
     toast.success(`${clientName} supprimé`);
     setClients((prev) => prev.filter((c) => c.id !== clientId));
+  };
+
+  const togglePriority = async (clientId: string, currentPriority: boolean) => {
+    const supabase = createClient();
+
+    // Optimistic update
+    setClients((prev) =>
+      prev.map((c) => (c.id === clientId ? { ...c, is_priority: !currentPriority } : c))
+    );
+
+    const { error } = await supabase
+      .from("clients")
+      .update({ is_priority: !currentPriority })
+      .eq("id", clientId);
+
+    if (error) {
+      // Revert on error
+      setClients((prev) =>
+        prev.map((c) => (c.id === clientId ? { ...c, is_priority: currentPriority } : c))
+      );
+      toast.error("Erreur lors de la mise à jour");
+    }
   };
 
   if (loading) {
@@ -184,6 +229,33 @@ export default function AdminClientsPage() {
             </Badge>
           )}
         </Button>
+
+        <Button
+          variant={showPriority ? "default" : "outline"}
+          onClick={() => setShowPriority(!showPriority)}
+          className="gap-2"
+          size="sm"
+        >
+          <Star className={`h-4 w-4 ${showPriority ? "fill-current" : ""}`} />
+          Prioritaires
+          {priorityCount > 0 && (
+            <Badge variant={showPriority ? "secondary" : "default"} className="ml-1">
+              {priorityCount}
+            </Badge>
+          )}
+        </Button>
+
+        <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+          <SelectTrigger className="w-[130px] h-9">
+            <ArrowUpDown className="h-4 w-4 mr-2" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="date">Date</SelectItem>
+            <SelectItem value="name">Nom</SelectItem>
+            <SelectItem value="priority">Priorité</SelectItem>
+          </SelectContent>
+        </Select>
 
         <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-[140px] h-9">
@@ -250,49 +322,57 @@ export default function AdminClientsPage() {
             return (
               <Card key={client.id} className="hover:bg-muted/50 transition-colors">
                 <CardContent className="p-4">
-                  <Link href={`/admin/clients/${client.id}`}>
-                    <div className="flex items-start gap-3">
-                      <div className="flex flex-col items-center gap-1 flex-shrink-0">
-                        <span className="text-xs text-muted-foreground font-mono">
-                          {index + 1}
-                        </span>
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-sm font-medium text-primary">
-                            {getInitials(client.name)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium truncate">{client.name}</p>
-                          <Badge className={statusConfig.color} variant="secondary">
-                            {statusConfig.label}
-                          </Badge>
-                          {needsFollowup && (
-                            <Badge variant="destructive">
-                              <Bell className="h-3 w-3 mr-1" />
-                              Relancer
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground truncate">
-                          {client.email}
-                        </p>
-                        <div className="flex gap-2 mt-1 flex-wrap">
-                          {getProjectTypeLabel(client.project_type) && (
-                            <Badge variant="outline" className="text-xs">
-                              {getProjectTypeLabel(client.project_type)}
-                            </Badge>
-                          )}
-                          {getSectorLabel(client.sector) && (
-                            <Badge variant="outline" className="text-xs">
-                              {getSectorLabel(client.sector)}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                      <span className="text-xs text-muted-foreground font-mono">
+                        {index + 1}
+                      </span>
+                      <button
+                        onClick={() => togglePriority(client.id, client.is_priority)}
+                        className="p-1 hover:bg-muted rounded"
+                      >
+                        <Star
+                          className={`h-5 w-5 ${
+                            client.is_priority
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-muted-foreground"
+                          }`}
+                        />
+                      </button>
                     </div>
-                  </Link>
+                    <Link href={`/admin/clients/${client.id}`} className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-medium truncate">{client.name}</p>
+                        <Badge className={statusConfig.color} variant="secondary">
+                          {statusConfig.label}
+                        </Badge>
+                        {needsFollowup && (
+                          <Badge variant="destructive">
+                            <Bell className="h-3 w-3 mr-1" />
+                            Relancer
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {client.email}
+                      </p>
+                      <div className="flex gap-2 mt-1 flex-wrap">
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(client.created_at).toLocaleDateString("fr-FR")}
+                        </span>
+                        {getProjectTypeLabel(client.project_type) && (
+                          <Badge variant="outline" className="text-xs">
+                            {getProjectTypeLabel(client.project_type)}
+                          </Badge>
+                        )}
+                        {getSectorLabel(client.sector) && (
+                          <Badge variant="outline" className="text-xs">
+                            {getSectorLabel(client.sector)}
+                          </Badge>
+                        )}
+                      </div>
+                    </Link>
+                  </div>
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t flex-wrap">
                     <Badge variant="outline" className="text-xs">
                       {client.projects?.length || 0} projet(s)
@@ -370,7 +450,9 @@ export default function AdminClientsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[50px]">#</TableHead>
+                <TableHead className="w-[40px]"></TableHead>
                 <TableHead>Client</TableHead>
+                <TableHead>Date</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Type / Secteur</TableHead>
                 <TableHead>Contact</TableHead>
@@ -395,6 +477,21 @@ export default function AdminClientsPage() {
                         {index + 1}
                       </TableCell>
                       <TableCell>
+                        <button
+                          onClick={() => togglePriority(client.id, client.is_priority)}
+                          className="p-1 hover:bg-muted rounded"
+                          title={client.is_priority ? "Retirer priorité" : "Marquer prioritaire"}
+                        >
+                          <Star
+                            className={`h-4 w-4 ${
+                              client.is_priority
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-muted-foreground"
+                            }`}
+                          />
+                        </button>
+                      </TableCell>
+                      <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                             <span className="text-sm font-medium text-primary">
@@ -416,6 +513,11 @@ export default function AdminClientsPage() {
                             )}
                           </div>
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-muted-foreground whitespace-nowrap">
+                          {new Date(client.created_at).toLocaleDateString("fr-FR")}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-1">
@@ -510,7 +612,7 @@ export default function AdminClientsPage() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={9} className="text-center py-8">
                     {hasActiveFilters ? (
                       <>
                         <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

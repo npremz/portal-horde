@@ -63,6 +63,7 @@ export const createClientSchema = z.object({
   project_type: projectTypeSchema.optional().nullable(),
   sector: sectorSchema.optional().nullable(),
   socials: socialsSchema,
+  is_priority: z.boolean().optional().default(false),
 });
 
 export const updateClientSchema = z.object({
@@ -77,6 +78,7 @@ export const updateClientSchema = z.object({
   socials: socialsSchema,
   first_contact_date: z.string().datetime().optional().nullable(),
   next_followup_date: z.string().datetime().optional().nullable(),
+  is_priority: z.boolean().optional(),
 });
 
 // ============================================
