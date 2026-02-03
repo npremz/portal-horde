@@ -22,8 +22,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserPlus, Mail, Phone, ExternalLink, Eye, Bell, Calendar, X } from "lucide-react";
+import { UserPlus, Mail, Phone, ExternalLink, Eye, Bell, Calendar, X, Trash2 } from "lucide-react";
 import { CreateClientDialog } from "@/components/create-client-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { clientStatusConfig, projectTypes, sectors } from "@/lib/constants";
 import type { Client } from "@/types/database";
 import { formatDistanceToNow } from "date-fns";
@@ -119,6 +131,19 @@ export default function AdminClientsPage() {
   const getSectorLabel = (value: string | null) => {
     if (!value) return null;
     return sectors.find((s) => s.value === value)?.label || value;
+  };
+
+  const handleDeleteClient = async (clientId: string, clientName: string) => {
+    const supabase = createClient();
+    const { error } = await supabase.from("clients").delete().eq("id", clientId);
+
+    if (error) {
+      toast.error("Erreur lors de la suppression");
+      return;
+    }
+
+    toast.success(`${clientName} supprimé`);
+    setClients((prev) => prev.filter((c) => c.id !== clientId));
   };
 
   if (loading) {
@@ -223,9 +248,9 @@ export default function AdminClientsPage() {
               client.next_followup_date.split("T")[0] <= today;
 
             return (
-              <Link key={client.id} href={`/admin/clients/${client.id}`}>
-                <Card className="hover:bg-muted/50 transition-colors">
-                  <CardContent className="p-4">
+              <Card key={client.id} className="hover:bg-muted/50 transition-colors">
+                <CardContent className="p-4">
+                  <Link href={`/admin/clients/${client.id}`}>
                     <div className="flex items-start gap-3">
                       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                         <span className="text-sm font-medium text-primary">
@@ -262,28 +287,52 @@ export default function AdminClientsPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-3 pt-3 border-t flex-wrap">
-                      <Badge variant="outline" className="text-xs">
-                        {client.projects?.length || 0} projet(s)
+                  </Link>
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t flex-wrap">
+                    <Badge variant="outline" className="text-xs">
+                      {client.projects?.length || 0} projet(s)
+                    </Badge>
+                    {activeProjects > 0 && (
+                      <Badge variant="default" className="text-xs">
+                        {activeProjects} actif(s)
                       </Badge>
-                      {activeProjects > 0 && (
-                        <Badge variant="default" className="text-xs">
-                          {activeProjects} actif(s)
-                        </Badge>
-                      )}
-                      {client.first_contact_date && (
-                        <span className="text-xs text-muted-foreground flex items-center gap-1 ml-auto">
-                          <Calendar className="h-3 w-3" />
-                          {formatDistanceToNow(new Date(client.first_contact_date), {
-                            addSuffix: true,
-                            locale: fr,
-                          })}
-                        </span>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                    )}
+                    {client.first_contact_date && (
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {formatDistanceToNow(new Date(client.first_contact_date), {
+                          addSuffix: true,
+                          locale: fr,
+                        })}
+                      </span>
+                    )}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive ml-auto">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Supprimer {client.name} ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Cette action est irreversible. Le client et toutes ses donnees associees seront supprimes.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteClient(client.id, client.name)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Supprimer
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </CardContent>
+              </Card>
             );
           })
         ) : (
@@ -415,11 +464,37 @@ export default function AdminClientsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/admin/clients/${client.id}`}>
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button variant="ghost" size="sm" asChild>
+                            <Link href={`/admin/clients/${client.id}`}>
+                              <Eye className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Supprimer {client.name} ?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Cette action est irreversible. Le client et toutes ses donnees associees seront supprimes.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteClient(client.id, client.name)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Supprimer
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
