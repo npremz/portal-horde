@@ -32,20 +32,47 @@ components:
           format: email
         phone:
           type: string
+        website:
+          type: string
+          format: uri
+          description: URL du site web du client
         status:
           $ref: '#/components/schemas/ClientStatus'
         project_type:
           type: string
         sector:
           type: string
-        website:
-          type: string
         notes:
           type: string
+        socials:
+          $ref: '#/components/schemas/Socials'
+        first_contact_date:
+          type: string
+          format: date-time
+        next_followup_date:
+          type: string
+          format: date-time
         contacts:
           type: array
           items:
             $ref: '#/components/schemas/Contact'
+
+    Socials:
+      type: object
+      description: Liens vers les reseaux sociaux
+      properties:
+        linkedin:
+          type: string
+          format: uri
+        instagram:
+          type: string
+          format: uri
+        facebook:
+          type: string
+          format: uri
+        twitter:
+          type: string
+          format: uri
 
     ClientStatus:
       type: string
@@ -203,16 +230,20 @@ paths:
                   format: email
                 phone:
                   type: string
+                website:
+                  type: string
+                  format: uri
+                  description: URL du site web du client
                 status:
                   $ref: '#/components/schemas/ClientStatus'
                 project_type:
                   type: string
                 sector:
                   type: string
-                website:
-                  type: string
                 notes:
                   type: string
+                socials:
+                  $ref: '#/components/schemas/Socials'
       responses:
         '201':
           description: Client created
@@ -278,16 +309,26 @@ paths:
                   type: string
                 phone:
                   type: string
+                website:
+                  type: string
+                  format: uri
+                  description: URL du site web du client
                 status:
                   $ref: '#/components/schemas/ClientStatus'
                 project_type:
                   type: string
                 sector:
                   type: string
-                website:
-                  type: string
                 notes:
                   type: string
+                socials:
+                  $ref: '#/components/schemas/Socials'
+                first_contact_date:
+                  type: string
+                  format: date-time
+                next_followup_date:
+                  type: string
+                  format: date-time
       responses:
         '200':
           description: Client updated

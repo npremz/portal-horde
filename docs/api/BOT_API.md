@@ -80,7 +80,12 @@ GET /clients/{id}
   "name": "Acme Corp",
   "email": "contact@acme.com",
   "phone": "+32...",
+  "website": "https://acme.com",
   "status": "in_project",
+  "project_type": "site-web",
+  "sector": "tech",
+  "notes": "Client important",
+  "socials": {"linkedin": "https://linkedin.com/company/acme"},
   "contacts": [
     {"id": "uuid", "name": "Jean", "role": "decision_maker", "email": "jean@acme.com"}
   ]
@@ -93,12 +98,26 @@ GET /clients/{id}
 POST /clients
 ```
 
-**Corps:**
+**Champs:**
+| Champ | Type | Requis | Description |
+|-------|------|--------|-------------|
+| `name` | string | oui | Nom du client |
+| `email` | string | oui | Email unique |
+| `phone` | string | non | Telephone |
+| `website` | string | non | URL du site web |
+| `status` | string | non | Statut (defaut: lead) |
+| `project_type` | string | non | Type de projet |
+| `sector` | string | non | Secteur d'activite |
+| `notes` | string | non | Notes internes |
+| `socials` | object | non | Reseaux sociaux (linkedin, instagram, etc.) |
+
+**Exemple:**
 ```json
 {
   "name": "Nouveau Client",
   "email": "contact@client.com",
   "phone": "+32...",
+  "website": "https://client.com",
   "status": "lead",
   "project_type": "site-web",
   "sector": "tech",
@@ -119,10 +138,26 @@ POST /clients
 PATCH /clients/{id}
 ```
 
-**Corps (champs optionnels):**
+**Champs modifiables:**
+| Champ | Type | Description |
+|-------|------|-------------|
+| `name` | string | Nom du client |
+| `email` | string | Email (unique) |
+| `phone` | string | Telephone |
+| `website` | string | URL du site web |
+| `status` | string | Statut |
+| `project_type` | string | Type de projet |
+| `sector` | string | Secteur d'activite |
+| `notes` | string | Notes internes |
+| `socials` | object | Reseaux sociaux |
+| `first_contact_date` | datetime | Date premier contact |
+| `next_followup_date` | datetime | Prochaine relance |
+
+**Exemple:**
 ```json
 {
   "status": "contacted",
+  "website": "https://client-updated.com",
   "notes": "Premier appel effectue"
 }
 ```
@@ -240,10 +275,10 @@ GET /stats
 curl -H "Authorization: Bearer horde_xxx" \
   "https://portal.hordeagence.com/api/v1/clients?status=lead"
 
-# Creer un client
+# Creer un client avec website
 curl -X POST -H "Authorization: Bearer horde_xxx" \
   -H "Content-Type: application/json" \
-  -d '{"name":"Test","email":"test@test.com","status":"lead"}' \
+  -d '{"name":"Test","email":"test@test.com","website":"https://test.com","status":"lead"}' \
   "https://portal.hordeagence.com/api/v1/clients"
 
 # Passer un lead en "contacted"
@@ -264,3 +299,31 @@ curl -H "Authorization: Bearer horde_xxx" \
 - JSON minimal pour economiser les tokens
 - Champs `null` omis dans les reponses
 - Pagination sur les listes avec `meta.total`
+
+---
+
+## Types de donnees
+
+### Objet socials
+
+```json
+{
+  "linkedin": "https://linkedin.com/company/acme",
+  "instagram": "https://instagram.com/acme",
+  "facebook": "https://facebook.com/acme",
+  "twitter": "https://twitter.com/acme"
+}
+```
+
+Tous les champs sont optionnels. Seuls les URLs valides sont acceptees.
+
+### Statuts client
+
+| Statut | Description |
+|--------|-------------|
+| `lead` | Nouveau prospect |
+| `contacted` | Premier contact effectue |
+| `in_project` | Projet en cours |
+| `pending_review` | En attente de validation |
+| `completed` | Projet termine |
+| `archived` | Archive |
