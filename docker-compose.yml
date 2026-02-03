@@ -6,7 +6,7 @@ services:
       args:
         - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
         - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-        - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:6100}
+        - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://127.0.0.1:6100}
     ports:
       - "6100:6100"
     environment:
@@ -17,7 +17,7 @@ services:
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:6100/api/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:6100/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
