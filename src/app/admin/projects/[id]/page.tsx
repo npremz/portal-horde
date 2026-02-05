@@ -149,7 +149,7 @@ export default function AdminProjectPage() {
     if (error) {
       toast.error("Erreur lors de l'ajout");
     } else {
-      toast.success("Etape ajoutee");
+      toast.success("Étape ajoutée");
       setNewPhaseName("");
       setAddPhaseOpen(false);
       fetchProject();
@@ -163,9 +163,9 @@ export default function AdminProjectPage() {
       .eq("id", phaseId);
 
     if (error) {
-      toast.error("Erreur lors de la mise a jour");
+      toast.error("Erreur lors de la mise à jour");
     } else {
-      toast.success("Etape mise a jour");
+      toast.success("Étape mise à jour");
       setEditingPhase(null);
       fetchProject();
     }
@@ -188,7 +188,7 @@ export default function AdminProjectPage() {
   async function deletePhase(phaseId: string) {
     const phase = phases.find(p => p.id === phaseId);
     if (phase?.deliverables && phase.deliverables.length > 0) {
-      toast.error("Supprimez d'abord les livrables de cette etape");
+      toast.error("Supprimez d'abord les livrables de cette étape");
       return;
     }
 
@@ -197,7 +197,7 @@ export default function AdminProjectPage() {
     if (error) {
       toast.error("Erreur lors de la suppression");
     } else {
-      toast.success("Etape supprimee");
+      toast.success("Étape supprimée");
       fetchProject();
     }
   }
@@ -228,9 +228,9 @@ export default function AdminProjectPage() {
       .eq("id", deliverableId);
 
     if (error) {
-      toast.error("Erreur lors de la mise a jour");
+      toast.error("Erreur lors de la mise à jour");
     } else {
-      toast.success("Livrable mis a jour");
+      toast.success("Livrable mis à jour");
 
       // Notify client when deliverable is ready for review
       if (status === "pending_review") {
@@ -248,7 +248,7 @@ export default function AdminProjectPage() {
           }),
           {
             loading: "Envoi de la notification au client...",
-            success: "Notification envoyee au client",
+            success: "Notification envoyée au client",
             error: "Erreur lors de l'envoi de la notification",
           }
         );
@@ -330,7 +330,7 @@ export default function AdminProjectPage() {
               <span className="text-muted-foreground">({client.email})</span>
             </Link>
           ) : (
-            <span className="text-muted-foreground">Aucun client assigne</span>
+            <span className="text-muted-foreground">Aucun client assigné</span>
           )}
         </div>
 
@@ -349,7 +349,7 @@ export default function AdminProjectPage() {
             </div>
             <div className="flex gap-4 mt-3 text-sm">
               <span className="text-muted-foreground">
-                {completedCount}/{phases.length} etapes
+                {completedCount}/{phases.length} étapes
               </span>
               {pendingValidations > 0 && (
                 <span className="text-yellow-600 font-medium">
@@ -363,23 +363,23 @@ export default function AdminProjectPage() {
 
       {/* Phases header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Etapes du projet</h2>
+        <h2 className="text-lg font-semibold">Étapes du projet</h2>
         <Dialog open={addPhaseOpen} onOpenChange={setAddPhaseOpen}>
           <DialogTrigger asChild>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Ajouter une etape
+              Ajouter une étape
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Nouvelle etape</DialogTitle>
+              <DialogTitle>Nouvelle étape</DialogTitle>
               <DialogDescription>
-                Ajoutez une nouvelle etape au projet
+                Ajoutez une nouvelle étape au projet
               </DialogDescription>
             </DialogHeader>
             <Input
-              placeholder="Nom de l&apos;etape (ex: Maquette page contact)"
+              placeholder="Nom de l&apos;étape (ex: Maquette page contact)"
               value={newPhaseName}
               onChange={(e) => setNewPhaseName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addPhase()}
@@ -399,10 +399,10 @@ export default function AdminProjectPage() {
       {/* Timeline vertical */}
       {phases.length === 0 ? (
         <div className="text-center py-12 border rounded-lg bg-muted/30">
-          <p className="text-muted-foreground mb-4">Aucune etape pour ce projet</p>
+          <p className="text-muted-foreground mb-4">Aucune étape pour ce projet</p>
           <Button onClick={() => setAddPhaseOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
-            Ajouter la premiere etape
+            Ajouter la première étape
           </Button>
         </div>
       ) : (
@@ -457,7 +457,7 @@ export default function AdminProjectPage() {
                             <SelectItem value="pending">En attente</SelectItem>
                             <SelectItem value="in_progress">En cours</SelectItem>
                             <SelectItem value="review">En review</SelectItem>
-                            <SelectItem value="completed">Termine</SelectItem>
+                            <SelectItem value="completed">Terminé</SelectItem>
                           </SelectContent>
                         </Select>
 
@@ -491,7 +491,7 @@ export default function AdminProjectPage() {
                             <DropdownMenuItem
                               className="text-destructive"
                               onClick={() => {
-                                if (confirm(`Supprimer l'etape "${phase.name}" ?`)) {
+                                if (confirm(`Supprimer l'étape "${phase.name}" ?`)) {
                                   deletePhase(phase.id);
                                 }
                               }}
@@ -554,9 +554,9 @@ export default function AdminProjectPage() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="draft">Brouillon</SelectItem>
-                                  <SelectItem value="pending_review">A valider</SelectItem>
-                                  <SelectItem value="approved">Valide</SelectItem>
-                                  <SelectItem value="revision_requested">Revision</SelectItem>
+                                  <SelectItem value="pending_review">À valider</SelectItem>
+                                  <SelectItem value="approved">Validé</SelectItem>
+                                  <SelectItem value="revision_requested">Révision</SelectItem>
                                 </SelectContent>
                               </Select>
                               <Link href={`/admin/projects/${projectId}/deliverables/${deliverable.id}`}>
@@ -592,7 +592,7 @@ export default function AdminProjectPage() {
       <Dialog open={!!editingPhase} onOpenChange={(open) => !open && setEditingPhase(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Renommer l&apos;etape</DialogTitle>
+            <DialogTitle>Renommer l&apos;étape</DialogTitle>
           </DialogHeader>
           <Input
             value={editPhaseName}

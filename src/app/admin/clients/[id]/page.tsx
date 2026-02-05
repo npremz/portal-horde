@@ -148,18 +148,18 @@ export default function ClientDetailPage() {
 
     if (error) {
       if (error.code === "23505") {
-        throw new Error("Un client avec cet email existe deja");
+        throw new Error("Un client avec cet email existe déjà");
       }
       throw error;
     }
 
-    toast.success("Client mis a jour");
+    toast.success("Client mis à jour");
     setEditing(false);
     fetchClient();
   };
 
   const handleDeleteClient = async () => {
-    if (!confirm("Supprimer ce client ? Cette action est irreversible.")) return;
+    if (!confirm("Supprimer ce client ? Cette action est irréversible.")) return;
 
     const supabase = createClient();
     const { error } = await supabase.from("clients").delete().eq("id", clientId);
@@ -169,7 +169,7 @@ export default function ClientDetailPage() {
       return;
     }
 
-    toast.success("Client supprime");
+    toast.success("Client supprimé");
     router.push("/admin/clients");
   };
 
@@ -391,7 +391,7 @@ export default function ClientDetailPage() {
           {/* Contact info card */}
           <Card>
             <CardHeader>
-              <CardTitle>Coordonnees</CardTitle>
+              <CardTitle>Coordonnées</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <a
@@ -533,7 +533,7 @@ export default function ClientDetailPage() {
                           <div className="min-w-0">
                             <p className="font-medium truncate">{project.name}</p>
                             <p className="text-xs text-muted-foreground">
-                              Cree le{" "}
+                              Créé le{" "}
                               {new Date(project.created_at).toLocaleDateString(
                                 "fr-FR"
                               )}

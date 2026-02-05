@@ -41,7 +41,7 @@ export default async function AdminProjectsPage() {
         <div className="min-w-0">
           <h1 className="text-2xl md:text-3xl font-display uppercase">Projets</h1>
           <p className="text-muted-foreground text-sm md:text-base">
-            Gerez tous les projets clients
+            Gérez tous les projets clients
           </p>
         </div>
         <Button asChild size="sm" className="shrink-0">
@@ -91,7 +91,7 @@ export default async function AdminProjectsPage() {
                             ))}
                           </div>
                           <span className="text-xs text-muted-foreground">
-                            {completedPhases}/{totalPhases} etapes
+                            {completedPhases}/{totalPhases} étapes
                           </span>
                         </div>
                       </div>
@@ -107,7 +107,7 @@ export default async function AdminProjectsPage() {
             <CardContent className="py-8 text-center">
               <p className="text-muted-foreground mb-4">Aucun projet</p>
               <Button asChild>
-                <Link href="/admin/projects/new">Creer un projet</Link>
+                <Link href="/admin/projects/new">Créer un projet</Link>
               </Button>
             </CardContent>
           </Card>
@@ -162,7 +162,7 @@ export default async function AdminProjectsPage() {
                             </p>
                           </Link>
                         ) : (
-                          <span className="text-muted-foreground">Non assigne</span>
+                          <span className="text-muted-foreground">Non assigné</span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -220,7 +220,7 @@ export default async function AdminProjectsPage() {
                   <TableCell colSpan={5} className="text-center py-8">
                     <p className="text-muted-foreground">Aucun projet</p>
                     <Button className="mt-4" asChild>
-                      <Link href="/admin/projects/new">Creer un projet</Link>
+                      <Link href="/admin/projects/new">Créer un projet</Link>
                     </Button>
                   </TableCell>
                 </TableRow>

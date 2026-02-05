@@ -401,7 +401,7 @@ export default function AdminClientsPage() {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Supprimer {client.name} ?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Cette action est irreversible. Le client et toutes ses donnees associees seront supprimes.
+                            Cette action est irréversible. Le client et toutes ses données associées seront supprimés.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -591,7 +591,7 @@ export default function AdminClientsPage() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Supprimer {client.name} ?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Cette action est irreversible. Le client et toutes ses donnees associees seront supprimes.
+                                  Cette action est irréversible. Le client et toutes ses données associées seront supprimés.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>

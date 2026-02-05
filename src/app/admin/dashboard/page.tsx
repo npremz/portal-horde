@@ -49,7 +49,7 @@ export default function AdminDashboardPage() {
       <div>
         <h1 className="text-2xl md:text-3xl font-display uppercase">Dashboard</h1>
         <p className="text-muted-foreground text-sm md:text-base">
-          Vue d&apos;ensemble de votre activite
+          Vue d&apos;ensemble de votre activité
         </p>
       </div>
 

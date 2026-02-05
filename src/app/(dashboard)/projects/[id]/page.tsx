@@ -142,11 +142,11 @@ export default async function ProjectPage({
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-sm">
             <span className="text-muted-foreground">
-              {completedCount}/{sortedPhases.length} etapes
+              {completedCount}/{sortedPhases.length} étapes
             </span>
             {pendingValidations > 0 && (
               <span className="text-yellow-600 font-medium">
-                {pendingValidations} livrable(s) a valider
+                {pendingValidations} livrable(s) à valider
               </span>
             )}
           </div>

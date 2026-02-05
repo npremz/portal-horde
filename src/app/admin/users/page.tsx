@@ -106,7 +106,7 @@ export default function AdminUsersPage() {
         throw new Error(data.error || "Erreur lors de la suppression");
       }
 
-      toast.success(`${deletingUser.full_name || deletingUser.email} supprime`);
+      toast.success(`${deletingUser.full_name || deletingUser.email} supprimé`);
       setDeletingUser(null);
       fetchUsers();
     } catch (error) {
@@ -194,7 +194,7 @@ export default function AdminUsersPage() {
 
         <Select value={filterRole} onValueChange={setFilterRole}>
           <SelectTrigger className="w-[140px] h-9">
-            <SelectValue placeholder="Role" />
+            <SelectValue placeholder="Rôle" />
           </SelectTrigger>
           <SelectContent>
             {Object.entries(userRoleConfig).map(([role, config]) => (
@@ -265,7 +265,7 @@ export default function AdminUsersPage() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => setEditingUser(user)}>
                           <Shield className="mr-2 h-4 w-4" />
-                          Modifier le role
+                          Modifier le rôle
                         </DropdownMenuItem>
                         {!isCurrentUser && (
                           <>
@@ -400,7 +400,7 @@ export default function AdminUsersPage() {
                               onClick={() => setEditingUser(user)}
                             >
                               <Shield className="mr-2 h-4 w-4" />
-                              Modifier le role
+                              Modifier le rôle
                             </DropdownMenuItem>
                             {!isCurrentUser && (
                               <>
@@ -470,11 +470,11 @@ export default function AdminUsersPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer l&apos;utilisateur ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action est irreversible. L&apos;utilisateur{" "}
+              Cette action est irréversible. L&apos;utilisateur{" "}
               <strong>
                 {deletingUser?.full_name || deletingUser?.email}
               </strong>{" "}
-              sera definitivement supprime.
+              sera définitivement supprimé.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

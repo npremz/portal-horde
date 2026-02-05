@@ -112,7 +112,7 @@ export default function NewProjectPage() {
 
     // Validate phases
     if (selectedPhases.length === 0) {
-      toast.error("Selectionnez au moins une phase");
+      toast.error("Sélectionnez au moins une phase");
       return;
     }
 
@@ -140,7 +140,7 @@ export default function NewProjectPage() {
       .single();
 
     if (projectError) {
-      toast.error("Erreur lors de la creation du projet");
+      toast.error("Erreur lors de la création du projet");
       setLoading(false);
       return;
     }
@@ -161,7 +161,7 @@ export default function NewProjectPage() {
     if (phasesError) {
       // Rollback: delete the project
       await supabase.from("projects").delete().eq("id", project.id);
-      toast.error("Erreur lors de la creation des phases");
+      toast.error("Erreur lors de la création des phases");
       setLoading(false);
       return;
     }
@@ -177,7 +177,7 @@ export default function NewProjectPage() {
       }
     }
 
-    toast.success("Projet cree avec succes");
+    toast.success("Projet créé avec succès");
     router.push(`/admin/projects/${project.id}`);
   };
 
@@ -194,7 +194,7 @@ export default function NewProjectPage() {
         </Button>
         <h1 className="text-2xl md:text-3xl font-display uppercase">Nouveau projet</h1>
         <p className="text-sm md:text-base text-muted-foreground">
-          Creez un nouveau projet et configurez ses phases
+          Créez un nouveau projet et configurez ses phases
         </p>
       </div>
 
@@ -203,7 +203,7 @@ export default function NewProjectPage() {
           <CardHeader>
             <CardTitle>Informations du projet</CardTitle>
             <CardDescription>
-              Definissez les informations de base du projet
+              Définissez les informations de base du projet
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -245,7 +245,7 @@ export default function NewProjectPage() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selectionner un client" />
+                  <SelectValue placeholder="Sélectionner un client" />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((client) => (
@@ -262,7 +262,7 @@ export default function NewProjectPage() {
               </Select>
               {selectedClient && !selectedClient.profile_id && (
                 <p className="text-xs text-muted-foreground">
-                  Ce client n&apos;a pas encore de compte. Pensez a l&apos;inviter au portail.
+                  Ce client n&apos;a pas encore de compte. Pensez à l&apos;inviter au portail.
                 </p>
               )}
             </div>
@@ -293,7 +293,7 @@ export default function NewProjectPage() {
           </Button>
           <Button type="submit" disabled={loading} className="w-full sm:w-auto">
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Creer le projet
+            Créer le projet
           </Button>
         </div>
       </form>

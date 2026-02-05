@@ -139,12 +139,12 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
 
       if (error) {
         if (error.code === "23505") {
-          throw new Error("Un client avec cet email existe deja");
+          throw new Error("Un client avec cet email existe déjà");
         }
         throw error;
       }
 
-      toast.success(`Client "${nameResult.sanitized}" cree`);
+      toast.success(`Client "${nameResult.sanitized}" créé`);
       setFormData(emptyForm);
       setOpen(false);
 
@@ -153,7 +153,7 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Erreur lors de la creation"
+        error instanceof Error ? error.message : "Erreur lors de la création"
       );
     } finally {
       setLoading(false);
@@ -177,7 +177,7 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Creer un nouveau client</DialogTitle>
+          <DialogTitle>Créer un nouveau client</DialogTitle>
           <DialogDescription>
             Ajoutez un client au CRM avec toutes ses informations.
           </DialogDescription>
@@ -215,7 +215,7 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="client_phone">Telephone</Label>
+                <Label htmlFor="client_phone">Téléphone</Label>
                 <Input
                   id="client_phone"
                   type="tel"
@@ -260,7 +260,7 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
                   }
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selectionner..." />
+                    <SelectValue placeholder="Sélectionner..." />
                   </SelectTrigger>
                   <SelectContent>
                     {projectTypes.map((type) => (
@@ -281,7 +281,7 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
                   }
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selectionner..." />
+                    <SelectValue placeholder="Sélectionner..." />
                   </SelectTrigger>
                   <SelectContent>
                     {sectors.map((s) => (
@@ -316,7 +316,7 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
 
           {/* Reseaux sociaux */}
           <div className="space-y-4">
-            <h3 className="text-sm font-medium text-muted-foreground">Reseaux sociaux</h3>
+            <h3 className="text-sm font-medium text-muted-foreground">Réseaux sociaux</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="client_linkedin">LinkedIn</Label>
@@ -403,7 +403,7 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
               ) : (
                 <UserPlus className="mr-2 h-4 w-4" />
               )}
-              Creer le client
+              Créer le client
             </Button>
             <Button
               type="button"

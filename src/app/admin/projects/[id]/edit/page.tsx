@@ -116,7 +116,7 @@ export default function EditProjectPage() {
       toast.error("Erreur lors de la sauvegarde");
       console.error(error);
     } else {
-      toast.success("Projet mis a jour");
+      toast.success("Projet mis à jour");
       router.push(`/admin/projects/${projectId}`);
     }
   }
@@ -135,7 +135,7 @@ export default function EditProjectPage() {
       toast.error("Erreur lors de la suppression");
       console.error(error);
     } else {
-      toast.success("Projet supprime");
+      toast.success("Projet supprimé");
       router.push("/admin/projects");
     }
   }
@@ -165,7 +165,7 @@ export default function EditProjectPage() {
           <CardHeader>
             <CardTitle>Informations du projet</CardTitle>
             <CardDescription>
-              Modifiez les details du projet
+              Modifiez les détails du projet
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -186,7 +186,7 @@ export default function EditProjectPage() {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Decrivez brievement le projet..."
+                placeholder="Décrivez brièvement le projet..."
                 rows={3}
               />
             </div>
@@ -195,7 +195,7 @@ export default function EditProjectPage() {
               <Label htmlFor="client">Client</Label>
               <Select value={clientId} onValueChange={setClientId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selectionner un client" />
+                  <SelectValue placeholder="Sélectionner un client" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Aucun client</SelectItem>
@@ -218,8 +218,8 @@ export default function EditProjectPage() {
                 <SelectContent>
                   <SelectItem value="active">Actif</SelectItem>
                   <SelectItem value="paused">En pause</SelectItem>
-                  <SelectItem value="completed">Termine</SelectItem>
-                  <SelectItem value="archived">Archive</SelectItem>
+                  <SelectItem value="completed">Terminé</SelectItem>
+                  <SelectItem value="archived">Archivé</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -247,8 +247,8 @@ export default function EditProjectPage() {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Supprimer le projet ?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Cette action est irreversible. Toutes les phases, livrables et
-                      commentaires seront supprimes.
+                      Cette action est irréversible. Toutes les phases, livrables et
+                      commentaires seront supprimés.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

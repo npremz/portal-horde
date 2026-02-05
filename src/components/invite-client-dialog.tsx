@@ -41,7 +41,7 @@ export function InviteClientDialog() {
         throw new Error(data.error || "Erreur lors de l'invitation");
       }
 
-      toast.success(`Invitation envoyee a ${formData.email}`);
+      toast.success(`Invitation envoyée à ${formData.email}`);
       setFormData({ email: "", full_name: "", company: "" });
       setOpen(false);
     } catch (error) {
@@ -65,7 +65,7 @@ export function InviteClientDialog() {
         <DialogHeader>
           <DialogTitle>Inviter un nouveau client</DialogTitle>
           <DialogDescription>
-            Un email d&apos;invitation sera envoye au client pour creer son compte.
+            Un email d&apos;invitation sera envoyé au client pour créer son compte.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleInvite} className="space-y-4">

@@ -164,7 +164,7 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Telephone</Label>
+              <Label htmlFor="phone">Téléphone</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -209,7 +209,7 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
                 }
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selectionner..." />
+                  <SelectValue placeholder="Sélectionner..." />
                 </SelectTrigger>
                 <SelectContent>
                   {projectTypes.map((type) => (
@@ -230,7 +230,7 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
                 }
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selectionner..." />
+                  <SelectValue placeholder="Sélectionner..." />
                 </SelectTrigger>
                 <SelectContent>
                   {sectors.map((s) => (
@@ -264,7 +264,7 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Reseaux sociaux</CardTitle>
+          <CardTitle>Réseaux sociaux</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -355,7 +355,7 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
           ) : (
             <Save className="mr-2 h-4 w-4" />
           )}
-          {client ? "Enregistrer" : "Creer le client"}
+          {client ? "Enregistrer" : "Créer le client"}
         </Button>
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
