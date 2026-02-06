@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { validateName } from "@/lib/validation";
+import { FormFieldError } from "@/components/ui/form-field-error";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ export default function SettingsPage() {
   // Form state
   const [fullName, setFullName] = useState("");
   const [company, setCompany] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const fetchProfile = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -59,15 +61,18 @@ export default function SettingsPage() {
   async function handleSaveProfile() {
     if (!profile) return;
 
-    // Validate name
+    const newErrors: Record<string, string> = {};
     if (fullName.trim()) {
       const validation = validateName(fullName);
-      if (!validation.valid) {
-        toast.error(validation.error);
-        return;
-      }
+      if (!validation.valid) newErrors.fullName = validation.error!;
     }
 
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     setSaving(true);
 
     const { error } = await supabase
@@ -236,9 +241,11 @@ export default function SettingsPage() {
               <Input
                 id="fullName"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={(e) => { setFullName(e.target.value); if (errors.fullName) setErrors({}); }}
                 placeholder="Jean Dupont"
+                aria-invalid={!!errors.fullName}
               />
+              <FormFieldError error={errors.fullName} />
             </div>
 
             <div className="space-y-2">

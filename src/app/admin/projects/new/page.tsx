@@ -26,6 +26,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { PhaseTemplatesSelector } from "@/components/phase-templates-selector";
 import { CreateClientDialog } from "@/components/create-client-dialog";
+import { FormFieldError } from "@/components/ui/form-field-error";
 import type { Client } from "@/types/database";
 import { validateName, validateDescription, validateUrl } from "@/lib/validation";
 
@@ -44,6 +45,17 @@ export default function NewProjectPage() {
   const [loading, setLoading] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [selectedPhases, setSelectedPhases] = useState<SelectedPhase[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -91,38 +103,31 @@ export default function NewProjectPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate inputs
+    // Validate all fields and collect errors
+    const newErrors: Record<string, string> = {};
+
     const nameValidation = validateName(formData.name);
-    if (!nameValidation.valid) {
-      toast.error(nameValidation.error);
-      return;
-    }
+    if (!nameValidation.valid) newErrors.name = nameValidation.error!;
 
     const descValidation = validateDescription(formData.description);
-    if (!descValidation.valid) {
-      toast.error(descValidation.error);
-      return;
-    }
+    if (!descValidation.valid) newErrors.description = descValidation.error!;
 
     const urlValidation = validateUrl(formData.staging_url);
-    if (!urlValidation.valid) {
-      toast.error(urlValidation.error);
-      return;
-    }
+    if (!urlValidation.valid) newErrors.staging_url = urlValidation.error!;
 
-    // Validate phases
     if (selectedPhases.length === 0) {
-      toast.error("Sélectionnez au moins une phase");
+      newErrors.phases = "Selectionnez au moins une phase";
+    } else {
+      const emptyPhase = selectedPhases.find((p) => !p.name.trim());
+      if (emptyPhase) newErrors.phases = "Toutes les phases doivent avoir un nom";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
-    // Check that all phases have names
-    const emptyPhase = selectedPhases.find((p) => !p.name.trim());
-    if (emptyPhase) {
-      toast.error("Toutes les phases doivent avoir un nom");
-      return;
-    }
-
+    setErrors({});
     setLoading(true);
 
     const supabase = createClient();
@@ -208,16 +213,18 @@ export default function NewProjectPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nom du projet *</Label>
+              <Label htmlFor="name">Nom du projet <span className="text-destructive">*</span></Label>
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                onChange={(e) => {
+                  setFormData({ ...formData, name: e.target.value });
+                  clearError("name");
+                }}
                 placeholder="Ex: Refonte site web"
-                required
+                aria-invalid={!!errors.name}
               />
+              <FormFieldError error={errors.name} />
             </div>
 
             <div className="space-y-2">
@@ -225,12 +232,15 @@ export default function NewProjectPage() {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
+                onChange={(e) => {
+                  setFormData({ ...formData, description: e.target.value });
+                  clearError("description");
+                }}
                 placeholder="Description du projet..."
                 rows={3}
+                aria-invalid={!!errors.description}
               />
+              <FormFieldError error={errors.description} />
             </div>
 
             <div className="space-y-2">
@@ -273,19 +283,28 @@ export default function NewProjectPage() {
                 id="staging_url"
                 type="url"
                 value={formData.staging_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, staging_url: e.target.value })
-                }
+                onChange={(e) => {
+                  setFormData({ ...formData, staging_url: e.target.value });
+                  clearError("staging_url");
+                }}
                 placeholder="https://staging.example.com"
+                aria-invalid={!!errors.staging_url}
               />
+              <FormFieldError error={errors.staging_url} />
             </div>
           </CardContent>
         </Card>
 
-        <PhaseTemplatesSelector
-          value={selectedPhases}
-          onChange={setSelectedPhases}
-        />
+        <div>
+          <PhaseTemplatesSelector
+            value={selectedPhases}
+            onChange={(phases) => {
+              setSelectedPhases(phases);
+              clearError("phases");
+            }}
+          />
+          <FormFieldError error={errors.phases} />
+        </div>
 
         <div className="flex flex-col-reverse sm:flex-row gap-3">
           <Button type="button" variant="outline" asChild className="w-full sm:w-auto">

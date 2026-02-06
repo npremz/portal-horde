@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { FormFieldError } from "@/components/ui/form-field-error";
 import type { Phase } from "@/types/database";
 
 export default function NewDeliverablePage() {
@@ -35,11 +36,21 @@ export default function NewDeliverablePage() {
 
   const [loading, setLoading] = useState(false);
   const [phases, setPhases] = useState<Phase[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     phase_id: preselectedPhase || "",
   });
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   const supabase = createClient();
 
@@ -64,6 +75,17 @@ export default function NewDeliverablePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const newErrors: Record<string, string> = {};
+    if (!formData.phase_id) newErrors.phase_id = "Selectionnez une phase";
+    if (!formData.title.trim()) newErrors.title = "Le titre est requis";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     setLoading(true);
 
     const {
@@ -113,14 +135,15 @@ export default function NewDeliverablePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="phase">Phase *</Label>
+              <Label htmlFor="phase">Phase <span className="text-destructive">*</span></Label>
               <Select
                 value={formData.phase_id}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, phase_id: value })
-                }
+                onValueChange={(value) => {
+                  setFormData({ ...formData, phase_id: value });
+                  clearError("phase_id");
+                }}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-invalid={!!errors.phase_id}>
                   <SelectValue placeholder="Selectionner une phase" />
                 </SelectTrigger>
                 <SelectContent>
@@ -131,19 +154,22 @@ export default function NewDeliverablePage() {
                   ))}
                 </SelectContent>
               </Select>
+              <FormFieldError error={errors.phase_id} />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="title">Titre *</Label>
+              <Label htmlFor="title">Titre <span className="text-destructive">*</span></Label>
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
+                onChange={(e) => {
+                  setFormData({ ...formData, title: e.target.value });
+                  clearError("title");
+                }}
                 placeholder="Ex: Maquette homepage v1"
-                required
+                aria-invalid={!!errors.title}
               />
+              <FormFieldError error={errors.title} />
             </div>
 
             <div className="space-y-2">

@@ -12,7 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { projectStatusConfig } from "@/lib/constants";
-import type { ProjectStatus } from "@/types/database";
+import type { ProjectStatus, Deliverable } from "@/types/database";
 
 const phaseStatusIcons = {
   pending: Clock,
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
         .select(
           `
           *,
-          phases(id, name, status, order_index)
+          phases(id, name, status, order_index, deliverables(id, title, status, updated_at))
         `
         )
         .eq("client_id", clientRecord.id)
@@ -85,11 +85,42 @@ export default async function DashboardPage() {
 
   // Calculate stats
   const activeProjects = projects?.filter((p) => p.status === "active").length || 0;
-  const pendingReviews =
-    projects?.reduce((acc, p) => {
-      const reviewPhases = p.phases?.filter((ph: { status: string }) => ph.status === "review").length || 0;
-      return acc + reviewPhases;
-    }, 0) || 0;
+
+  // Collect pending deliverables (for client widget) and count
+  interface PendingDeliverable {
+    id: string;
+    title: string;
+    updated_at: string;
+    projectId: string;
+    projectName: string;
+    phaseName: string;
+  }
+
+  const pendingDeliverables: PendingDeliverable[] = [];
+  projects?.forEach((p) => {
+    p.phases?.forEach((ph: { id: string; name: string; deliverables?: Deliverable[] }) => {
+      ph.deliverables?.forEach((d) => {
+        if (d.status === "pending_review") {
+          pendingDeliverables.push({
+            id: d.id,
+            title: d.title,
+            updated_at: d.updated_at,
+            projectId: p.id,
+            projectName: p.name,
+            phaseName: ph.name,
+          });
+        }
+      });
+    });
+  });
+  pendingDeliverables.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+
+  const pendingReviews = !isAdmin
+    ? pendingDeliverables.length
+    : projects?.reduce((acc, p) => {
+        const reviewPhases = p.phases?.filter((ph: { status: string }) => ph.status === "review").length || 0;
+        return acc + reviewPhases;
+      }, 0) || 0;
 
   // Get current phase for each project
   const getActivePhase = (phases: { name: string; status: string; order_index: number }[] | null) => {
@@ -146,6 +177,33 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Pending Deliverables (client only) */}
+      {!isAdmin && pendingDeliverables.length > 0 && (
+        <div>
+          <h2 className="text-lg md:text-xl font-semibold mb-3">A valider</h2>
+          <div className="grid gap-2">
+            {pendingDeliverables.map((d) => (
+              <Card key={d.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="flex items-center justify-between py-3 px-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium truncate">{d.title}</p>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {d.projectName} &middot; {d.phaseName}
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" asChild className="ml-3 shrink-0">
+                    <Link href={`/projects/${d.projectId}/deliverables/${d.id}`}>
+                      Valider
+                      <ArrowRight className="h-3 w-3 ml-1" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Projects List */}
       <div>

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { FormFieldError } from "@/components/ui/form-field-error";
 import type { Profile } from "@/types/database";
 
 export default function ContactPage() {
@@ -28,6 +29,16 @@ export default function ContactPage() {
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState("");
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   useEffect(() => {
     async function fetchProfile() {
@@ -47,11 +58,17 @@ export default function ContactPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!category || !subject.trim() || !message.trim()) {
-      toast.error("Veuillez remplir tous les champs");
+    const newErrors: Record<string, string> = {};
+    if (!category) newErrors.category = "Selectionnez une categorie";
+    if (!subject.trim()) newErrors.subject = "Le sujet est requis";
+    if (!message.trim()) newErrors.message = "Le message est requis";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
+    setErrors({});
     setSending(true);
 
     try {
@@ -127,40 +144,45 @@ export default function ContactPage() {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="category">Catégorie</Label>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez une catégorie" />
+                  <Label htmlFor="category">Categorie <span className="text-destructive">*</span></Label>
+                  <Select value={category} onValueChange={(v) => { setCategory(v); clearError("category"); }}>
+                    <SelectTrigger aria-invalid={!!errors.category}>
+                      <SelectValue placeholder="Selectionnez une categorie" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="question">Question générale</SelectItem>
+                      <SelectItem value="question">Question generale</SelectItem>
                       <SelectItem value="project">Question sur un projet</SelectItem>
-                      <SelectItem value="technical">Problème technique</SelectItem>
+                      <SelectItem value="technical">Probleme technique</SelectItem>
                       <SelectItem value="billing">Facturation</SelectItem>
                       <SelectItem value="other">Autre</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormFieldError error={errors.category} />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="subject">Sujet</Label>
+                  <Label htmlFor="subject">Sujet <span className="text-destructive">*</span></Label>
                   <Input
                     id="subject"
                     value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Résumez votre demande"
+                    onChange={(e) => { setSubject(e.target.value); clearError("subject"); }}
+                    placeholder="Resumez votre demande"
+                    aria-invalid={!!errors.subject}
                   />
+                  <FormFieldError error={errors.subject} />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="message">Message</Label>
+                  <Label htmlFor="message">Message <span className="text-destructive">*</span></Label>
                   <Textarea
                     id="message"
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Décrivez votre demande en détail..."
+                    onChange={(e) => { setMessage(e.target.value); clearError("message"); }}
+                    placeholder="Decrivez votre demande en detail..."
                     rows={6}
+                    aria-invalid={!!errors.message}
                   />
+                  <FormFieldError error={errors.message} />
                 </div>
 
                 <Button type="submit" disabled={sending} className="w-full">

@@ -2,14 +2,23 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Upload } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Upload, FileUp } from "lucide-react";
+
+export interface FileUploadProgress {
+  fileName: string;
+  percent: number;
+  current: number;
+  total: number;
+}
 
 interface FileUploadZoneProps {
   onUpload: (files: FileList) => Promise<void>;
   uploading?: boolean;
+  progress?: FileUploadProgress | null;
 }
 
-export function FileUploadZone({ onUpload, uploading = false }: FileUploadZoneProps) {
+export function FileUploadZone({ onUpload, uploading = false, progress }: FileUploadZoneProps) {
   const [dragActive, setDragActive] = useState(false);
 
   function handleDrag(e: React.DragEvent) {
@@ -37,6 +46,22 @@ export function FileUploadZone({ onUpload, uploading = false }: FileUploadZonePr
     }
   }
 
+  if (uploading && progress) {
+    return (
+      <div className="border-2 border-dashed rounded-lg p-6 text-center border-primary/50 bg-primary/5">
+        <FileUp className="mx-auto h-8 w-8 text-primary mb-3 animate-pulse" />
+        <p className="text-sm font-medium truncate px-4">{progress.fileName}</p>
+        <div className="mt-3 px-4">
+          <Progress value={progress.percent} className="h-2" />
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          {progress.percent}%
+          {progress.total > 1 && ` — Fichier ${progress.current} / ${progress.total}`}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
@@ -61,7 +86,7 @@ export function FileUploadZone({ onUpload, uploading = false }: FileUploadZonePr
         {uploading ? "Upload en cours..." : "Glisser-déposer ou cliquer pour uploader"}
       </p>
       <p className="text-xs text-muted-foreground mt-1">
-        Images, PDF, documents...
+        Images, PDF, documents... (max 50 Mo)
       </p>
     </div>
   );

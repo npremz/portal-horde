@@ -241,7 +241,7 @@ describe("POST /api/v1/clients", () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe("name and email are required");
+    expect(data.error).toMatch(/name/i);
   });
 
   it("returns 400 if email is missing", async () => {
@@ -261,7 +261,7 @@ describe("POST /api/v1/clients", () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe("name and email are required");
+    expect(data.error).toMatch(/email/i);
   });
 
   it("creates client successfully", async () => {

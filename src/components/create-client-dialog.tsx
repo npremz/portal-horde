@@ -21,6 +21,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { UserPlus, Loader2, Globe, Linkedin, Instagram, Facebook, Twitter } from "lucide-react";
 import { toast } from "sonner";
@@ -32,6 +42,7 @@ import {
   validateWebsite,
   validateNotes,
 } from "@/lib/validation";
+import { FormFieldError } from "@/components/ui/form-field-error";
 import type { ClientStatus } from "@/types/database";
 
 interface CreateClientDialogProps {
@@ -71,6 +82,17 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>(emptyForm);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   const updateSocial = (key: string, value: string) => {
     setFormData({
@@ -85,37 +107,30 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate
+    // Validate all fields and collect errors
+    const newErrors: Record<string, string> = {};
+
     const nameResult = validateName(formData.name);
-    if (!nameResult.valid) {
-      toast.error(nameResult.error);
-      return;
-    }
+    if (!nameResult.valid) newErrors.name = nameResult.error!;
 
     const emailResult = validateEmail(formData.email);
-    if (!emailResult.valid) {
-      toast.error(emailResult.error);
-      return;
-    }
+    if (!emailResult.valid) newErrors.email = emailResult.error!;
 
     const phoneResult = validatePhone(formData.phone || null);
-    if (!phoneResult.valid) {
-      toast.error(phoneResult.error);
-      return;
-    }
+    if (!phoneResult.valid) newErrors.phone = phoneResult.error!;
 
     const websiteResult = validateWebsite(formData.website || null);
-    if (!websiteResult.valid) {
-      toast.error(websiteResult.error);
-      return;
-    }
+    if (!websiteResult.valid) newErrors.website = websiteResult.error!;
 
     const notesResult = validateNotes(formData.notes || null);
-    if (!notesResult.valid) {
-      toast.error(notesResult.error);
+    if (!notesResult.valid) newErrors.notes = notesResult.error!;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
+    setErrors({});
     setLoading(true);
 
     try {
@@ -160,10 +175,17 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
     }
   };
 
+  const isDirty = () => JSON.stringify(formData) !== JSON.stringify(emptyForm);
+
   const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen && isDirty()) {
+      setShowCloseConfirm(true);
+      return;
+    }
     setOpen(newOpen);
     if (!newOpen) {
       setFormData(emptyForm);
+      setErrors({});
     }
   };
 
@@ -188,43 +210,50 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
             <h3 className="text-sm font-medium text-muted-foreground">Informations principales</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="client_name">Nom / Entreprise *</Label>
+                <Label htmlFor="client_name">Nom / Entreprise <span className="text-destructive">*</span></Label>
                 <Input
                   id="client_name"
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, name: e.target.value });
+                    clearError("name");
+                  }}
                   placeholder="Nom du client"
-                  required
+                  aria-invalid={!!errors.name}
                 />
+                <FormFieldError error={errors.name} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="client_email">Email *</Label>
+                <Label htmlFor="client_email">Email <span className="text-destructive">*</span></Label>
                 <Input
                   id="client_email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    clearError("email");
+                  }}
                   placeholder="contact@entreprise.com"
-                  required
+                  aria-invalid={!!errors.email}
                 />
+                <FormFieldError error={errors.email} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="client_phone">Téléphone</Label>
+                <Label htmlFor="client_phone">Telephone</Label>
                 <Input
                   id="client_phone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, phone: e.target.value });
+                    clearError("phone");
+                  }}
                   placeholder="+33 6 12 34 56 78"
+                  aria-invalid={!!errors.phone}
                 />
+                <FormFieldError error={errors.phone} />
               </div>
 
               <div className="space-y-2">
@@ -302,13 +331,16 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
                   id="client_website"
                   type="url"
                   value={formData.website}
-                  onChange={(e) =>
-                    setFormData({ ...formData, website: e.target.value })
-                  }
+                  onChange={(e) => {
+                    setFormData({ ...formData, website: e.target.value });
+                    clearError("website");
+                  }}
                   placeholder="https://exemple.com"
                   className="pl-10"
+                  aria-invalid={!!errors.website}
                 />
               </div>
+              <FormFieldError error={errors.website} />
             </div>
           </div>
 
@@ -388,12 +420,15 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
             <Textarea
               id="client_notes"
               value={formData.notes}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, notes: e.target.value });
+                clearError("notes");
+              }}
               placeholder="Notes internes (visibles uniquement par les admins)..."
               rows={3}
+              aria-invalid={!!errors.notes}
             />
+            <FormFieldError error={errors.notes} />
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -415,6 +450,23 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
           </div>
         </form>
       </DialogContent>
+
+      <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Modifications non sauvegardees</AlertDialogTitle>
+            <AlertDialogDescription>
+              Le formulaire contient des donnees non sauvegardees. Voulez-vous vraiment fermer ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continuer l&apos;edition</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setOpen(false); setFormData(emptyForm); setErrors({}); }}>
+              Fermer sans sauvegarder
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

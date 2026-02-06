@@ -21,6 +21,8 @@ import { CommentsSection } from "@/components/comments-section";
 import { FileList } from "@/components/file-list";
 import { LinksSection } from "@/components/links-section";
 import { FileUploadZone } from "@/components/file-upload-zone";
+import type { FileUploadProgress } from "@/components/file-upload-zone";
+import { uploadWithProgress } from "@/lib/upload-with-progress";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import type { DeliverableStatus, FileRecord, Link as LinkType } from "@/types/database";
@@ -31,12 +33,14 @@ export default function AdminDeliverablePage() {
   const deliverableId = params.deliverableId as string;
 
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<FileUploadProgress | null>(null);
 
   const {
     deliverable,
     files,
     links,
     comments,
+    setComments,
     currentUser,
     loading,
     supabase,
@@ -50,8 +54,11 @@ export default function AdminDeliverablePage() {
   async function handleFileUpload(fileList: FileList) {
     setUploading(true);
     const uploadedFiles: string[] = [];
+    const filesArray = Array.from(fileList);
+    const totalFiles = filesArray.length;
 
-    for (const file of Array.from(fileList)) {
+    for (let i = 0; i < filesArray.length; i++) {
+      const file = filesArray[i];
       const validation = validateFile(file);
       if (!validation.valid) {
         toast.error(`${file.name}: ${validation.error}`);
@@ -61,9 +68,27 @@ export default function AdminDeliverablePage() {
       const fileExt = file.name.split(".").pop();
       const filePath = `${projectId}/${deliverableId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("deliverables")
-        .upload(filePath, file);
+      setUploadProgress({
+        fileName: file.name,
+        percent: 0,
+        current: i + 1,
+        total: totalFiles,
+      });
+
+      const { error: uploadError } = await uploadWithProgress(
+        supabase,
+        "deliverables",
+        filePath,
+        file,
+        (progress) => {
+          setUploadProgress({
+            fileName: file.name,
+            percent: progress.percent,
+            current: i + 1,
+            total: totalFiles,
+          });
+        }
+      );
 
       if (uploadError) {
         toast.error(`Erreur upload: ${file.name}`);
@@ -103,6 +128,7 @@ export default function AdminDeliverablePage() {
       refetch();
     }
 
+    setUploadProgress(null);
     setUploading(false);
   }
 
@@ -167,18 +193,42 @@ export default function AdminDeliverablePage() {
       return;
     }
 
-    const { error } = await supabase.from("comments").insert({
+    // Optimistic insert
+    const tempId = `temp-${Date.now()}`;
+    const tempComment = {
+      id: tempId,
       deliverable_id: deliverableId,
-      author_id: currentUser?.id,
+      author_id: currentUser?.id ?? null,
       content: validation.sanitized,
-    });
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      author: currentUser ?? undefined,
+    };
+    setComments((prev) => [...prev, tempComment]);
+
+    const { data: inserted, error } = await supabase
+      .from("comments")
+      .insert({
+        deliverable_id: deliverableId,
+        author_id: currentUser?.id,
+        content: validation.sanitized,
+      })
+      .select("*, author:profiles(*)")
+      .single();
 
     if (error) {
+      // Rollback optimistic insert
+      setComments((prev) => prev.filter((c) => c.id !== tempId));
       toast.error("Erreur lors de l'envoi");
       return;
     }
 
-    // Notify client of new comment from admin
+    // Replace temp with real comment
+    setComments((prev) =>
+      prev.map((c) => (c.id === tempId ? inserted : c))
+    );
+
+    // Notify client of new comment from admin (fire and forget)
     const { data: project } = await supabase
       .from("projects")
       .select("client_id, name")
@@ -195,8 +245,6 @@ export default function AdminDeliverablePage() {
         link: `/projects/${projectId}/deliverables/${deliverableId}`,
       });
     }
-
-    refetch();
   }
 
   async function handleStatusChange(status: DeliverableStatus) {
@@ -294,7 +342,7 @@ export default function AdminDeliverablePage() {
               <CardTitle>Fichiers ({files.length})</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FileUploadZone onUpload={handleFileUpload} uploading={uploading} />
+              <FileUploadZone onUpload={handleFileUpload} uploading={uploading} progress={uploadProgress} />
               <FileList
                 files={files}
                 onDownload={handleDownloadFile}

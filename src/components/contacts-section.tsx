@@ -20,6 +20,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -72,25 +82,31 @@ export function ContactsSection({
 }: ContactsSectionProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<ClientContact | null>(null);
+  const [contactToDelete, setContactToDelete] = useState<ClientContact | null>(null);
   const [formData, setFormData] = useState<ContactFormData>(emptyForm);
   const [loading, setLoading] = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const [initialFormData, setInitialFormData] = useState<ContactFormData>(emptyForm);
 
   const openAddDialog = () => {
     setEditingContact(null);
     setFormData(emptyForm);
+    setInitialFormData(emptyForm);
     setDialogOpen(true);
   };
 
   const openEditDialog = (contact: ClientContact) => {
     setEditingContact(contact);
-    setFormData({
+    const editData: ContactFormData = {
       name: contact.name,
       email: contact.email || "",
       phone: contact.phone || "",
       role: contact.role,
       is_primary: contact.is_primary,
       notes: contact.notes || "",
-    });
+    };
+    setFormData(editData);
+    setInitialFormData(editData);
     setDialogOpen(true);
   };
 
@@ -157,8 +173,6 @@ export function ContactsSection({
   };
 
   const handleDelete = async (contact: ClientContact) => {
-    if (!confirm(`Supprimer le contact ${contact.name} ?`)) return;
-
     try {
       await onDeleteContact(contact.id);
       toast.success("Contact supprime");
@@ -166,6 +180,8 @@ export function ContactsSection({
       toast.error(
         error instanceof Error ? error.message : "Erreur lors de la suppression"
       );
+    } finally {
+      setContactToDelete(null);
     }
   };
 
@@ -191,7 +207,13 @@ export function ContactsSection({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Contacts ({contacts.length})</CardTitle>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={(newOpen) => {
+          if (!newOpen && JSON.stringify(formData) !== JSON.stringify(initialFormData)) {
+            setShowCloseConfirm(true);
+            return;
+          }
+          setDialogOpen(newOpen);
+        }}>
           <DialogTrigger asChild>
             <Button size="sm" onClick={openAddDialog}>
               <Plus className="h-4 w-4 mr-2" />
@@ -376,7 +398,7 @@ export function ContactsSection({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDelete(contact)}
+                      onClick={() => setContactToDelete(contact)}
                       title="Supprimer"
                       className="text-destructive hover:text-destructive"
                     >
@@ -389,6 +411,43 @@ export function ContactsSection({
           </div>
         )}
       </CardContent>
+
+      <AlertDialog open={!!contactToDelete} onOpenChange={(open) => !open && setContactToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer le contact</AlertDialogTitle>
+            <AlertDialogDescription>
+              Supprimer le contact {contactToDelete?.name} ? Cette action est irreversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => contactToDelete && handleDelete(contactToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Modifications non sauvegardees</AlertDialogTitle>
+            <AlertDialogDescription>
+              Le formulaire contient des donnees non sauvegardees. Voulez-vous vraiment fermer ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continuer l&apos;edition</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setDialogOpen(false); setFormData(emptyForm); }}>
+              Fermer sans sauvegarder
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

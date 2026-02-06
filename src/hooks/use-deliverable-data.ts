@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { logActivity } from "@/lib/activity";
@@ -37,6 +37,7 @@ interface UseDeliverableDataReturn {
   files: FileWithUploader[];
   links: LinkWithCreator[];
   comments: CommentWithAuthor[];
+  setComments: React.Dispatch<React.SetStateAction<CommentWithAuthor[]>>;
   currentUser: Profile | null;
   loading: boolean;
   supabase: ReturnType<typeof createClient>;
@@ -134,11 +135,52 @@ export function useDeliverableData({
     void fetchData();
   }, [fetchData]);
 
+  // Real-time comments subscription
+  useEffect(() => {
+    if (!deliverableId) return;
+
+    const channel = supabase
+      .channel(`comments:${deliverableId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "comments",
+          filter: `deliverable_id=eq.${deliverableId}`,
+        },
+        async (payload) => {
+          const newId = (payload.new as Comment).id;
+
+          // Fetch with author data
+          const { data } = await supabase
+            .from("comments")
+            .select("*, author:profiles(*)")
+            .eq("id", newId)
+            .single();
+
+          if (data) {
+            setComments((prev) => {
+              // Skip if already in state (from optimistic insert or refetch)
+              if (prev.some((c) => c.id === data.id)) return prev;
+              return [...prev, data];
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, deliverableId]);
+
   return {
     deliverable,
     files,
     links,
     comments,
+    setComments,
     currentUser,
     loading,
     supabase,

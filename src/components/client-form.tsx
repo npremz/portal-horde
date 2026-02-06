@@ -23,6 +23,7 @@ import {
   validateNotes,
   validateName,
 } from "@/lib/validation";
+import { FormFieldError } from "@/components/ui/form-field-error";
 import type { Client, ClientStatus } from "@/types/database";
 
 interface ClientFormProps {
@@ -50,6 +51,17 @@ export interface ClientFormData {
 
 export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
   const [formData, setFormData] = useState<ClientFormData>({
     name: client?.name || "",
     email: client?.email || "",
@@ -65,37 +77,30 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate all fields
+    // Validate all fields and collect errors
+    const newErrors: Record<string, string> = {};
+
     const nameResult = validateName(formData.name);
-    if (!nameResult.valid) {
-      toast.error(nameResult.error);
-      return;
-    }
+    if (!nameResult.valid) newErrors.name = nameResult.error!;
 
     const emailResult = validateEmail(formData.email);
-    if (!emailResult.valid) {
-      toast.error(emailResult.error);
-      return;
-    }
+    if (!emailResult.valid) newErrors.email = emailResult.error!;
 
     const phoneResult = validatePhone(formData.phone || null);
-    if (!phoneResult.valid) {
-      toast.error(phoneResult.error);
-      return;
-    }
+    if (!phoneResult.valid) newErrors.phone = phoneResult.error!;
 
     const websiteResult = validateWebsite(formData.website || null);
-    if (!websiteResult.valid) {
-      toast.error(websiteResult.error);
-      return;
-    }
+    if (!websiteResult.valid) newErrors.website = websiteResult.error!;
 
     const notesResult = validateNotes(formData.notes || null);
-    if (!notesResult.valid) {
-      toast.error(notesResult.error);
+    if (!notesResult.valid) newErrors.notes = notesResult.error!;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
+    setErrors({});
     setLoading(true);
     try {
       await onSave({
@@ -137,43 +142,50 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Nom / Entreprise *</Label>
+              <Label htmlFor="name">Nom / Entreprise <span className="text-destructive">*</span></Label>
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                onChange={(e) => {
+                  setFormData({ ...formData, name: e.target.value });
+                  clearError("name");
+                }}
                 placeholder="Nom du client ou de l'entreprise"
-                required
+                aria-invalid={!!errors.name}
               />
+              <FormFieldError error={errors.name} />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
+                onChange={(e) => {
+                  setFormData({ ...formData, email: e.target.value });
+                  clearError("email");
+                }}
                 placeholder="contact@entreprise.com"
-                required
+                aria-invalid={!!errors.email}
               />
+              <FormFieldError error={errors.email} />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Téléphone</Label>
+              <Label htmlFor="phone">Telephone</Label>
               <Input
                 id="phone"
                 type="tel"
                 value={formData.phone || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
+                onChange={(e) => {
+                  setFormData({ ...formData, phone: e.target.value });
+                  clearError("phone");
+                }}
                 placeholder="+33 6 12 34 56 78"
+                aria-invalid={!!errors.phone}
               />
+              <FormFieldError error={errors.phone} />
             </div>
 
             <div className="space-y-2">
@@ -251,13 +263,16 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
                 id="website"
                 type="url"
                 value={formData.website || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, website: e.target.value })
-                }
+                onChange={(e) => {
+                  setFormData({ ...formData, website: e.target.value });
+                  clearError("website");
+                }}
                 placeholder="https://exemple.com"
                 className="pl-10"
+                aria-invalid={!!errors.website}
               />
             </div>
+            <FormFieldError error={errors.website} />
           </div>
         </CardContent>
       </Card>
@@ -339,12 +354,15 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
           <Textarea
             id="notes"
             value={formData.notes || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, notes: e.target.value })
-            }
+            onChange={(e) => {
+              setFormData({ ...formData, notes: e.target.value });
+              clearError("notes");
+            }}
             placeholder="Notes internes (visibles uniquement par les admins)..."
             rows={4}
+            aria-invalid={!!errors.notes}
           />
+          <FormFieldError error={errors.notes} />
         </CardContent>
       </Card>
 

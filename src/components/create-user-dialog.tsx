@@ -19,10 +19,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { UserPlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { userRoleConfig } from "@/lib/constants";
 import { validateEmail, validateName } from "@/lib/validation";
+import { FormFieldError } from "@/components/ui/form-field-error";
 import type { UserRole } from "@/types/database";
 
 interface CreateUserDialogProps {
@@ -47,23 +58,35 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>(emptyForm);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate
+    const newErrors: Record<string, string> = {};
+
     const nameResult = validateName(formData.full_name);
-    if (!nameResult.valid) {
-      toast.error(nameResult.error);
-      return;
-    }
+    if (!nameResult.valid) newErrors.full_name = nameResult.error!;
 
     const emailResult = validateEmail(formData.email);
-    if (!emailResult.valid) {
-      toast.error(emailResult.error);
+    if (!emailResult.valid) newErrors.email = emailResult.error!;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
+    setErrors({});
     setLoading(true);
 
     try {
@@ -103,10 +126,17 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
     }
   };
 
+  const isDirty = () => JSON.stringify(formData) !== JSON.stringify(emptyForm);
+
   const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen && isDirty()) {
+      setShowCloseConfirm(true);
+      return;
+    }
     setOpen(newOpen);
     if (!newOpen) {
       setFormData(emptyForm);
+      setErrors({});
     }
   };
 
@@ -127,30 +157,34 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
         </DialogHeader>
         <form onSubmit={handleCreate} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="user_name">Nom complet *</Label>
+            <Label htmlFor="user_name">Nom complet <span className="text-destructive">*</span></Label>
             <Input
               id="user_name"
               value={formData.full_name}
-              onChange={(e) =>
-                setFormData({ ...formData, full_name: e.target.value })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, full_name: e.target.value });
+                clearError("full_name");
+              }}
               placeholder="Jean Dupont"
-              required
+              aria-invalid={!!errors.full_name}
             />
+            <FormFieldError error={errors.full_name} />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="user_email">Email *</Label>
+            <Label htmlFor="user_email">Email <span className="text-destructive">*</span></Label>
             <Input
               id="user_email"
               type="email"
               value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, email: e.target.value });
+                clearError("email");
+              }}
               placeholder="jean@exemple.com"
-              required
+              aria-invalid={!!errors.email}
             />
+            <FormFieldError error={errors.email} />
           </div>
 
           <div className="space-y-2">
@@ -210,6 +244,23 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
           </div>
         </form>
       </DialogContent>
+
+      <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Modifications non sauvegardees</AlertDialogTitle>
+            <AlertDialogDescription>
+              Le formulaire contient des donnees non sauvegardees. Voulez-vous vraiment fermer ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continuer l&apos;edition</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setOpen(false); setFormData(emptyForm); setErrors({}); }}>
+              Fermer sans sauvegarder
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

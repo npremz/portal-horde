@@ -12,20 +12,56 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { UserPlus, Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { FormFieldError } from "@/components/ui/form-field-error";
+import { validateEmail, validateName } from "@/lib/validation";
+
+const emptyForm = { email: "", full_name: "", company: "" };
 
 export function InviteClientDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    full_name: "",
-    company: "",
-  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState(emptyForm);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const newErrors: Record<string, string> = {};
+    const emailResult = validateEmail(formData.email);
+    if (!emailResult.valid) newErrors.email = emailResult.error!;
+    if (formData.full_name.trim()) {
+      const nameResult = validateName(formData.full_name);
+      if (!nameResult.valid) newErrors.full_name = nameResult.error!;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     setLoading(true);
 
     try {
@@ -42,7 +78,7 @@ export function InviteClientDialog() {
       }
 
       toast.success(`Invitation envoyée à ${formData.email}`);
-      setFormData({ email: "", full_name: "", company: "" });
+      setFormData(emptyForm);
       setOpen(false);
     } catch (error) {
       toast.error(
@@ -54,7 +90,14 @@ export function InviteClientDialog() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      if (!newOpen && JSON.stringify(formData) !== JSON.stringify(emptyForm)) {
+        setShowCloseConfirm(true);
+        return;
+      }
+      setOpen(newOpen);
+      if (!newOpen) { setErrors({}); }
+    }}>
       <DialogTrigger asChild>
         <Button>
           <UserPlus className="h-4 w-4 mr-2" />
@@ -70,17 +113,19 @@ export function InviteClientDialog() {
         </DialogHeader>
         <form onSubmit={handleInvite} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email *</Label>
+            <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, email: e.target.value });
+                clearError("email");
+              }}
               placeholder="client@entreprise.com"
-              required
+              aria-invalid={!!errors.email}
             />
+            <FormFieldError error={errors.email} />
           </div>
 
           <div className="space-y-2">
@@ -88,11 +133,14 @@ export function InviteClientDialog() {
             <Input
               id="full_name"
               value={formData.full_name}
-              onChange={(e) =>
-                setFormData({ ...formData, full_name: e.target.value })
-              }
+              onChange={(e) => {
+                setFormData({ ...formData, full_name: e.target.value });
+                clearError("full_name");
+              }}
               placeholder="Jean Dupont"
+              aria-invalid={!!errors.full_name}
             />
+            <FormFieldError error={errors.full_name} />
           </div>
 
           <div className="space-y-2">
@@ -126,6 +174,23 @@ export function InviteClientDialog() {
           </div>
         </form>
       </DialogContent>
+
+      <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Modifications non sauvegardees</AlertDialogTitle>
+            <AlertDialogDescription>
+              Le formulaire contient des donnees non sauvegardees. Voulez-vous vraiment fermer ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continuer l&apos;edition</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setOpen(false); setFormData(emptyForm); setErrors({}); }}>
+              Fermer sans sauvegarder
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

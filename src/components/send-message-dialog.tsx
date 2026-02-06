@@ -14,6 +14,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -22,6 +32,7 @@ import {
 } from "@/components/ui/select";
 import { Mail, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
+import { FormFieldError } from "@/components/ui/form-field-error";
 import { prospectingTemplates, messageTypeConfig } from "@/lib/constants";
 import { replaceTemplateVariables } from "@/lib/email/templates";
 import type { Client, ClientContact, MessageType } from "@/types/database";
@@ -54,6 +65,17 @@ export function SendMessageDialog({
   const [messageType, setMessageType] = useState<MessageType>("prospecting");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   // Build list of recipients: client email + contacts with email
   const recipients = useMemo(() => {
@@ -140,21 +162,17 @@ export function SendMessageDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedRecipientId) {
-      toast.error("Selectionnez un destinataire");
+    const newErrors: Record<string, string> = {};
+    if (!selectedRecipientId) newErrors.recipient = "Selectionnez un destinataire";
+    if (!subject.trim()) newErrors.subject = "Le sujet est requis";
+    if (!content.trim()) newErrors.content = "Le contenu est requis";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
-    if (!subject.trim()) {
-      toast.error("Le sujet est requis");
-      return;
-    }
-
-    if (!content.trim()) {
-      toast.error("Le contenu est requis");
-      return;
-    }
-
+    setErrors({});
     setLoading(true);
 
     try {
@@ -197,15 +215,21 @@ export function SendMessageDialog({
     }
   };
 
+  const resetForm = () => {
+    setSubject("");
+    setContent("");
+    setSelectedRecipientId("");
+    setMessageType("prospecting");
+    setErrors({});
+  };
+
   const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen);
-    if (!newOpen) {
-      // Reset on close
-      setSubject("");
-      setContent("");
-      setSelectedRecipientId("");
-      setMessageType("prospecting");
+    if (!newOpen && (subject.trim() || content.trim())) {
+      setShowCloseConfirm(true);
+      return;
     }
+    setOpen(newOpen);
+    if (!newOpen) resetForm();
   };
 
   return (
@@ -235,12 +259,12 @@ export function SendMessageDialog({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="contact">Destinataire *</Label>
+                <Label htmlFor="contact">Destinataire <span className="text-destructive">*</span></Label>
                 <Select
                   value={selectedRecipientId}
-                  onValueChange={setSelectedRecipientId}
+                  onValueChange={(v) => { setSelectedRecipientId(v); clearError("recipient"); }}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full" aria-invalid={!!errors.recipient}>
                     <SelectValue placeholder="Selectionner un destinataire" />
                   </SelectTrigger>
                   <SelectContent>
@@ -252,6 +276,7 @@ export function SendMessageDialog({
                     ))}
                   </SelectContent>
                 </Select>
+                <FormFieldError error={errors.recipient} />
               </div>
 
               <div className="space-y-2">
@@ -275,26 +300,28 @@ export function SendMessageDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="subject">Sujet *</Label>
+              <Label htmlFor="subject">Sujet <span className="text-destructive">*</span></Label>
               <Input
                 id="subject"
                 value={subject}
-                onChange={(e) => setSubject(e.target.value)}
+                onChange={(e) => { setSubject(e.target.value); clearError("subject"); }}
                 placeholder="Sujet de l'email"
-                required
+                aria-invalid={!!errors.subject}
               />
+              <FormFieldError error={errors.subject} />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="content">Message *</Label>
+              <Label htmlFor="content">Message <span className="text-destructive">*</span></Label>
               <Textarea
                 id="content"
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => { setContent(e.target.value); clearError("content"); }}
                 placeholder="Contenu du message..."
                 rows={10}
-                required
+                aria-invalid={!!errors.content}
               />
+              <FormFieldError error={errors.content} />
               <p className="text-xs text-muted-foreground">
                 Variables disponibles : {"{{nom}}"}, {"{{prenom}}"}, {"{{entreprise}}"}, {"{{email}}"}
               </p>
@@ -320,6 +347,23 @@ export function SendMessageDialog({
           </form>
         )}
       </DialogContent>
+
+      <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Modifications non sauvegardees</AlertDialogTitle>
+            <AlertDialogDescription>
+              Votre message n&apos;a pas ete envoye. Voulez-vous vraiment fermer ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continuer l&apos;edition</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setOpen(false); resetForm(); }}>
+              Fermer sans envoyer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

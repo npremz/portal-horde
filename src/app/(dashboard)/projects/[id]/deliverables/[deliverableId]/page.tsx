@@ -28,6 +28,7 @@ export default function ClientDeliverablePage() {
     files,
     links,
     comments,
+    setComments,
     currentUser,
     loading,
     supabase,
@@ -62,16 +63,40 @@ export default function ClientDeliverablePage() {
       return;
     }
 
-    const { error } = await supabase.from("comments").insert({
+    // Optimistic insert
+    const tempId = `temp-${Date.now()}`;
+    const tempComment = {
+      id: tempId,
       deliverable_id: deliverableId,
-      author_id: currentUser?.id,
+      author_id: currentUser?.id ?? null,
       content: validation.sanitized,
-    });
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      author: currentUser ?? undefined,
+    };
+    setComments((prev) => [...prev, tempComment]);
+
+    const { data: inserted, error } = await supabase
+      .from("comments")
+      .insert({
+        deliverable_id: deliverableId,
+        author_id: currentUser?.id,
+        content: validation.sanitized,
+      })
+      .select("*, author:profiles(*)")
+      .single();
 
     if (error) {
+      // Rollback optimistic insert
+      setComments((prev) => prev.filter((c) => c.id !== tempId));
       toast.error("Erreur lors de l'envoi");
       return;
     }
+
+    // Replace temp with real comment
+    setComments((prev) =>
+      prev.map((c) => (c.id === tempId ? inserted : c))
+    );
 
     logActivity({
       action: "add_comment",
@@ -79,7 +104,7 @@ export default function ClientDeliverablePage() {
       deliverableId,
     });
 
-    // Notify admins of new comment
+    // Notify admins of new comment (fire and forget)
     const { data: admins } = await supabase
       .from("profiles")
       .select("id")
@@ -96,8 +121,6 @@ export default function ClientDeliverablePage() {
 
       await supabase.from("notifications").insert(notifications);
     }
-
-    refetch();
   }
 
   async function handleValidation(approved: boolean, comment?: string) {

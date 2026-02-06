@@ -59,8 +59,8 @@ describe("API Schemas", () => {
         website: "https://example.com",
         status: "contacted",
         notes: "Some notes",
-        project_type: "Website",
-        sector: "Tech",
+        project_type: "website",
+        sector: "tech",
         socials: {
           linkedin: "https://linkedin.com/company/test",
         },
