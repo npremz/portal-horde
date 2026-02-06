@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, MoreHorizontal, Pencil, Trash2, Eye, ChevronRight } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, Eye, ChevronRight, FolderOpen } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -105,6 +105,7 @@ export default async function AdminProjectsPage() {
         ) : (
           <Card>
             <CardContent className="py-8 text-center">
+              <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">Aucun projet</p>
               <Button asChild>
                 <Link href="/admin/projects/new">Créer un projet</Link>
@@ -188,7 +189,7 @@ export default async function AdminProjectsPage() {
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" aria-label="Actions">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -218,6 +219,7 @@ export default async function AdminProjectsPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8">
+                    <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">Aucun projet</p>
                     <Button className="mt-4" asChild>
                       <Link href="/admin/projects/new">Créer un projet</Link>

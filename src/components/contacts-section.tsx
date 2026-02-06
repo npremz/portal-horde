@@ -323,9 +323,10 @@ export function ContactsSection({
       </CardHeader>
       <CardContent>
         {sortedContacts.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            Aucun contact
-          </p>
+          <div className="text-sm text-muted-foreground text-center py-4">
+            <User className="h-10 w-10 mx-auto mb-2" />
+            <p>Aucun contact</p>
+          </div>
         ) : (
           <div className="space-y-3">
             {sortedContacts.map((contact, index) => (
@@ -383,6 +384,7 @@ export function ContactsSection({
                         size="icon"
                         onClick={() => handleSetPrimary(contact)}
                         title="Definir comme principal"
+                        aria-label="Definir comme principal"
                       >
                         <Star className="h-4 w-4" />
                       </Button>
@@ -392,6 +394,7 @@ export function ContactsSection({
                       size="icon"
                       onClick={() => openEditDialog(contact)}
                       title="Modifier"
+                      aria-label="Modifier le contact"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -400,6 +403,7 @@ export function ContactsSection({
                       size="icon"
                       onClick={() => setContactToDelete(contact)}
                       title="Supprimer"
+                      aria-label="Supprimer le contact"
                       className="text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />

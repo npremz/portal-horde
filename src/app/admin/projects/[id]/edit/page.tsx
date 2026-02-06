@@ -153,7 +153,7 @@ export default function EditProjectPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-4">
         <Link href={`/admin/projects/${projectId}`}>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" aria-label="Retour au projet">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>

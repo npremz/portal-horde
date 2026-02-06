@@ -32,7 +32,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  ArrowLeft,
   ExternalLink,
   Edit,
   Plus,
@@ -47,6 +46,14 @@ import {
   Trash2,
   Pencil,
 } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { toast } from "sonner";
 import type {
   Project,
@@ -281,12 +288,19 @@ export default function AdminProjectPage() {
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <Button variant="ghost" size="sm" className="mb-4 -ml-2" asChild>
-          <Link href="/admin/projects">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Projets
-          </Link>
-        </Button>
+        <Breadcrumb className="mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/admin/projects">Projets</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{project.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -399,6 +413,7 @@ export default function AdminProjectPage() {
       {/* Timeline vertical */}
       {phases.length === 0 ? (
         <div className="text-center py-12 border rounded-lg bg-muted/30">
+          <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground mb-4">Aucune étape pour ce projet</p>
           <Button onClick={() => setAddPhaseOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
@@ -463,7 +478,7 @@ export default function AdminProjectPage() {
 
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Actions de la phase">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -560,7 +575,7 @@ export default function AdminProjectPage() {
                                 </SelectContent>
                               </Select>
                               <Link href={`/admin/projects/${projectId}/deliverables/${deliverable.id}`}>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Voir le livrable">
                                   <ChevronRight className="h-4 w-4" />
                                 </Button>
                               </Link>

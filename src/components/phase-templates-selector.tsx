@@ -207,6 +207,7 @@ export function PhaseTemplatesSelector({
                       className="h-6 w-6"
                       onClick={() => movePhase(index, "up")}
                       disabled={index === 0}
+                      aria-label="Monter la phase"
                     >
                       <ChevronUp className="h-4 w-4" />
                     </Button>
@@ -217,6 +218,7 @@ export function PhaseTemplatesSelector({
                       className="h-6 w-6"
                       onClick={() => movePhase(index, "down")}
                       disabled={index === value.length - 1}
+                      aria-label="Descendre la phase"
                     >
                       <ChevronDown className="h-4 w-4" />
                     </Button>
@@ -251,6 +253,7 @@ export function PhaseTemplatesSelector({
                     size="icon"
                     onClick={() => removePhase(phase.id)}
                     className="text-destructive hover:text-destructive"
+                    aria-label="Retirer la phase"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

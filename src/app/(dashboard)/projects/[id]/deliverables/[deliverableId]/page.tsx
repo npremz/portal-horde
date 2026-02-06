@@ -8,13 +8,20 @@ import { validateComment } from "@/lib/validation";
 import { deliverableStatusConfig } from "@/lib/constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommentsSection } from "@/components/comments-section";
 import { FileList, FileGallery } from "@/components/file-list";
 import { LinksSection } from "@/components/links-section";
 import { ValidationCard } from "@/components/validation-card";
-import { ArrowLeft } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { toast } from "sonner";
 import type { DeliverableStatus, FileRecord } from "@/types/database";
 
@@ -25,6 +32,7 @@ export default function ClientDeliverablePage() {
 
   const {
     deliverable,
+    projectName,
     files,
     links,
     comments,
@@ -213,23 +221,35 @@ export default function ClientDeliverablePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-start gap-3">
-        <Link href={`/projects/${projectId}`}>
-          <Button variant="ghost" size="icon" className="shrink-0 mt-1">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <h1 className="text-xl md:text-2xl font-semibold">{deliverable.title}</h1>
-            <Badge className={`${config.color} shrink-0`}>{config.label}</Badge>
-          </div>
-          {deliverable.description && (
-            <p className="text-sm md:text-base text-muted-foreground mt-1">
-              {deliverable.description}
-            </p>
-          )}
+      <div>
+        <Breadcrumb className="mb-2">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/dashboard">Mes projets</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href={`/projects/${projectId}`}>{projectName ?? "Projet"}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{deliverable.title}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <div className="flex items-start justify-between gap-2">
+          <h1 className="text-xl md:text-2xl font-semibold">{deliverable.title}</h1>
+          <Badge className={`${config.color} shrink-0`}>{config.label}</Badge>
         </div>
+        {deliverable.description && (
+          <p className="text-sm md:text-base text-muted-foreground mt-1">
+            {deliverable.description}
+          </p>
+        )}
       </div>
 
       {/* Validation buttons */}

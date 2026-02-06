@@ -5,13 +5,20 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ActivityTracker } from "@/components/activity-tracker";
 import {
-  ArrowLeft,
   ExternalLink,
   CheckCircle2,
   ChevronRight,
   FileText,
   MessageSquare,
 } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { phaseStatusConfig, deliverableStatusConfig } from "@/lib/constants";
 import type { Phase, Deliverable, PhaseStatus, DeliverableStatus } from "@/types/database";
 
@@ -102,12 +109,19 @@ export default async function ProjectPage({
 
       {/* Header */}
       <div className="mb-6 md:mb-8">
-        <Button variant="ghost" size="sm" className="mb-3 md:mb-4 -ml-2" asChild>
-          <Link href="/dashboard">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Mes projets
-          </Link>
-        </Button>
+        <Breadcrumb className="mb-3 md:mb-4">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/dashboard">Mes projets</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{project.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div className="min-w-0">

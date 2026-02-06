@@ -8,7 +8,7 @@ import { validateFile, validateComment } from "@/lib/validation";
 import { deliverableStatusConfig } from "@/lib/constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -23,7 +23,14 @@ import { LinksSection } from "@/components/links-section";
 import { FileUploadZone } from "@/components/file-upload-zone";
 import type { FileUploadProgress } from "@/components/file-upload-zone";
 import { uploadWithProgress } from "@/lib/upload-with-progress";
-import { ArrowLeft } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { toast } from "sonner";
 import type { DeliverableStatus, FileRecord, Link as LinkType } from "@/types/database";
 
@@ -37,6 +44,7 @@ export default function AdminDeliverablePage() {
 
   const {
     deliverable,
+    projectName,
     files,
     links,
     comments,
@@ -302,18 +310,30 @@ export default function AdminDeliverablePage() {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href={`/admin/projects/${projectId}`}>
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-semibold">{deliverable.title}</h1>
-            {deliverable.description && (
-              <p className="text-muted-foreground">{deliverable.description}</p>
-            )}
-          </div>
+        <div>
+          <Breadcrumb className="mb-2">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/admin/projects">Projets</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href={`/admin/projects/${projectId}`}>{projectName ?? "Projet"}</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{deliverable.title}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <h1 className="text-2xl font-semibold">{deliverable.title}</h1>
+          {deliverable.description && (
+            <p className="text-muted-foreground">{deliverable.description}</p>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Select

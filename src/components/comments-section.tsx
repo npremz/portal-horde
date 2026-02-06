@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, MessageSquare } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import type { Comment, Profile } from "@/types/database";
 
@@ -46,9 +46,10 @@ export function CommentsSection({
       <CardContent className="space-y-4">
         <div className="space-y-4 max-h-[400px] overflow-y-auto">
           {comments.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              Aucun commentaire
-            </p>
+            <div className="text-sm text-muted-foreground text-center py-4">
+              <MessageSquare className="h-10 w-10 mx-auto mb-2" />
+              <p>Aucun commentaire</p>
+            </div>
           ) : (
             comments.map((comment) => {
               const isCurrentUser = isHighlightCurrentUser && comment.author_id === currentUserId;

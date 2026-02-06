@@ -216,3 +216,81 @@
     opacity: 0.7;
   }
 }
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Touch target: invisible hit area for small buttons on touch devices */
+@media (pointer: coarse) {
+  [data-slot="button"][data-size="icon"],
+  [data-slot="button"][data-size="icon-sm"],
+  [data-slot="button"][data-size="icon-xs"] {
+    position: relative;
+  }
+  [data-slot="button"][data-size="icon"]::after,
+  [data-slot="button"][data-size="icon-sm"]::after,
+  [data-slot="button"][data-size="icon-xs"]::after {
+    content: "";
+    position: absolute;
+    min-width: 44px;
+    min-height: 44px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Print styles */
+@media print {
+  /* Hide interactive/navigation elements */
+  [data-slot="sidebar"],
+  [data-slot="mobile-header"],
+  [data-sonner-toaster],
+  [data-slot="button"]:not([data-print]),
+  [role="dialog"],
+  input,
+  textarea,
+  select {
+    display: none !important;
+  }
+
+  /* Show link URLs */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+  a[href^="#"]::after {
+    content: none;
+  }
+
+  /* Avoid breaking inside cards */
+  [data-slot="card"] {
+    break-inside: avoid;
+  }
+
+  /* Full width */
+  body,
+  main {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Badges readable in B&W */
+  [data-slot="badge"] {
+    border: 1px solid #999 !important;
+    color: #000 !important;
+    background: #fff !important;
+  }
+}

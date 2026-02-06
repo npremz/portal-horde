@@ -27,6 +27,7 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
+  Activity,
 } from "lucide-react";
 import { actionLabels, actionColors } from "@/lib/activity";
 import type { ActivityLog, ActivityAction, Profile, Project } from "@/types/database";
@@ -251,6 +252,7 @@ export default function LogsPage() {
             </div>
           ) : logs.length === 0 ? (
             <div className="p-12 text-center text-muted-foreground">
+              <Activity className="h-12 w-12 mx-auto mb-4" />
               Aucune activite trouvee
             </div>
           ) : (

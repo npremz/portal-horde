@@ -92,9 +92,10 @@ export function LinksSection({
         )}
 
         {links.length === 0 && !addingLink ? (
-          <p className="text-center py-8 text-muted-foreground">
-            Aucun lien pour ce livrable
-          </p>
+          <div className="text-center py-8 text-muted-foreground">
+            <LinkIcon className="h-10 w-10 mx-auto mb-3" />
+            <p>Aucun lien pour ce livrable</p>
+          </div>
         ) : (
           <div className="space-y-2">
             {links.map((link) => (
@@ -117,6 +118,7 @@ export function LinksSection({
                     size={canEdit ? "icon" : "sm"}
                     onClick={() => window.open(link.url, "_blank")}
                     className="shrink-0"
+                    aria-label={`Ouvrir ${link.title}`}
                   >
                     <ExternalLink className="h-4 w-4 md:mr-2" />
                     {!canEdit && <span className="hidden md:inline">Ouvrir</span>}
@@ -126,6 +128,7 @@ export function LinksSection({
                       variant="ghost"
                       size="icon"
                       onClick={() => onDeleteLink(link)}
+                      aria-label={`Supprimer ${link.title}`}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>

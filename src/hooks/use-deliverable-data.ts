@@ -34,6 +34,7 @@ interface UseDeliverableDataOptions {
 
 interface UseDeliverableDataReturn {
   deliverable: Deliverable | null;
+  projectName: string | null;
   files: FileWithUploader[];
   links: LinkWithCreator[];
   comments: CommentWithAuthor[];
@@ -54,6 +55,7 @@ export function useDeliverableData({
   const supabase = createClient();
 
   const [deliverable, setDeliverable] = useState<Deliverable | null>(null);
+  const [projectName, setProjectName] = useState<string | null>(null);
   const [files, setFiles] = useState<FileWithUploader[]>([]);
   const [links, setLinks] = useState<LinkWithCreator[]>([]);
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
@@ -89,6 +91,14 @@ export function useDeliverableData({
     }
 
     setDeliverable(deliverableData);
+
+    // Get project name for breadcrumbs
+    const { data: projectData } = await supabase
+      .from("projects")
+      .select("name")
+      .eq("id", projectId)
+      .single();
+    setProjectName(projectData?.name ?? null);
 
     // Get files
     const { data: filesData } = await supabase
@@ -177,6 +187,7 @@ export function useDeliverableData({
 
   return {
     deliverable,
+    projectName,
     files,
     links,
     comments,

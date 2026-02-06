@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Trash2 } from "lucide-react";
+import { Download, Trash2, FileText } from "lucide-react";
 import { ImagePreview } from "@/components/image-preview";
 import { getFileIcon, formatFileSize } from "@/lib/utils";
 import type { FileRecord, Profile } from "@/types/database";
@@ -26,9 +26,10 @@ export function FileList({
 }: FileListProps) {
   if (files.length === 0) {
     return (
-      <p className="text-center py-8 text-muted-foreground">
-        Aucun fichier pour ce livrable
-      </p>
+      <div className="text-center py-8 text-muted-foreground">
+        <FileText className="h-10 w-10 mx-auto mb-3" />
+        <p>Aucun fichier pour ce livrable</p>
+      </div>
     );
   }
 
@@ -65,6 +66,7 @@ export function FileList({
                 size={onDelete ? "icon" : "sm"}
                 onClick={() => onDownload(file)}
                 className="shrink-0"
+                aria-label={`Telecharger ${file.name}`}
               >
                 <Download className="h-4 w-4 md:mr-2" />
                 {!onDelete && <span className="hidden md:inline">Télécharger</span>}
@@ -74,6 +76,7 @@ export function FileList({
                   variant="ghost"
                   size="icon"
                   onClick={() => onDelete(file)}
+                  aria-label={`Supprimer ${file.name}`}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>

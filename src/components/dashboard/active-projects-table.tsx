@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FolderKanban } from "lucide-react";
+import { FolderKanban, FolderOpen } from "lucide-react";
 import type { ProjectStatus } from "@/types/database";
 
 interface ProjectItem {
@@ -54,6 +54,7 @@ export function ActiveProjectsTable({ projects, loading }: ActiveProjectsTablePr
       <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
         {!projects || projects.length === 0 ? (
           <div className="py-6 md:py-8 text-center text-muted-foreground text-xs md:text-sm">
+            <FolderOpen className="h-10 w-10 mx-auto mb-3" />
             Aucun projet actif
           </div>
         ) : (

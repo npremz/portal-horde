@@ -146,6 +146,7 @@ export function CreateKeyDialog({ onKeyCreated }: CreateKeyDialogProps) {
                   variant="outline"
                   size="icon"
                   onClick={handleCopy}
+                  aria-label="Copier la clé"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />

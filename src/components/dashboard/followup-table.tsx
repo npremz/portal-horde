@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bell, AlertTriangle } from "lucide-react";
+import { Bell, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { clientStatusConfig } from "@/lib/constants";
 import type { Client, ClientStatus } from "@/types/database";
 
@@ -56,6 +56,7 @@ export function FollowupTable({ clients, loading }: FollowupTableProps) {
       <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
         {!clients || clients.length === 0 ? (
           <div className="py-6 md:py-8 text-center text-muted-foreground text-xs md:text-sm">
+            <CheckCircle2 className="h-10 w-10 mx-auto mb-3" />
             Aucun client a relancer
           </div>
         ) : (
