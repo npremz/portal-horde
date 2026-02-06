@@ -43,6 +43,7 @@ import {
   User,
 } from "lucide-react";
 import { toast } from "sonner";
+import { FormFieldError } from "@/components/ui/form-field-error";
 import { contactRoleConfig } from "@/lib/constants";
 import { validateEmail, validatePhone, validateName, validateNotes } from "@/lib/validation";
 import type { ClientContact, ContactRole } from "@/types/database";
@@ -87,11 +88,21 @@ export function ContactsSection({
   const [loading, setLoading] = useState(false);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
   const [initialFormData, setInitialFormData] = useState<ContactFormData>(emptyForm);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   const openAddDialog = () => {
     setEditingContact(null);
     setFormData(emptyForm);
     setInitialFormData(emptyForm);
+    setErrors({});
     setDialogOpen(true);
   };
 
@@ -107,38 +118,47 @@ export function ContactsSection({
     };
     setFormData(editData);
     setInitialFormData(editData);
+    setErrors({});
     setDialogOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate
+    const newErrors: Record<string, string> = {};
+
     const nameResult = validateName(formData.name);
     if (!nameResult.valid) {
-      toast.error(nameResult.error);
-      return;
+      newErrors.name = nameResult.error!;
     }
 
+    let emailSanitized = formData.email;
     if (formData.email) {
       const emailResult = validateEmail(formData.email);
       if (!emailResult.valid) {
-        toast.error(emailResult.error);
-        return;
+        newErrors.email = emailResult.error!;
+      } else {
+        emailSanitized = emailResult.sanitized;
       }
     }
 
+    let phoneSanitized = formData.phone;
     if (formData.phone) {
       const phoneResult = validatePhone(formData.phone);
       if (!phoneResult.valid) {
-        toast.error(phoneResult.error);
-        return;
+        newErrors.phone = phoneResult.error!;
+      } else {
+        phoneSanitized = phoneResult.sanitized ?? "";
       }
     }
 
     const notesResult = validateNotes(formData.notes || null);
     if (!notesResult.valid) {
-      toast.error(notesResult.error);
+      newErrors.notes = notesResult.error!;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
@@ -146,8 +166,8 @@ export function ContactsSection({
     try {
       const contactData = {
         name: nameResult.sanitized,
-        email: formData.email || null,
-        phone: formData.phone || null,
+        email: emailSanitized || null,
+        phone: phoneSanitized || null,
         role: formData.role,
         is_primary: formData.is_primary,
         notes: notesResult.sanitized,
@@ -235,9 +255,12 @@ export function ContactsSection({
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
+                  onFocus={() => clearError("name")}
                   placeholder="Jean Dupont"
+                  aria-invalid={!!errors.name}
                   required
                 />
+                <FormFieldError error={errors.name} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -250,8 +273,11 @@ export function ContactsSection({
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
+                    onFocus={() => clearError("email")}
                     placeholder="jean@exemple.com"
+                    aria-invalid={!!errors.email}
                   />
+                  <FormFieldError error={errors.email} />
                 </div>
 
                 <div className="space-y-2">
@@ -263,8 +289,11 @@ export function ContactsSection({
                     onChange={(e) =>
                       setFormData({ ...formData, phone: e.target.value })
                     }
+                    onFocus={() => clearError("phone")}
                     placeholder="+33 6 12 34 56 78"
+                    aria-invalid={!!errors.phone}
                   />
+                  <FormFieldError error={errors.phone} />
                 </div>
               </div>
 
@@ -297,9 +326,12 @@ export function ContactsSection({
                   onChange={(e) =>
                     setFormData({ ...formData, notes: e.target.value })
                   }
+                  onFocus={() => clearError("notes")}
                   placeholder="Notes sur ce contact..."
+                  aria-invalid={!!errors.notes}
                   rows={2}
                 />
+                <FormFieldError error={errors.notes} />
               </div>
 
               <div className="flex gap-3 pt-2">

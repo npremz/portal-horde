@@ -32,6 +32,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   ExternalLink,
   Edit,
   Plus,
@@ -88,6 +98,7 @@ export default function AdminProjectPage() {
   const [addPhaseOpen, setAddPhaseOpen] = useState(false);
   const [editingPhase, setEditingPhase] = useState<Phase | null>(null);
   const [editPhaseName, setEditPhaseName] = useState("");
+  const [deletingPhase, setDeletingPhase] = useState<Phase | null>(null);
 
   const supabase = createClient();
 
@@ -505,11 +516,7 @@ export default function AdminProjectPage() {
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive"
-                              onClick={() => {
-                                if (confirm(`Supprimer l'étape "${phase.name}" ?`)) {
-                                  deletePhase(phase.id);
-                                }
-                              }}
+                              onClick={() => setDeletingPhase(phase)}
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Supprimer
@@ -602,6 +609,32 @@ export default function AdminProjectPage() {
           })}
         </div>
       )}
+
+      {/* Delete phase dialog */}
+      <AlertDialog open={!!deletingPhase} onOpenChange={(open) => !open && setDeletingPhase(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer l&apos;étape ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              L&apos;étape «&nbsp;{deletingPhase?.name}&nbsp;» sera supprimée. Les livrables doivent être supprimés d&apos;abord.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deletingPhase) {
+                  deletePhase(deletingPhase.id);
+                  setDeletingPhase(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Edit phase dialog */}
       <Dialog open={!!editingPhase} onOpenChange={(open) => !open && setEditingPhase(null)}>

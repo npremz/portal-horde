@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Loader2, Copy, Check, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { FormFieldError } from "@/components/ui/form-field-error";
+import { validateName } from "@/lib/validation";
 import { KeyPermissions } from "./key-permissions";
 import type { ApiPermission } from "@/types/database";
 
@@ -39,17 +41,32 @@ export function CreateKeyDialog({ onKeyCreated }: CreateKeyDialogProps) {
   const [formData, setFormData] = useState<FormData>(emptyForm);
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name.trim()) {
-      toast.error("Le nom est requis");
-      return;
+    const newErrors: Record<string, string> = {};
+
+    const nameResult = validateName(formData.name);
+    if (!nameResult.valid) {
+      newErrors.name = nameResult.error!;
     }
 
     if (formData.permissions.length === 0) {
-      toast.error("Selectionnez au moins une permission");
+      newErrors.permissions = "Sélectionnez au moins une permission";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
@@ -60,7 +77,7 @@ export function CreateKeyDialog({ onKeyCreated }: CreateKeyDialogProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: formData.name.trim(),
+          name: nameResult.sanitized,
           permissions: formData.permissions,
           expires_at: formData.expires_at || undefined,
         }),
@@ -107,6 +124,7 @@ export function CreateKeyDialog({ onKeyCreated }: CreateKeyDialogProps) {
       setFormData(emptyForm);
       setCreatedKey(null);
       setCopied(false);
+      setErrors({});
     }
   };
 
@@ -181,19 +199,24 @@ export function CreateKeyDialog({ onKeyCreated }: CreateKeyDialogProps) {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
+                  onFocus={() => clearError("name")}
                   placeholder="Bot CRM, Agent Prospection..."
+                  aria-invalid={!!errors.name}
                   required
                 />
+                <FormFieldError error={errors.name} />
               </div>
 
               <div className="space-y-2">
                 <Label>Permissions *</Label>
                 <KeyPermissions
                   value={formData.permissions}
-                  onChange={(permissions) =>
-                    setFormData({ ...formData, permissions })
-                  }
+                  onChange={(permissions) => {
+                    setFormData({ ...formData, permissions });
+                    clearError("permissions");
+                  }}
                 />
+                <FormFieldError error={errors.permissions} />
               </div>
 
               <div className="space-y-2">

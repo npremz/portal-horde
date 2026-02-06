@@ -25,6 +25,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { FormFieldError } from "@/components/ui/form-field-error";
+import { validateName, validateUrl } from "@/lib/validation";
 import type { Client, Project, ProjectStatus } from "@/types/database";
 import {
   AlertDialog,
@@ -54,6 +56,15 @@ export default function EditProjectPage() {
   const [clientId, setClientId] = useState<string>("");
   const [status, setStatus] = useState<ProjectStatus>("active");
   const [stagingUrl, setStagingUrl] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
 
   const supabase = createClient();
 
@@ -97,16 +108,36 @@ export default function EditProjectPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    const newErrors: Record<string, string> = {};
+
+    const nameResult = validateName(name);
+    if (!nameResult.valid) {
+      newErrors.name = nameResult.error!;
+    }
+
+    if (stagingUrl) {
+      const urlResult = validateUrl(stagingUrl);
+      if (!urlResult.valid) {
+        newErrors.staging_url = urlResult.error!;
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     setSaving(true);
 
     const { error } = await supabase
       .from("projects")
       .update({
-        name,
+        name: nameResult.sanitized,
         description: description || null,
         client_id: clientId === "none" ? null : clientId,
         status,
-        staging_url: stagingUrl || null,
+        staging_url: stagingUrl ? validateUrl(stagingUrl).sanitized : null,
       })
       .eq("id", projectId);
 
@@ -175,9 +206,12 @@ export default function EditProjectPage() {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onFocus={() => clearError("name")}
                 placeholder="Ex: Site web Cafe Belga"
+                aria-invalid={!!errors.name}
                 required
               />
+              <FormFieldError error={errors.name} />
             </div>
 
             <div className="space-y-2">
@@ -231,8 +265,11 @@ export default function EditProjectPage() {
                 type="url"
                 value={stagingUrl}
                 onChange={(e) => setStagingUrl(e.target.value)}
+                onFocus={() => clearError("staging_url")}
                 placeholder="https://staging.exemple.com"
+                aria-invalid={!!errors.staging_url}
               />
+              <FormFieldError error={errors.staging_url} />
             </div>
 
             <div className="flex items-center justify-between pt-4">
