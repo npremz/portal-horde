@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { FormFieldError } from "@/components/ui/form-field-error";
 import { Send, Loader2, MessageSquare } from "lucide-react";
+import { validateComment } from "@/lib/validation";
 import { formatDate } from "@/lib/utils";
 import type { Comment, Profile } from "@/types/database";
 
@@ -28,13 +30,19 @@ export function CommentsSection({
 }: CommentsSectionProps) {
   const [newComment, setNewComment] = useState("");
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSend() {
-    if (!newComment.trim()) return;
+    const validation = validateComment(newComment);
+    if (!validation.valid) {
+      setError(validation.error ?? "");
+      return;
+    }
 
     setSending(true);
-    await onSendComment(newComment);
+    await onSendComment(validation.sanitized);
     setNewComment("");
+    setError("");
     setSending(false);
   }
 
@@ -82,8 +90,11 @@ export function CommentsSection({
             placeholder="Ajouter un commentaire..."
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
+            onFocus={() => setError("")}
+            aria-invalid={!!error}
             rows={3}
           />
+          <FormFieldError error={error} />
           <Button
             onClick={handleSend}
             disabled={!newComment.trim() || sending}

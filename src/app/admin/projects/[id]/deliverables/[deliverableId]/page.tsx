@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useDeliverableData } from "@/hooks/use-deliverable-data";
-import { validateFile, validateComment } from "@/lib/validation";
+import { validateFile } from "@/lib/validation";
 import { deliverableStatusConfig } from "@/lib/constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,16 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import type { DeliverableStatus, FileRecord, Link as LinkType } from "@/types/database";
 
@@ -41,6 +51,8 @@ export default function AdminDeliverablePage() {
 
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<FileUploadProgress | null>(null);
+  const [deletingFile, setDeletingFile] = useState<FileRecord | null>(null);
+  const [deletingLink, setDeletingLink] = useState<LinkType | null>(null);
 
   const {
     deliverable,
@@ -141,8 +153,6 @@ export default function AdminDeliverablePage() {
   }
 
   async function handleDeleteFile(file: FileRecord) {
-    if (!confirm(`Supprimer "${file.name}" ?`)) return;
-
     await supabase.storage.from("deliverables").remove([file.storage_path]);
 
     const { error } = await supabase.from("files").delete().eq("id", file.id);
@@ -182,8 +192,6 @@ export default function AdminDeliverablePage() {
   }
 
   async function handleDeleteLink(link: LinkType) {
-    if (!confirm(`Supprimer le lien "${link.title}" ?`)) return;
-
     const { error } = await supabase.from("links").delete().eq("id", link.id);
 
     if (error) {
@@ -195,19 +203,13 @@ export default function AdminDeliverablePage() {
   }
 
   async function handleSendComment(content: string) {
-    const validation = validateComment(content);
-    if (!validation.valid) {
-      toast.error(validation.error);
-      return;
-    }
-
     // Optimistic insert
     const tempId = `temp-${Date.now()}`;
     const tempComment = {
       id: tempId,
       deliverable_id: deliverableId,
       author_id: currentUser?.id ?? null,
-      content: validation.sanitized,
+      content,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       author: currentUser ?? undefined,
@@ -219,7 +221,7 @@ export default function AdminDeliverablePage() {
       .insert({
         deliverable_id: deliverableId,
         author_id: currentUser?.id,
-        content: validation.sanitized,
+        content,
       })
       .select("*, author:profiles(*)")
       .single();
@@ -366,7 +368,7 @@ export default function AdminDeliverablePage() {
               <FileList
                 files={files}
                 onDownload={handleDownloadFile}
-                onDelete={handleDeleteFile}
+                onDelete={(file) => setDeletingFile(file)}
                 showUploader
               />
             </CardContent>
@@ -375,7 +377,7 @@ export default function AdminDeliverablePage() {
           <LinksSection
             links={links}
             onAddLink={handleAddLink}
-            onDeleteLink={handleDeleteLink}
+            onDeleteLink={(link) => setDeletingLink(link)}
             canEdit
           />
         </div>
@@ -390,6 +392,58 @@ export default function AdminDeliverablePage() {
           />
         </div>
       </div>
+
+      {/* Delete file dialog */}
+      <AlertDialog open={!!deletingFile} onOpenChange={(open) => !open && setDeletingFile(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer le fichier ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Le fichier «&nbsp;{deletingFile?.name}&nbsp;» sera supprimé.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deletingFile) {
+                  handleDeleteFile(deletingFile);
+                  setDeletingFile(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete link dialog */}
+      <AlertDialog open={!!deletingLink} onOpenChange={(open) => !open && setDeletingLink(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer le lien ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Le lien «&nbsp;{deletingLink?.title}&nbsp;» sera supprimé.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deletingLink) {
+                  handleDeleteLink(deletingLink);
+                  setDeletingLink(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

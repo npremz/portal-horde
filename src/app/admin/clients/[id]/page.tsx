@@ -26,6 +26,17 @@ import {
   Plus,
   ExternalLink,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { ClientForm, type ClientFormData } from "@/components/client-form";
 import { ContactsSection } from "@/components/contacts-section";
@@ -159,8 +170,6 @@ export default function ClientDetailPage() {
   };
 
   const handleDeleteClient = async () => {
-    if (!confirm("Supprimer ce client ? Cette action est irréversible.")) return;
-
     const supabase = createClient();
     const { error } = await supabase.from("clients").delete().eq("id", clientId);
 
@@ -373,13 +382,33 @@ export default function ClientDetailPage() {
               Modifier
             </Button>
             {canDeleteClients && (
-              <Button
-                variant="outline"
-                onClick={handleDeleteClient}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Supprimer ce client ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Cette action est irréversible. Le client et toutes ses données seront supprimés.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteClient}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Supprimer
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </div>
         </div>

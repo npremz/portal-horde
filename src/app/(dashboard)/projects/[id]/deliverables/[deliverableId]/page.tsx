@@ -4,7 +4,6 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useDeliverableData } from "@/hooks/use-deliverable-data";
 import { logActivity } from "@/lib/activity";
-import { validateComment } from "@/lib/validation";
 import { deliverableStatusConfig } from "@/lib/constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,19 +64,13 @@ export default function ClientDeliverablePage() {
   }
 
   async function handleSendComment(content: string) {
-    const validation = validateComment(content);
-    if (!validation.valid) {
-      toast.error(validation.error);
-      return;
-    }
-
     // Optimistic insert
     const tempId = `temp-${Date.now()}`;
     const tempComment = {
       id: tempId,
       deliverable_id: deliverableId,
       author_id: currentUser?.id ?? null,
-      content: validation.sanitized,
+      content,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       author: currentUser ?? undefined,
@@ -89,7 +82,7 @@ export default function ClientDeliverablePage() {
       .insert({
         deliverable_id: deliverableId,
         author_id: currentUser?.id,
-        content: validation.sanitized,
+        content,
       })
       .select("*, author:profiles(*)")
       .single();
