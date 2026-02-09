@@ -175,17 +175,17 @@ export function ContactsSection({
 
       if (editingContact) {
         await onUpdateContact(editingContact.id, contactData);
-        toast.success("Contact mis a jour");
+        toast.success("Contact mis à jour");
       } else {
         await onAddContact(contactData);
-        toast.success("Contact ajoute");
+        toast.success("Contact ajouté");
       }
 
       setDialogOpen(false);
       setFormData(emptyForm);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Erreur lors de l'operation"
+        error instanceof Error ? error.message : "Erreur lors de l'opération"
       );
     } finally {
       setLoading(false);
@@ -195,7 +195,7 @@ export function ContactsSection({
   const handleDelete = async (contact: ClientContact) => {
     try {
       await onDeleteContact(contact.id);
-      toast.success("Contact supprime");
+      toast.success("Contact supprimé");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Erreur lors de la suppression"
@@ -211,7 +211,7 @@ export function ContactsSection({
       toast.success(`${contact.name} est maintenant le contact principal`);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Erreur lors de l'operation"
+        error instanceof Error ? error.message : "Erreur lors de l'opération"
       );
     }
   };

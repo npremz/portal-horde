@@ -80,7 +80,7 @@ export async function POST(request: Request) {
 
         const emailResult = await sendEmail({
           to: client.email,
-          subject: `Nouveau livrable a valider - ${project?.name}`,
+          subject: `Nouveau livrable à valider - ${project?.name}`,
           html,
         });
 

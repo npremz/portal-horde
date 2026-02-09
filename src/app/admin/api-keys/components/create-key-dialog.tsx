@@ -86,19 +86,19 @@ export function CreateKeyDialog({ onKeyCreated }: CreateKeyDialogProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Erreur lors de la creation");
+        throw new Error(data.error || "Erreur lors de la création");
       }
 
       // Show the key (only time it will be shown)
       setCreatedKey(data.data.key);
-      toast.success("Cle API creee");
+      toast.success("Clé API créée");
 
       if (onKeyCreated) {
         onKeyCreated();
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Erreur lors de la creation"
+        error instanceof Error ? error.message : "Erreur lors de la création"
       );
     } finally {
       setLoading(false);
@@ -111,7 +111,7 @@ export function CreateKeyDialog({ onKeyCreated }: CreateKeyDialogProps) {
     try {
       await navigator.clipboard.writeText(createdKey);
       setCopied(true);
-      toast.success("Cle copiee");
+      toast.success("Clé copiée");
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error("Erreur lors de la copie");
@@ -133,16 +133,16 @@ export function CreateKeyDialog({ onKeyCreated }: CreateKeyDialogProps) {
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Nouvelle cle API
+          Nouvelle clé API
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         {createdKey ? (
           <>
             <DialogHeader>
-              <DialogTitle>Cle API creee</DialogTitle>
+              <DialogTitle>Clé API créée</DialogTitle>
               <DialogDescription>
-                Copiez cette cle maintenant. Elle ne sera plus jamais affichee.
+                Copiez cette clé maintenant. Elle ne sera plus jamais affichée.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -242,7 +242,7 @@ export function CreateKeyDialog({ onKeyCreated }: CreateKeyDialogProps) {
                   ) : (
                     <Plus className="mr-2 h-4 w-4" />
                   )}
-                  Creer la cle
+                  Créer la clé
                 </Button>
                 <Button
                   type="button"

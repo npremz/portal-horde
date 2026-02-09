@@ -628,6 +628,7 @@ export function replaceTemplateVariables(
     prenom?: string;
     entreprise?: string;
     email?: string;
+    website?: string;
   }
 ): string {
   let result = template;
@@ -635,5 +636,6 @@ export function replaceTemplateVariables(
   if (variables.prenom) result = result.replace(/\{\{prenom\}\}/g, variables.prenom);
   if (variables.entreprise) result = result.replace(/\{\{entreprise\}\}/g, variables.entreprise);
   if (variables.email) result = result.replace(/\{\{email\}\}/g, variables.email);
+  if (variables.website) result = result.replace(/\{\{website\}\}/g, variables.website);
   return result;
 }

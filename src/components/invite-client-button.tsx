@@ -46,7 +46,7 @@ export function InviteClientButton({
         throw new Error(data.error || "Erreur lors de l'invitation");
       }
 
-      toast.success(`Invitation envoyee a ${client.email}`);
+      toast.success(`Invitation envoyée à ${client.email}`);
       setDialogOpen(false);
 
       if (onInvited) {
@@ -65,7 +65,7 @@ export function InviteClientButton({
     return (
       <Button variant="outline" size={size} disabled>
         <CheckCircle2 className="h-4 w-4 mr-2 text-green-500" />
-        Deja invite
+        Déjà invité
       </Button>
     );
   }
@@ -86,7 +86,7 @@ export function InviteClientButton({
           <DialogHeader>
             <DialogTitle>Inviter {client.name} au portail</DialogTitle>
             <DialogDescription>
-              Un email d&apos;invitation sera envoye pour creer un compte et acceder au portail client.
+              Un email d&apos;invitation sera envoyé pour créer un compte et accéder au portail client.
             </DialogDescription>
           </DialogHeader>
 

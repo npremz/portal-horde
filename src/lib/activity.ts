@@ -36,11 +36,11 @@ export const actionLabels: Record<ActivityAction, string> = {
   login: "Connexion",
   view_project: "Consultation projet",
   view_deliverable: "Consultation livrable",
-  download_file: "Telechargement",
+  download_file: "Téléchargement",
   add_comment: "Commentaire",
   validate_deliverable: "Validation",
-  request_revision: "Demande revision",
-  email_sent: "Email envoye",
+  request_revision: "Demande révision",
+  email_sent: "Email envoyé",
 };
 
 // Action colors for badges

@@ -4,7 +4,7 @@ export const mockProjects: Project[] = [
   {
     id: "project-1",
     name: "Site Web Acme",
-    description: "Refonte complete du site web",
+    description: "Refonte complète du site web",
     client_id: "client-1",
     status: "active",
     staging_url: "https://staging.acme.com",
@@ -37,8 +37,8 @@ export const mockPhases: Phase[] = [
   {
     id: "phase-2",
     project_id: "project-1",
-    name: "Developpement",
-    description: "Integration technique",
+    name: "Développement",
+    description: "Intégration technique",
     status: "in_progress",
     order_index: 1,
     started_at: "2025-07-21T10:00:00Z",
@@ -60,7 +60,7 @@ export const mockDeliverables: Deliverable[] = [
   {
     id: "deliverable-2",
     phase_id: "phase-2",
-    title: "Integration Header",
+    title: "Intégration Header",
     description: "Composant header responsive",
     status: "pending_review",
     created_by: "user-1",

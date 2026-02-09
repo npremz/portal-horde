@@ -47,7 +47,7 @@ export async function POST(
     // Check if already invited
     if (client.profile_id) {
       return NextResponse.json(
-        { error: "Ce client a deja ete invite" },
+        { error: "Ce client a déjà été invité" },
         { status: 400 }
       );
     }
@@ -95,14 +95,14 @@ export async function POST(
       if (createError) {
         console.error("Error creating user:", createError);
         return NextResponse.json(
-          { error: "Erreur lors de la creation de l'utilisateur" },
+          { error: "Erreur lors de la création de l'utilisateur" },
           { status: 500 }
         );
       }
 
       if (!newUser.user) {
         return NextResponse.json(
-          { error: "Erreur lors de la creation de l'utilisateur" },
+          { error: "Erreur lors de la création de l'utilisateur" },
           { status: 500 }
         );
       }

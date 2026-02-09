@@ -101,12 +101,12 @@ export default function NewDeliverablePage() {
     });
 
     if (error) {
-      toast.error("Erreur lors de la creation du livrable");
+      toast.error("Erreur lors de la création du livrable");
       setLoading(false);
       return;
     }
 
-    toast.success("Livrable cree avec succes");
+    toast.success("Livrable créé avec succès");
     router.push(`/admin/projects/${projectId}`);
   };
 
@@ -188,7 +188,7 @@ export default function NewDeliverablePage() {
             <div className="pt-4 flex gap-3">
               <Button type="submit" disabled={loading || !formData.phase_id}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Creer le livrable
+                Créer le livrable
               </Button>
               <Button type="button" variant="outline" asChild>
                 <Link href={`/admin/projects/${projectId}`}>Annuler</Link>

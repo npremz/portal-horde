@@ -311,28 +311,28 @@ function LogEntry({ log }: { log: ActivityLog }) {
   let description = "";
   switch (action) {
     case "login":
-      description = "s'est connecte";
+      description = "s'est connecté";
       break;
     case "view_project":
-      description = `a consulte le projet "${projectName}"`;
+      description = `a consulté le projet "${projectName}"`;
       break;
     case "view_deliverable":
-      description = `a consulte le livrable "${deliverableTitle || (log.metadata as Record<string, unknown>)?.title}"`;
+      description = `a consulté le livrable "${deliverableTitle || (log.metadata as Record<string, unknown>)?.title}"`;
       break;
     case "download_file":
-      description = `a telecharge "${(log.metadata as Record<string, unknown>)?.fileName}"`;
+      description = `a téléchargé "${(log.metadata as Record<string, unknown>)?.fileName}"`;
       break;
     case "add_comment":
-      description = `a commente sur "${deliverableTitle}"`;
+      description = `a commenté sur "${deliverableTitle}"`;
       break;
     case "validate_deliverable":
-      description = `a valide "${deliverableTitle || (log.metadata as Record<string, unknown>)?.deliverableTitle}"`;
+      description = `a validé "${deliverableTitle || (log.metadata as Record<string, unknown>)?.deliverableTitle}"`;
       break;
     case "request_revision":
-      description = `a demande une revision sur "${deliverableTitle || (log.metadata as Record<string, unknown>)?.deliverableTitle}"`;
+      description = `a demandé une révision sur "${deliverableTitle || (log.metadata as Record<string, unknown>)?.deliverableTitle}"`;
       break;
     case "email_sent":
-      description = "a recu un email";
+      description = "a reçu un email";
       break;
   }
 

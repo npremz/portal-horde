@@ -181,7 +181,7 @@ export default async function DashboardPage() {
       {/* Pending Deliverables (client only) */}
       {!isAdmin && pendingDeliverables.length > 0 && (
         <div>
-          <h2 className="text-lg md:text-xl font-semibold mb-3">A valider</h2>
+          <h2 className="text-lg md:text-xl font-semibold mb-3">À valider</h2>
           <div className="grid gap-2">
             {pendingDeliverables.map((d) => (
               <Card key={d.id} className="hover:shadow-md transition-shadow">

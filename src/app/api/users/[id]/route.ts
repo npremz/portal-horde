@@ -33,7 +33,7 @@ export async function PATCH(
     // Prevent modifying own role
     if (userId === user.id) {
       return NextResponse.json(
-        { error: "Impossible de modifier votre propre role" },
+        { error: "Impossible de modifier votre propre rôle" },
         { status: 400 }
       );
     }
@@ -72,7 +72,7 @@ export async function PATCH(
     if (updateError) {
       console.error("Error updating role:", updateError);
       return NextResponse.json(
-        { error: "Erreur lors de la mise a jour du role" },
+        { error: "Erreur lors de la mise à jour du rôle" },
         { status: 500 }
       );
     }
@@ -87,7 +87,7 @@ export async function PATCH(
   } catch (error) {
     console.error("Update user error:", error);
     return NextResponse.json(
-      { error: "Erreur lors de la mise a jour" },
+      { error: "Erreur lors de la mise à jour" },
       { status: 500 }
     );
   }

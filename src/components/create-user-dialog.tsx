@@ -104,12 +104,12 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Erreur lors de la creation");
+        throw new Error(data.error || "Erreur lors de la création");
       }
 
       toast.success(
-        `Invitation envoyee a ${emailResult.sanitized}`,
-        { description: `Role: ${userRoleConfig[formData.role].label}` }
+        `Invitation envoyée à ${emailResult.sanitized}`,
+        { description: `Rôle : ${userRoleConfig[formData.role].label}` }
       );
       setFormData(emptyForm);
       setOpen(false);
@@ -119,7 +119,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Erreur lors de la creation"
+        error instanceof Error ? error.message : "Erreur lors de la création"
       );
     } finally {
       setLoading(false);
@@ -152,7 +152,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
         <DialogHeader>
           <DialogTitle>Inviter un utilisateur</DialogTitle>
           <DialogDescription>
-            Un email d&apos;invitation sera envoye a l&apos;utilisateur.
+            Un email d&apos;invitation sera envoyé à l&apos;utilisateur.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleCreate} className="space-y-4">

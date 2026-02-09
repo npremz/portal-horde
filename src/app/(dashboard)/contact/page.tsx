@@ -59,7 +59,7 @@ export default function ContactPage() {
     e.preventDefault();
 
     const newErrors: Record<string, string> = {};
-    if (!category) newErrors.category = "Selectionnez une categorie";
+    if (!category) newErrors.category = "Sélectionnez une catégorie";
     if (!subject.trim()) newErrors.subject = "Le sujet est requis";
     if (!message.trim()) newErrors.message = "Le message est requis";
 
@@ -144,15 +144,15 @@ export default function ContactPage() {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="category">Categorie <span className="text-destructive">*</span></Label>
+                  <Label htmlFor="category">Catégorie <span className="text-destructive">*</span></Label>
                   <Select value={category} onValueChange={(v) => { setCategory(v); clearError("category"); }}>
                     <SelectTrigger aria-invalid={!!errors.category}>
-                      <SelectValue placeholder="Selectionnez une categorie" />
+                      <SelectValue placeholder="Sélectionnez une catégorie" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="question">Question generale</SelectItem>
+                      <SelectItem value="question">Question générale</SelectItem>
                       <SelectItem value="project">Question sur un projet</SelectItem>
-                      <SelectItem value="technical">Probleme technique</SelectItem>
+                      <SelectItem value="technical">Problème technique</SelectItem>
                       <SelectItem value="billing">Facturation</SelectItem>
                       <SelectItem value="other">Autre</SelectItem>
                     </SelectContent>

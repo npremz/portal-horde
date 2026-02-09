@@ -63,12 +63,12 @@ export function EditUserRoleDialog({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Erreur lors de la mise a jour");
+        throw new Error(data.error || "Erreur lors de la mise à jour");
       }
 
       toast.success(
-        `Role de ${user.full_name || user.email} mis a jour`,
-        { description: `Nouveau role: ${userRoleConfig[selectedRole].label}` }
+        `Rôle de ${user.full_name || user.email} mis à jour`,
+        { description: `Nouveau rôle : ${userRoleConfig[selectedRole].label}` }
       );
       onOpenChange(false);
 
@@ -77,7 +77,7 @@ export function EditUserRoleDialog({
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Erreur lors de la mise a jour"
+        error instanceof Error ? error.message : "Erreur lors de la mise à jour"
       );
     } finally {
       setLoading(false);
@@ -110,7 +110,7 @@ export function EditUserRoleDialog({
           {isCurrentUser ? (
             <div className="p-3 border border-yellow-200 bg-yellow-50 rounded-lg">
               <p className="text-sm text-yellow-800">
-                Vous ne pouvez pas modifier votre propre role.
+                Vous ne pouvez pas modifier votre propre rôle.
               </p>
             </div>
           ) : (

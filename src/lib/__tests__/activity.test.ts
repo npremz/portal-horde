@@ -26,11 +26,11 @@ describe("actionLabels", () => {
     expect(actionLabels.login).toBe("Connexion");
     expect(actionLabels.view_project).toBe("Consultation projet");
     expect(actionLabels.view_deliverable).toBe("Consultation livrable");
-    expect(actionLabels.download_file).toBe("Telechargement");
+    expect(actionLabels.download_file).toBe("Téléchargement");
     expect(actionLabels.add_comment).toBe("Commentaire");
     expect(actionLabels.validate_deliverable).toBe("Validation");
-    expect(actionLabels.request_revision).toBe("Demande revision");
-    expect(actionLabels.email_sent).toBe("Email envoye");
+    expect(actionLabels.request_revision).toBe("Demande révision");
+    expect(actionLabels.email_sent).toBe("Email envoyé");
   });
 
   it("has exactly 8 labels (one per action)", () => {

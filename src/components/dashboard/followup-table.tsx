@@ -21,7 +21,7 @@ export function FollowupTable({ clients, loading }: FollowupTableProps) {
           <CardTitle className="text-sm md:text-base flex items-center gap-2">
             <Bell className="h-3.5 w-3.5 md:h-4 md:w-4" />
             <span className="md:hidden">Relances</span>
-            <span className="hidden md:inline">Clients a relancer</span>
+            <span className="hidden md:inline">Clients à relancer</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
@@ -50,14 +50,14 @@ export function FollowupTable({ clients, loading }: FollowupTableProps) {
         <CardTitle className="text-sm md:text-base flex items-center gap-2">
           <Bell className="h-3.5 w-3.5 md:h-4 md:w-4" />
           <span className="md:hidden">Relances</span>
-          <span className="hidden md:inline">Clients a relancer</span>
+          <span className="hidden md:inline">Clients à relancer</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 md:p-6 pt-0 md:pt-0">
         {!clients || clients.length === 0 ? (
           <div className="py-6 md:py-8 text-center text-muted-foreground text-xs md:text-sm">
             <CheckCircle2 className="h-10 w-10 mx-auto mb-3" />
-            Aucun client a relancer
+            Aucun client à relancer
           </div>
         ) : (
           <div className="space-y-1.5 md:space-y-2">

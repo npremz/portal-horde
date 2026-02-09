@@ -258,11 +258,11 @@ export interface Notification {
 export const DEFAULT_PHASES = [
   { name: "Audit", description: "Analyse de l'existant et benchmark concurrentiel" },
   { name: "Proposition", description: "Proposition commerciale et devis" },
-  { name: "Brief", description: "Definition des besoins, objectifs et specifications" },
+  { name: "Brief", description: "Définition des besoins, objectifs et spécifications" },
   { name: "Maquette", description: "Design UI/UX et wireframes" },
   { name: "Validation maquette", description: "Approbation des maquettes par le client" },
-  { name: "Developpement", description: "Integration et developpement technique" },
-  { name: "Validation staging", description: "Tests et recette sur environnement de pre-production" },
-  { name: "Mise en production", description: "Deploiement et lancement officiel" },
-  { name: "Review", description: "Retour d'experience et ajustements post-lancement" },
+  { name: "Développement", description: "Intégration et développement technique" },
+  { name: "Validation staging", description: "Tests et recette sur environnement de pré-production" },
+  { name: "Mise en production", description: "Déploiement et lancement officiel" },
+  { name: "Review", description: "Retour d'expérience et ajustements post-lancement" },
 ];

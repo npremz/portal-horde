@@ -137,14 +137,21 @@ export const messageTypeConfig: Record<
 export const prospectingTemplates = {
   default: {
     subject: "{{entreprise}}",
-    content: `Salut {{prenom}},
+    content: `Bonjour {{entreprise}},
 
-Je suis tombe sur {{entreprise}} et j'ai bien aime ce que vous faites.
+Je visitais votre site {{website}} tout à l'heure et j'ai noté 2-3 points techniques qui freinent un peu l'expérience (notamment le chargement des images sur mobile).
 
-[Ton message]
+Je suis co-fondateur de Horde à Bruxelles. On est spécialisés là-dedans : rendre le web plus rapide et plus fluide.
 
-A bientot,
-Nico`,
+J'ai enregistré une courte vidéo d'écran (1m30) pour vous montrer concrètement ce qui pourrait être amélioré. C'est sans engagement, juste un regard neuf.
+
+Je vous l'envoie ?
+
+Belle journée,
+Nicolas
+
++32 487 47 97 98
+Horde Agence (hordeagence.com)`,
   },
   followup: {
     subject: "Re: {{entreprise}}",
@@ -167,7 +174,7 @@ export const projectTypes = [
   { value: "ecommerce", label: "E-commerce" },
   { value: "webapp", label: "Application web" },
   { value: "mobile", label: "Application mobile" },
-  { value: "branding", label: "Branding / Identite" },
+  { value: "branding", label: "Branding / Identité" },
   { value: "seo", label: "SEO / Marketing" },
   { value: "maintenance", label: "Maintenance" },
   { value: "other", label: "Autre" },
@@ -177,15 +184,15 @@ export const projectTypes = [
 export const sectors = [
   { value: "restaurant", label: "Restauration / Horeca" },
   { value: "retail", label: "Commerce / Retail" },
-  { value: "health", label: "Sante / Bien-etre" },
+  { value: "health", label: "Santé / Bien-être" },
   { value: "realestate", label: "Immobilier" },
   { value: "tech", label: "Tech / SaaS" },
   { value: "finance", label: "Finance / Assurance" },
-  { value: "education", label: "Education / Formation" },
+  { value: "education", label: "Éducation / Formation" },
   { value: "industry", label: "Industrie" },
   { value: "services", label: "Services B2B" },
   { value: "nonprofit", label: "Association / ONG" },
-  { value: "creative", label: "Creatif / Media" },
+  { value: "creative", label: "Créatif / Média" },
   { value: "other", label: "Autre" },
 ];
 
@@ -197,16 +204,16 @@ export const userRoleConfig: Record<
   client: {
     label: "Client",
     color: "bg-gray-100 text-gray-800",
-    description: "Acces au portail client uniquement",
+    description: "Accès au portail client uniquement",
   },
   editor: {
-    label: "Editeur",
+    label: "Éditeur",
     color: "bg-blue-100 text-blue-800",
-    description: "Peut gerer les clients et contacts",
+    description: "Peut gérer les clients et contacts",
   },
   admin: {
     label: "Admin",
     color: "bg-purple-100 text-purple-800",
-    description: "Acces complet au systeme",
+    description: "Accès complet au système",
   },
 };

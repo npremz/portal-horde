@@ -110,6 +110,7 @@ export async function POST(
       prenom: firstName,
       entreprise: client.name,
       email: recipientEmail,
+      website: client.website || "",
     };
 
     const finalSubject = replaceTemplateVariables(subject, variables);

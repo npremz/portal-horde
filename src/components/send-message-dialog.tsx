@@ -124,6 +124,7 @@ export function SendMessageDialog({
       prenom: recipient ? getFirstName(recipient.name) : "",
       entreprise: client.name,
       email: recipient?.email || "",
+      website: client.website || "",
     };
 
     setSubject(replaceTemplateVariables(template.subject, variables));
@@ -197,7 +198,7 @@ export function SendMessageDialog({
         throw new Error(data.error || "Erreur lors de l'envoi");
       }
 
-      toast.success("Message envoye");
+      toast.success("Message envoyé");
       setOpen(false);
 
       // Reset form
@@ -246,7 +247,7 @@ export function SendMessageDialog({
         <DialogHeader>
           <DialogTitle>Envoyer un message</DialogTitle>
           <DialogDescription>
-            Envoyer un email a {client.name}
+            Envoyer un email à {client.name}
           </DialogDescription>
         </DialogHeader>
 
@@ -351,13 +352,13 @@ export function SendMessageDialog({
       <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Modifications non sauvegardees</AlertDialogTitle>
+            <AlertDialogTitle>Modifications non sauvegardées</AlertDialogTitle>
             <AlertDialogDescription>
-              Votre message n&apos;a pas ete envoye. Voulez-vous vraiment fermer ?
+              Votre message n&apos;a pas été envoyé. Voulez-vous vraiment fermer ?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Continuer l&apos;edition</AlertDialogCancel>
+            <AlertDialogCancel>Continuer l&apos;édition</AlertDialogCancel>
             <AlertDialogAction onClick={() => { setOpen(false); resetForm(); }}>
               Fermer sans envoyer
             </AlertDialogAction>

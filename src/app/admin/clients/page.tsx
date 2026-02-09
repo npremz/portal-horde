@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { clientStatusConfig, projectTypes, sectors } from "@/lib/constants";
-import type { Client } from "@/types/database";
+import type { Client, ClientStatus } from "@/types/database";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -191,6 +191,31 @@ export default function AdminClientsPage() {
     }
   };
 
+  const updateClientStatus = async (clientId: string, oldStatus: ClientStatus, newStatus: ClientStatus) => {
+    if (oldStatus === newStatus) return;
+    const supabase = createClient();
+
+    // Optimistic update
+    setClients((prev) =>
+      prev.map((c) => (c.id === clientId ? { ...c, status: newStatus } : c))
+    );
+
+    const { error } = await supabase
+      .from("clients")
+      .update({ status: newStatus })
+      .eq("id", clientId);
+
+    if (error) {
+      // Revert on error
+      setClients((prev) =>
+        prev.map((c) => (c.id === clientId ? { ...c, status: oldStatus } : c))
+      );
+      toast.error("Erreur lors de la mise à jour du statut");
+    } else {
+      toast.success(`Statut mis à jour : ${clientStatusConfig[newStatus].label}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto space-y-6">
@@ -222,7 +247,7 @@ export default function AdminClientsPage() {
           size="sm"
         >
           <Bell className="h-4 w-4" />
-          A relancer
+          À relancer
           {followupCount > 0 && (
             <Badge variant={showFollowups ? "secondary" : "destructive"} className="ml-1">
               {followupCount}
@@ -340,12 +365,31 @@ export default function AdminClientsPage() {
                         />
                       </button>
                     </div>
-                    <Link href={`/admin/clients/${client.id}`} className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-medium truncate">{client.name}</p>
-                        <Badge className={statusConfig.color} variant="secondary">
-                          {statusConfig.label}
-                        </Badge>
+                        <Link href={`/admin/clients/${client.id}`} className="font-medium truncate hover:underline">
+                          {client.name}
+                        </Link>
+                        <Select
+                          value={client.status}
+                          onValueChange={(v) => updateClientStatus(client.id, client.status, v as ClientStatus)}
+                        >
+                          <SelectTrigger
+                            className={`h-6 w-auto gap-1 border-0 px-2 text-xs font-medium ${statusConfig.color}`}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(clientStatusConfig).map(([status, config]) => (
+                              <SelectItem key={status} value={status}>
+                                <div className="flex items-center gap-2">
+                                  <div className={`h-2 w-2 rounded-full ${config.dotColor}`} />
+                                  {config.label}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         {needsFollowup && (
                           <Badge variant="destructive">
                             <Bell className="h-3 w-3 mr-1" />
@@ -353,25 +397,27 @@ export default function AdminClientsPage() {
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {client.email}
-                      </p>
-                      <div className="flex gap-2 mt-1 flex-wrap">
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(client.created_at).toLocaleDateString("fr-FR")}
-                        </span>
-                        {getProjectTypeLabel(client.project_type) && (
-                          <Badge variant="outline" className="text-xs">
-                            {getProjectTypeLabel(client.project_type)}
-                          </Badge>
-                        )}
-                        {getSectorLabel(client.sector) && (
-                          <Badge variant="outline" className="text-xs">
-                            {getSectorLabel(client.sector)}
-                          </Badge>
-                        )}
-                      </div>
-                    </Link>
+                      <Link href={`/admin/clients/${client.id}`} className="block">
+                        <p className="text-sm text-muted-foreground truncate">
+                          {client.email}
+                        </p>
+                        <div className="flex gap-2 mt-1 flex-wrap">
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(client.created_at).toLocaleDateString("fr-FR")}
+                          </span>
+                          {getProjectTypeLabel(client.project_type) && (
+                            <Badge variant="outline" className="text-xs">
+                              {getProjectTypeLabel(client.project_type)}
+                            </Badge>
+                          )}
+                          {getSectorLabel(client.sector) && (
+                            <Badge variant="outline" className="text-xs">
+                              {getSectorLabel(client.sector)}
+                            </Badge>
+                          )}
+                        </div>
+                      </Link>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t flex-wrap">
                     <Badge variant="outline" className="text-xs">
@@ -521,14 +567,31 @@ export default function AdminClientsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-1">
-                          <Badge className={statusConfig.color} variant="secondary">
-                            <div className={`h-2 w-2 rounded-full ${statusConfig.dotColor} mr-1.5`} />
-                            {statusConfig.label}
-                          </Badge>
+                          <Select
+                            value={client.status}
+                            onValueChange={(v) => updateClientStatus(client.id, client.status, v as ClientStatus)}
+                          >
+                            <SelectTrigger
+                              className={`h-7 w-auto gap-1.5 border-0 px-2.5 text-xs font-medium ${statusConfig.color}`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(clientStatusConfig).map(([status, config]) => (
+                                <SelectItem key={status} value={status}>
+                                  <div className="flex items-center gap-2">
+                                    <div className={`h-2 w-2 rounded-full ${config.dotColor}`} />
+                                    {config.label}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           {needsFollowup && (
                             <Badge variant="destructive" className="w-fit">
                               <Bell className="h-3 w-3 mr-1" />
-                              A relancer
+                              À relancer
                             </Badge>
                           )}
                         </div>

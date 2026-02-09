@@ -112,9 +112,9 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Pas de mot de passe a retenir.
+            Pas de mot de passe à retenir.
             <br />
-            Un lien magique vous sera envoye par email.
+            Un lien magique vous sera envoyé par email.
           </p>
         </CardContent>
       </Card>

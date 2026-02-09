@@ -44,10 +44,10 @@ export function StatsCards({ stats, loading }: StatsCardsProps) {
     },
     {
       title: "Relances",
-      titleFull: "A Relancer",
+      titleFull: "À relancer",
       value: stats?.pendingFollowups ?? 0,
       icon: Bell,
-      description: "a relancer",
+      description: "à relancer",
       descriptionFull: "clients en attente de relance",
       color: "text-orange-600",
       bgColor: "bg-orange-100",

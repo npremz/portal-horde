@@ -60,7 +60,7 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
   const handleCopyPrefix = async (prefix: string) => {
     try {
       await navigator.clipboard.writeText(prefix);
-      toast.success("Prefixe copie");
+      toast.success("Préfixe copié");
     } catch {
       toast.error("Erreur lors de la copie");
     }
@@ -75,14 +75,14 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de la mise a jour");
+        throw new Error("Erreur lors de la mise à jour");
       }
 
-      toast.success(key.is_active ? "Cle desactivee" : "Cle activee");
+      toast.success(key.is_active ? "Clé désactivée" : "Clé activée");
       onRefresh();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Erreur lors de la mise a jour"
+        error instanceof Error ? error.message : "Erreur lors de la mise à jour"
       );
     }
   };
@@ -101,7 +101,7 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
         throw new Error("Erreur lors de la suppression");
       }
 
-      toast.success(`Cle "${deletingKey.name}" supprimee`);
+      toast.success(`Clé "${deletingKey.name}" supprimée`);
       setDeletingKey(null);
       onRefresh();
     } catch (error) {
@@ -123,7 +123,7 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
       <Card>
         <CardContent className="py-8 text-center">
           <Key className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">Aucune cle API</p>
+          <p className="text-muted-foreground">Aucune clé API</p>
         </CardContent>
       </Card>
     );
@@ -144,10 +144,10 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-medium truncate">{key.name}</p>
                       {!key.is_active && (
-                        <Badge variant="secondary">Desactivee</Badge>
+                        <Badge variant="secondary">Désactivée</Badge>
                       )}
                       {expired && (
-                        <Badge variant="destructive">Expiree</Badge>
+                        <Badge variant="destructive">Expirée</Badge>
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground font-mono mt-1">
@@ -172,13 +172,13 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
                         onClick={() => handleCopyPrefix(key.key_prefix)}
                       >
                         <Copy className="mr-2 h-4 w-4" />
-                        Copier le prefixe
+                        Copier le préfixe
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleToggleActive(key)}>
                         {key.is_active ? (
                           <>
                             <PowerOff className="mr-2 h-4 w-4" />
-                            Desactiver
+                            Désactiver
                           </>
                         ) : (
                           <>
@@ -200,7 +200,7 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
                 </div>
                 <div className="flex items-center gap-4 mt-3 pt-3 border-t text-xs text-muted-foreground">
                   <span>
-                    Creee{" "}
+                    Créée{" "}
                     {formatDistanceToNow(new Date(key.created_at), {
                       addSuffix: true,
                       locale: fr,
@@ -208,7 +208,7 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
                   </span>
                   {key.last_used_at && (
                     <span>
-                      Utilisee{" "}
+                      Utilisée{" "}
                       {formatDistanceToNow(new Date(key.last_used_at), {
                         addSuffix: true,
                         locale: fr,
@@ -229,10 +229,10 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Nom</TableHead>
-                <TableHead>Prefixe</TableHead>
+                <TableHead>Préfixe</TableHead>
                 <TableHead>Permissions</TableHead>
                 <TableHead>Statut</TableHead>
-                <TableHead>Derniere utilisation</TableHead>
+                <TableHead>Dernière utilisation</TableHead>
                 <TableHead className="w-[80px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -246,7 +246,7 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
                       <div>
                         <p className="font-medium">{key.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Creee{" "}
+                          Créée{" "}
                           {formatDistanceToNow(new Date(key.created_at), {
                             addSuffix: true,
                             locale: fr,
@@ -274,7 +274,7 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
                     </TableCell>
                     <TableCell>
                       {expired ? (
-                        <Badge variant="destructive">Expiree</Badge>
+                        <Badge variant="destructive">Expirée</Badge>
                       ) : key.is_active ? (
                         <Badge
                           variant="secondary"
@@ -283,7 +283,7 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
                           Active
                         </Badge>
                       ) : (
-                        <Badge variant="secondary">Desactivee</Badge>
+                        <Badge variant="secondary">Désactivée</Badge>
                       )}
                     </TableCell>
                     <TableCell>
@@ -316,7 +316,7 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
                             onClick={() => handleCopyPrefix(key.key_prefix)}
                           >
                             <Copy className="mr-2 h-4 w-4" />
-                            Copier le prefixe
+                            Copier le préfixe
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleToggleActive(key)}
@@ -324,7 +324,7 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
                             {key.is_active ? (
                               <>
                                 <PowerOff className="mr-2 h-4 w-4" />
-                                Desactiver
+                                Désactiver
                               </>
                             ) : (
                               <>
@@ -359,11 +359,11 @@ export function ApiKeysTable({ keys, onRefresh }: ApiKeysTableProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer la cle API ?</AlertDialogTitle>
+            <AlertDialogTitle>Supprimer la clé API ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action est irreversible. La cle{" "}
-              <strong>{deletingKey?.name}</strong> sera definitivement
-              supprimee et ne pourra plus etre utilisee.
+              Cette action est irréversible. La clé{" "}
+              <strong>{deletingKey?.name}</strong> sera définitivement
+              supprimée et ne pourra plus être utilisée.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -49,10 +49,10 @@ export default function AdminApiKeysPage() {
         <div className="min-w-0">
           <h1 className="text-2xl md:text-3xl font-display uppercase flex items-center gap-2">
             <Key className="h-6 w-6" />
-            Cles API
+            Clés API
           </h1>
           <p className="text-muted-foreground text-sm md:text-base">
-            Gerez les cles d&apos;acces pour les bots et agents
+            Gérez les clés d&apos;accès pour les bots et agents
           </p>
         </div>
         <CreateKeyDialog onKeyCreated={() => fetchKeys()} />

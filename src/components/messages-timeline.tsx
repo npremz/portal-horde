@@ -20,13 +20,13 @@ export function MessagesTimeline({ messages }: MessagesTimelineProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            Messages envoyes
+            Messages envoyés
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">
             <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Aucun message envoye</p>
+            <p>Aucun message envoyé</p>
             <p className="text-sm mt-2">
               Utilisez le bouton ci-dessus pour envoyer votre premier message.
             </p>
@@ -46,7 +46,7 @@ export function MessagesTimeline({ messages }: MessagesTimelineProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Mail className="h-5 w-5" />
-          Messages envoyes ({messages.length})
+          Messages envoyés ({messages.length})
         </CardTitle>
       </CardHeader>
       <CardContent>
