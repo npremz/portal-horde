@@ -141,7 +141,11 @@ export const prospectingTemplates = {
 
 Je visitais votre site {{website}} tout à l'heure et j'ai noté 2-3 points techniques qui freinent un peu l'expérience (notamment le chargement des images sur mobile).
 
-Je suis co-fondateur de Horde à Bruxelles. On est spécialisés là-dedans : rendre le web plus rapide et plus fluide.
+Je suis co-fondateur de Horde, une jeune agence web Bruxelloise.
+Concrètement, on aide les entreprises à avoir une présence en ligne dont ils peuvent être fier :
+- On répare ce qui est lent ou cassé (pour plaire à Google).
+- On refait le design pour qu'il soit à la hauteur de la qualité de vos services.
+- On s'assure que votre site soit pratique pour vous et non un poid de plus à gérer dans votre activité
 
 J'ai enregistré une courte vidéo d'écran (1m30) pour vous montrer concrètement ce qui pourrait être amélioré. C'est sans engagement, juste un regard neuf.
 

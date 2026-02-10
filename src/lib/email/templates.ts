@@ -601,11 +601,17 @@ export function prospectingEmail(params: ProspectingEmailParams): string {
   const { content: messageContent } = params;
 
   // Simple plain-text style email - no fancy branding
-  // Convert URLs to <a> tags (for click tracking), then newlines to <br>
+  // Convert URLs to <a> tags (for click tracking), bullet lists, then newlines to <br>
   const htmlContent = messageContent
     .replace(/(?:https?:\/\/[^\s)<]+|(?<!\w)[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.(?:com|fr|be|net|org|io|co|dev|eu|info)(?:\/[^\s)<]*)?)/g, (url) => {
       const href = url.startsWith("http") ? url : `https://${url}`;
       return `<a href="${href}" style="color: #2563eb;">${url}</a>`;
+    })
+    .replace(/(?:^|\n)(- .+(?:\n- .+)*)/g, (_match, list: string) => {
+      const items = list.split("\n").map((line: string) =>
+        `<li style="margin-bottom: 4px;">${line.replace(/^- /, "")}</li>`
+      ).join("");
+      return `<ul style="margin: 8px 0; padding-left: 20px;">${items}</ul>`;
     })
     .replace(/\n/g, "<br>");
 
