@@ -181,6 +181,7 @@ export async function POST(
         content: finalContent,
         message_type: message_type || "prospecting",
         sent_by: user.id,
+        resend_email_id: emailResult.id || null,
       });
 
     if (messageError) {

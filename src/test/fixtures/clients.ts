@@ -76,5 +76,8 @@ export const mockMessages: ClientMessage[] = [
     sent_at: "2025-06-15T14:00:00Z",
     sent_by: "user-1",
     message_type: "prospecting",
+    resend_email_id: null,
+    clicked_at: null,
+    clicked_link: null,
   },
 ];

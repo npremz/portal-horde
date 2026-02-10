@@ -3,14 +3,50 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Clock, User } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Mail, Clock, User, MousePointerClick, Send } from "lucide-react";
 import { messageTypeConfig } from "@/lib/constants";
 import type { ClientMessage } from "@/types/database";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 interface MessagesTimelineProps {
   messages: ClientMessage[];
+}
+
+function TrackingBadges({ message }: { message: ClientMessage }) {
+  // No tracking for old messages without resend_email_id
+  if (!message.resend_email_id) return null;
+
+  return (
+    <div className="flex items-center gap-1.5">
+      {message.clicked_at ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge variant="outline" className="border-blue-300 text-blue-600 bg-blue-50 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800">
+              <MousePointerClick className="h-3 w-3" />
+              Cliqué
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Cliqué le {format(new Date(message.clicked_at), "d MMM yyyy à HH:mm", { locale: fr })}</p>
+            {message.clicked_link && (
+              <p className="text-muted-foreground mt-0.5 truncate max-w-[300px]">{message.clicked_link}</p>
+            )}
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <Badge variant="outline" className="text-muted-foreground">
+          <Send className="h-3 w-3" />
+          Envoyé
+        </Badge>
+      )}
+    </div>
+  );
 }
 
 export function MessagesTimeline({ messages }: MessagesTimelineProps) {
@@ -65,6 +101,7 @@ export function MessagesTimeline({ messages }: MessagesTimelineProps) {
                       >
                         {messageTypeConfig[message.message_type].label}
                       </Badge>
+                      <TrackingBadges message={message} />
                     </div>
                     <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                       {message.contact ? (

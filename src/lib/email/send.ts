@@ -30,7 +30,7 @@ export async function sendEmail({ to, subject, html }: SendEmailParams) {
 
   try {
     const { data, error } = await client.emails.send({
-      from: FROM_EMAIL, 
+      from: FROM_EMAIL,
       to,
       subject,
       html,

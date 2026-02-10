@@ -112,6 +112,9 @@ export interface ClientMessage {
   sent_at: string;
   sent_by: string | null;
   message_type: MessageType;
+  resend_email_id: string | null;
+  clicked_at: string | null;
+  clicked_link: string | null;
   // Relations
   contact?: ClientContact;
   sender?: Profile;
