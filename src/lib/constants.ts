@@ -136,7 +136,7 @@ export const messageTypeConfig: Record<
 // Prospecting email templates
 export const prospectingTemplates = {
   default: {
-    subject: "{{entreprise}}",
+    subject: "Petit retour technique sur {{website}}",
     content: `Bonjour {{entreprise}},
 
 Je visitais votre site {{website}} tout à l'heure et j'ai noté 2-3 points techniques qui freinent un peu l'expérience (notamment le chargement des images sur mobile).
