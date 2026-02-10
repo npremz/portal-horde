@@ -2,7 +2,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
 
-const resend = new Resend(process.env.RESEND_API_KEY || "");
+// Lazy init to avoid crash at build time when env vars are missing
+let resend: Resend | null = null;
+function getResend(): Resend {
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY || "");
+  }
+  return resend;
+}
 
 export async function POST(request: Request) {
   try {
@@ -26,7 +33,7 @@ export async function POST(request: Request) {
     // Verify webhook signature
     let event;
     try {
-      event = resend.webhooks.verify(
+      event = getResend().webhooks.verify(
         {
           payload: body,
           headers: {
