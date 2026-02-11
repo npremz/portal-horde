@@ -105,7 +105,7 @@ export function InviteClientButton({
             </div>
 
             {client.status === "lead" && (
-              <div className="flex items-start gap-2 text-sm text-yellow-600 bg-yellow-50 rounded-lg p-3">
+              <div className="flex items-start gap-2 text-sm text-status-warning-text bg-status-warning-bg rounded-lg p-3">
                 <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <p>
                   Ce client est encore au statut &quot;Lead&quot;. Son statut passera

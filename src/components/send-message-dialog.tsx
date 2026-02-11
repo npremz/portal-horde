@@ -164,7 +164,7 @@ export function SendMessageDialog({
     e.preventDefault();
 
     const newErrors: Record<string, string> = {};
-    if (!selectedRecipientId) newErrors.recipient = "Selectionnez un destinataire";
+    if (!selectedRecipientId) newErrors.recipient = "Sélectionnez un destinataire";
     if (!subject.trim()) newErrors.subject = "Le sujet est requis";
     if (!content.trim()) newErrors.content = "Le contenu est requis";
 
@@ -265,8 +265,8 @@ export function SendMessageDialog({
                   value={selectedRecipientId}
                   onValueChange={(v) => { setSelectedRecipientId(v); clearError("recipient"); }}
                 >
-                  <SelectTrigger className="w-full" aria-invalid={!!errors.recipient}>
-                    <SelectValue placeholder="Selectionner un destinataire" />
+                  <SelectTrigger className="w-full" aria-invalid={!!errors.recipient} aria-describedby={errors.recipient ? "recipient-error" : undefined}>
+                    <SelectValue placeholder="Sélectionner un destinataire" />
                   </SelectTrigger>
                   <SelectContent>
                     {recipients.map((recipient) => (
@@ -277,7 +277,7 @@ export function SendMessageDialog({
                     ))}
                   </SelectContent>
                 </Select>
-                <FormFieldError error={errors.recipient} />
+                <FormFieldError id="recipient-error" error={errors.recipient} />
               </div>
 
               <div className="space-y-2">
@@ -308,8 +308,9 @@ export function SendMessageDialog({
                 onChange={(e) => { setSubject(e.target.value); clearError("subject"); }}
                 placeholder="Sujet de l'email"
                 aria-invalid={!!errors.subject}
+                aria-describedby={errors.subject ? "subject-error" : undefined}
               />
-              <FormFieldError error={errors.subject} />
+              <FormFieldError id="subject-error" error={errors.subject} />
             </div>
 
             <div className="space-y-2">
@@ -321,8 +322,9 @@ export function SendMessageDialog({
                 placeholder="Contenu du message..."
                 rows={10}
                 aria-invalid={!!errors.content}
+                aria-describedby={errors.content ? "content-error" : undefined}
               />
-              <FormFieldError error={errors.content} />
+              <FormFieldError id="content-error" error={errors.content} />
               <p className="text-xs text-muted-foreground">
                 Variables disponibles : {"{{nom}}"}, {"{{prenom}}"}, {"{{entreprise}}"}, {"{{email}}"}
               </p>
@@ -340,7 +342,7 @@ export function SendMessageDialog({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setOpen(false)}
+                onClick={() => handleOpenChange(false)}
               >
                 Annuler
               </Button>

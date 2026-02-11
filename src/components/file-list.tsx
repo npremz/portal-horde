@@ -107,13 +107,15 @@ export function FileGallery({ files, onFileClick }: FileGalleryProps) {
       <CardContent>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {imageFiles.map((file) => (
-            <div
+            <button
+              type="button"
               key={file.id}
               className="relative aspect-video rounded-lg overflow-hidden bg-muted cursor-pointer hover:ring-2 ring-primary transition-all"
               onClick={() => onFileClick(file)}
+              aria-label={`Voir ${file.name || "le fichier"}`}
             >
               <ImagePreview file={file} fill className="object-cover" />
-            </div>
+            </button>
           ))}
         </div>
       </CardContent>

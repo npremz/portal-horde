@@ -63,20 +63,20 @@ describe("validateComment", () => {
   it("rejects empty comments", () => {
     const result = validateComment("");
     expect(result.valid).toBe(false);
-    expect(result.error).toBe("Le commentaire ne peut pas etre vide");
+    expect(result.error).toBe("Le commentaire ne peut pas être vide");
   });
 
   it("rejects whitespace-only comments", () => {
     const result = validateComment("   ");
     expect(result.valid).toBe(false);
-    expect(result.error).toBe("Le commentaire ne peut pas etre vide");
+    expect(result.error).toBe("Le commentaire ne peut pas être vide");
   });
 
   it("rejects comments over 5000 characters", () => {
     const longComment = "a".repeat(5001);
     const result = validateComment(longComment);
     expect(result.valid).toBe(false);
-    expect(result.error).toBe("Le commentaire est trop long (max 5000 caracteres)");
+    expect(result.error).toBe("Le commentaire est trop long (max 5000 caractères)");
   });
 
   it("accepts valid comments", () => {
@@ -104,14 +104,14 @@ describe("validateName", () => {
     const longName = "a".repeat(201);
     const result = validateName(longName);
     expect(result.valid).toBe(false);
-    expect(result.error).toBe("Le nom est trop long (max 200 caracteres)");
+    expect(result.error).toBe("Le nom est trop long (max 200 caractères)");
   });
 
   it("respects custom max length", () => {
     const name = "a".repeat(51);
     const result = validateName(name, 50);
     expect(result.valid).toBe(false);
-    expect(result.error).toBe("Le nom est trop long (max 50 caracteres)");
+    expect(result.error).toBe("Le nom est trop long (max 50 caractères)");
   });
 
   it("accepts valid names", () => {
@@ -138,7 +138,7 @@ describe("validateDescription", () => {
     const longDesc = "a".repeat(10001);
     const result = validateDescription(longDesc);
     expect(result.valid).toBe(false);
-    expect(result.error).toBe("La description est trop longue (max 10000 caracteres)");
+    expect(result.error).toBe("La description est trop longue (max 10000 caractères)");
   });
 
   it("accepts valid descriptions", () => {
@@ -426,7 +426,7 @@ describe("validateFile", () => {
     const exeFile = createMockFile("malware.exe", "application/x-executable", 1000);
     const result = validateFile(exeFile);
     expect(result.valid).toBe(false);
-    expect(result.error).toContain("Type de fichier non autorise");
+    expect(result.error).toContain("Type de fichier non autorisé");
   });
 
   it("rejects files over max size", () => {

@@ -108,8 +108,8 @@ export function EditUserRoleDialog({
           </div>
 
           {isCurrentUser ? (
-            <div className="p-3 border border-yellow-200 bg-yellow-50 rounded-lg">
-              <p className="text-sm text-yellow-800">
+            <div className="p-3 border border-status-warning-border bg-status-warning-bg rounded-lg">
+              <p className="text-sm text-status-warning-text">
                 Vous ne pouvez pas modifier votre propre rôle.
               </p>
             </div>

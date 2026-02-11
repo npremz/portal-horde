@@ -4,7 +4,9 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link as LinkIcon, ExternalLink, Trash2, Plus } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { FormFieldError } from "@/components/ui/form-field-error";
+import { Link as LinkIcon, ExternalLink, Trash2, Plus, Loader2 } from "lucide-react";
 import type { Link, Profile } from "@/types/database";
 
 interface LinkWithCreator extends Link {
@@ -27,19 +29,58 @@ export function LinksSection({
   const [addingLink, setAddingLink] = useState(false);
   const [newLinkTitle, setNewLinkTitle] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  function clearError(field: string) {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  }
 
   async function handleAddLink() {
-    if (!newLinkTitle.trim() || !newLinkUrl.trim() || !onAddLink) return;
+    if (!onAddLink) return;
 
-    let url = newLinkUrl.trim();
+    const newErrors: Record<string, string> = {};
+    if (!newLinkTitle.trim()) {
+      newErrors.title = "Le titre est requis";
+    }
+    const trimmedUrl = newLinkUrl.trim();
+    if (!trimmedUrl) {
+      newErrors.url = "L'URL est requise";
+    } else {
+      try {
+        const testUrl = trimmedUrl.startsWith("http://") || trimmedUrl.startsWith("https://")
+          ? trimmedUrl
+          : "https://" + trimmedUrl;
+        new URL(testUrl);
+      } catch {
+        newErrors.url = "L'URL n'est pas valide";
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    let url = trimmedUrl;
     if (!url.startsWith("http://") && !url.startsWith("https://")) {
       url = "https://" + url;
     }
 
-    await onAddLink(newLinkTitle.trim(), url);
-    setNewLinkTitle("");
-    setNewLinkUrl("");
-    setAddingLink(false);
+    setLoading(true);
+    try {
+      await onAddLink(newLinkTitle.trim(), url);
+      setNewLinkTitle("");
+      setNewLinkUrl("");
+      setErrors({});
+      setAddingLink(false);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -59,21 +100,34 @@ export function LinksSection({
       </CardHeader>
       <CardContent className="space-y-4">
         {canEdit && addingLink && (
-          <div className="space-y-3 p-3 bg-white border border-border rounded-lg">
+          <div className="space-y-3 p-3 bg-card border border-border rounded-lg">
             <div className="space-y-2">
-              <Input
-                placeholder="Titre du lien"
-                value={newLinkTitle}
-                onChange={(e) => setNewLinkTitle(e.target.value)}
-              />
-              <Input
-                placeholder="URL (ex: https://example.com)"
-                value={newLinkUrl}
-                onChange={(e) => setNewLinkUrl(e.target.value)}
-              />
+              <div>
+                <Label htmlFor="link-title">Titre</Label>
+                <Input
+                  id="link-title"
+                  placeholder="Titre du lien"
+                  value={newLinkTitle}
+                  onChange={(e) => { setNewLinkTitle(e.target.value); clearError("title"); }}
+                  aria-invalid={!!errors.title}
+                />
+                <FormFieldError error={errors.title} />
+              </div>
+              <div>
+                <Label htmlFor="link-url">URL</Label>
+                <Input
+                  id="link-url"
+                  placeholder="https://example.com"
+                  value={newLinkUrl}
+                  onChange={(e) => { setNewLinkUrl(e.target.value); clearError("url"); }}
+                  aria-invalid={!!errors.url}
+                />
+                <FormFieldError error={errors.url} />
+              </div>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleAddLink}>
+              <Button size="sm" onClick={handleAddLink} disabled={loading}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Ajouter
               </Button>
               <Button
@@ -83,7 +137,9 @@ export function LinksSection({
                   setAddingLink(false);
                   setNewLinkTitle("");
                   setNewLinkUrl("");
+                  setErrors({});
                 }}
+                disabled={loading}
               >
                 Annuler
               </Button>

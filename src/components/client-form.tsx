@@ -97,6 +97,9 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      const firstErrorField = Object.keys(newErrors)[0];
+      const el = document.getElementById(firstErrorField);
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
@@ -152,8 +155,9 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
                 }}
                 placeholder="Nom du client ou de l'entreprise"
                 aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? "name-error" : undefined}
               />
-              <FormFieldError error={errors.name} />
+              <FormFieldError id="name-error" error={errors.name} />
             </div>
 
             <div className="space-y-2">
@@ -168,8 +172,9 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
                 }}
                 placeholder="contact@entreprise.com"
                 aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
               />
-              <FormFieldError error={errors.email} />
+              <FormFieldError id="email-error" error={errors.email} />
             </div>
 
             <div className="space-y-2">
@@ -184,8 +189,9 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
                 }}
                 placeholder="+33 6 12 34 56 78"
                 aria-invalid={!!errors.phone}
+                aria-describedby={errors.phone ? "phone-error" : undefined}
               />
-              <FormFieldError error={errors.phone} />
+              <FormFieldError id="phone-error" error={errors.phone} />
             </div>
 
             <div className="space-y-2">
@@ -270,9 +276,10 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
                 placeholder="https://exemple.com"
                 className="pl-10"
                 aria-invalid={!!errors.website}
+                aria-describedby={errors.website ? "website-error" : undefined}
               />
             </div>
-            <FormFieldError error={errors.website} />
+            <FormFieldError id="website-error" error={errors.website} />
           </div>
         </CardContent>
       </Card>
@@ -361,8 +368,9 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
             placeholder="Notes internes (visibles uniquement par les admins)..."
             rows={4}
             aria-invalid={!!errors.notes}
+            aria-describedby={errors.notes ? "notes-error" : undefined}
           />
-          <FormFieldError error={errors.notes} />
+          <FormFieldError id="notes-error" error={errors.notes} />
         </CardContent>
       </Card>
 

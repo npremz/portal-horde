@@ -33,11 +33,11 @@ export function validateComment(content: string): { valid: boolean; sanitized: s
   const sanitized = sanitizeString(content);
 
   if (!sanitized) {
-    return { valid: false, sanitized: "", error: "Le commentaire ne peut pas etre vide" };
+    return { valid: false, sanitized: "", error: "Le commentaire ne peut pas être vide" };
   }
 
   if (sanitized.length > 5000) {
-    return { valid: false, sanitized: "", error: "Le commentaire est trop long (max 5000 caracteres)" };
+    return { valid: false, sanitized: "", error: "Le commentaire est trop long (max 5000 caractères)" };
   }
 
   return { valid: true, sanitized };
@@ -54,7 +54,7 @@ export function validateName(name: string, maxLength = 200): { valid: boolean; s
   }
 
   if (sanitized.length > maxLength) {
-    return { valid: false, sanitized: "", error: `Le nom est trop long (max ${maxLength} caracteres)` };
+    return { valid: false, sanitized: "", error: `Le nom est trop long (max ${maxLength} caractères)` };
   }
 
   return { valid: true, sanitized };
@@ -71,7 +71,7 @@ export function validateDescription(description: string | null): { valid: boolea
   const sanitized = sanitizeString(description);
 
   if (sanitized.length > 10000) {
-    return { valid: false, sanitized: null, error: "La description est trop longue (max 10000 caracteres)" };
+    return { valid: false, sanitized: null, error: "La description est trop longue (max 10000 caractères)" };
   }
 
   return { valid: true, sanitized };
@@ -132,7 +132,7 @@ export const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
  */
 export function validateFile(file: File): { valid: boolean; error?: string } {
   if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-    return { valid: false, error: `Type de fichier non autorise: ${file.type}` };
+    return { valid: false, error: `Type de fichier non autorisé : ${file.type}` };
   }
 
   if (file.size > MAX_FILE_SIZE) {
@@ -151,7 +151,7 @@ export function validateFile(file: File): { valid: boolean; error?: string } {
   ];
 
   if (suspiciousPatterns.some(pattern => pattern.test(file.name))) {
-    return { valid: false, error: "Type de fichier non autorise" };
+    return { valid: false, error: "Type de fichier non autorisé" };
   }
 
   return { valid: true };

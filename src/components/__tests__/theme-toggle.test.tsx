@@ -28,7 +28,7 @@ describe("ThemeToggle", () => {
   it("has accessible label", () => {
     render(<ThemeToggle />);
 
-    expect(screen.getByText("Toggle theme")).toBeInTheDocument();
+    expect(screen.getByText("Changer le thème")).toBeInTheDocument();
   });
 
   it("has correct size classes", () => {

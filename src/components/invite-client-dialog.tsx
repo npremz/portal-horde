@@ -89,15 +89,17 @@ export function InviteClientDialog() {
     }
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen && JSON.stringify(formData) !== JSON.stringify(emptyForm)) {
+      setShowCloseConfirm(true);
+      return;
+    }
+    setOpen(newOpen);
+    if (!newOpen) { setErrors({}); }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => {
-      if (!newOpen && JSON.stringify(formData) !== JSON.stringify(emptyForm)) {
-        setShowCloseConfirm(true);
-        return;
-      }
-      setOpen(newOpen);
-      if (!newOpen) { setErrors({}); }
-    }}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button>
           <UserPlus className="h-4 w-4 mr-2" />
@@ -124,8 +126,9 @@ export function InviteClientDialog() {
               }}
               placeholder="client@entreprise.com"
               aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
             />
-            <FormFieldError error={errors.email} />
+            <FormFieldError id="email-error" error={errors.email} />
           </div>
 
           <div className="space-y-2">
@@ -139,8 +142,9 @@ export function InviteClientDialog() {
               }}
               placeholder="Jean Dupont"
               aria-invalid={!!errors.full_name}
+              aria-describedby={errors.full_name ? "full_name-error" : undefined}
             />
-            <FormFieldError error={errors.full_name} />
+            <FormFieldError id="full_name-error" error={errors.full_name} />
           </div>
 
           <div className="space-y-2">
@@ -167,7 +171,7 @@ export function InviteClientDialog() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => handleOpenChange(false)}
             >
               Annuler
             </Button>
@@ -178,13 +182,13 @@ export function InviteClientDialog() {
       <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Modifications non sauvegardees</AlertDialogTitle>
+            <AlertDialogTitle>Modifications non sauvegardées</AlertDialogTitle>
             <AlertDialogDescription>
-              Le formulaire contient des donnees non sauvegardees. Voulez-vous vraiment fermer ?
+              Le formulaire contient des données non sauvegardées. Voulez-vous vraiment fermer ?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Continuer l&apos;edition</AlertDialogCancel>
+            <AlertDialogCancel>Continuer l&apos;édition</AlertDialogCancel>
             <AlertDialogAction onClick={() => { setOpen(false); setFormData(emptyForm); setErrors({}); }}>
               Fermer sans sauvegarder
             </AlertDialogAction>

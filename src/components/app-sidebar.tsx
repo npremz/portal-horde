@@ -69,11 +69,6 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
       icon: LayoutDashboard,
     },
     {
-      title: "Mes projets",
-      url: "/dashboard",
-      icon: FolderKanban,
-    },
-    {
       title: "Contact",
       url: "/contact",
       icon: HelpCircle,
@@ -97,7 +92,7 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
       icon: Users,
     },
     {
-      title: "Activite",
+      title: "Activité",
       url: "/admin/logs",
       icon: Activity,
     },
@@ -110,7 +105,7 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
             icon: UserCog,
           },
           {
-            title: "Cles API",
+            title: "Clés API",
             url: "/admin/api-keys",
             icon: Key,
           },
@@ -232,7 +227,7 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
                 <DropdownMenuItem asChild>
                   <Link href="/settings">
                     <Settings className="mr-2 h-4 w-4" />
-                    Parametres
+                    Paramètres
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -241,7 +236,7 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
                   className="text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  Deconnexion
+                  Déconnexion
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

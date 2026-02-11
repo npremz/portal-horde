@@ -80,6 +80,7 @@ export function FileUploadZone({ onUpload, uploading = false, progress }: FileUp
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         onChange={handleChange}
         disabled={uploading}
+        aria-label="Téléverser des fichiers"
       />
       <Upload className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
       <p className="text-sm font-medium">

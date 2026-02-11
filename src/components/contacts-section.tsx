@@ -216,6 +216,14 @@ export function ContactsSection({
     }
   };
 
+  const handleDialogOpenChange = (newOpen: boolean) => {
+    if (!newOpen && JSON.stringify(formData) !== JSON.stringify(initialFormData)) {
+      setShowCloseConfirm(true);
+      return;
+    }
+    setDialogOpen(newOpen);
+  };
+
   // Sort contacts: primary first, then by name
   const sortedContacts = [...contacts].sort((a, b) => {
     if (a.is_primary && !b.is_primary) return -1;
@@ -227,13 +235,7 @@ export function ContactsSection({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Contacts ({contacts.length})</CardTitle>
-        <Dialog open={dialogOpen} onOpenChange={(newOpen) => {
-          if (!newOpen && JSON.stringify(formData) !== JSON.stringify(initialFormData)) {
-            setShowCloseConfirm(true);
-            return;
-          }
-          setDialogOpen(newOpen);
-        }}>
+        <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
           <DialogTrigger asChild>
             <Button size="sm" onClick={openAddDialog}>
               <Plus className="h-4 w-4 mr-2" />
@@ -258,9 +260,10 @@ export function ContactsSection({
                   onFocus={() => clearError("name")}
                   placeholder="Jean Dupont"
                   aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? "contact_name-error" : undefined}
                   required
                 />
-                <FormFieldError error={errors.name} />
+                <FormFieldError id="contact_name-error" error={errors.name} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -276,8 +279,9 @@ export function ContactsSection({
                     onFocus={() => clearError("email")}
                     placeholder="jean@exemple.com"
                     aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? "contact_email-error" : undefined}
                   />
-                  <FormFieldError error={errors.email} />
+                  <FormFieldError id="contact_email-error" error={errors.email} />
                 </div>
 
                 <div className="space-y-2">
@@ -292,8 +296,9 @@ export function ContactsSection({
                     onFocus={() => clearError("phone")}
                     placeholder="+33 6 12 34 56 78"
                     aria-invalid={!!errors.phone}
+                    aria-describedby={errors.phone ? "contact_phone-error" : undefined}
                   />
-                  <FormFieldError error={errors.phone} />
+                  <FormFieldError id="contact_phone-error" error={errors.phone} />
                 </div>
               </div>
 
@@ -329,9 +334,10 @@ export function ContactsSection({
                   onFocus={() => clearError("notes")}
                   placeholder="Notes sur ce contact..."
                   aria-invalid={!!errors.notes}
+                  aria-describedby={errors.notes ? "contact_notes-error" : undefined}
                   rows={2}
                 />
-                <FormFieldError error={errors.notes} />
+                <FormFieldError id="contact_notes-error" error={errors.notes} />
               </div>
 
               <div className="flex gap-3 pt-2">
@@ -344,7 +350,7 @@ export function ContactsSection({
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setDialogOpen(false)}
+                  onClick={() => handleDialogOpenChange(false)}
                 >
                   Annuler
                 </Button>
@@ -471,13 +477,13 @@ export function ContactsSection({
       <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Modifications non sauvegardees</AlertDialogTitle>
+            <AlertDialogTitle>Modifications non sauvegardées</AlertDialogTitle>
             <AlertDialogDescription>
-              Le formulaire contient des donnees non sauvegardees. Voulez-vous vraiment fermer ?
+              Le formulaire contient des données non sauvegardées. Voulez-vous vraiment fermer ?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Continuer l&apos;edition</AlertDialogCancel>
+            <AlertDialogCancel>Continuer l&apos;édition</AlertDialogCancel>
             <AlertDialogAction onClick={() => { setDialogOpen(false); setFormData(emptyForm); }}>
               Fermer sans sauvegarder
             </AlertDialogAction>

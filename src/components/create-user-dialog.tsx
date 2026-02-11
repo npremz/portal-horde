@@ -167,8 +167,9 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
               }}
               placeholder="Jean Dupont"
               aria-invalid={!!errors.full_name}
+              aria-describedby={errors.full_name ? "user_name-error" : undefined}
             />
-            <FormFieldError error={errors.full_name} />
+            <FormFieldError id="user_name-error" error={errors.full_name} />
           </div>
 
           <div className="space-y-2">
@@ -183,8 +184,9 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
               }}
               placeholder="jean@exemple.com"
               aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "user_email-error" : undefined}
             />
-            <FormFieldError error={errors.email} />
+            <FormFieldError id="user_email-error" error={errors.email} />
           </div>
 
           <div className="space-y-2">
@@ -237,7 +239,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => handleOpenChange(false)}
             >
               Annuler
             </Button>
@@ -248,13 +250,13 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
       <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Modifications non sauvegardees</AlertDialogTitle>
+            <AlertDialogTitle>Modifications non sauvegardées</AlertDialogTitle>
             <AlertDialogDescription>
-              Le formulaire contient des donnees non sauvegardees. Voulez-vous vraiment fermer ?
+              Le formulaire contient des données non sauvegardées. Voulez-vous vraiment fermer ?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Continuer l&apos;edition</AlertDialogCancel>
+            <AlertDialogCancel>Continuer l&apos;édition</AlertDialogCancel>
             <AlertDialogAction onClick={() => { setOpen(false); setFormData(emptyForm); setErrors({}); }}>
               Fermer sans sauvegarder
             </AlertDialogAction>

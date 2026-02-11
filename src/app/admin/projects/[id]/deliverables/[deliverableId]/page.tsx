@@ -53,6 +53,7 @@ export default function AdminDeliverablePage() {
   const [uploadProgress, setUploadProgress] = useState<FileUploadProgress | null>(null);
   const [deletingFile, setDeletingFile] = useState<FileRecord | null>(null);
   const [deletingLink, setDeletingLink] = useState<LinkType | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<DeliverableStatus | null>(null);
 
   const {
     deliverable,
@@ -340,7 +341,7 @@ export default function AdminDeliverablePage() {
         <div className="flex items-center gap-2">
           <Select
             value={deliverable.status}
-            onValueChange={(value) => handleStatusChange(value as DeliverableStatus)}
+            onValueChange={(value) => setPendingStatus(value as DeliverableStatus)}
           >
             <SelectTrigger className="w-48">
               <SelectValue />
@@ -441,6 +442,28 @@ export default function AdminDeliverablePage() {
             >
               Supprimer
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Status change confirmation dialog */}
+      <AlertDialog open={!!pendingStatus} onOpenChange={(open) => { if (!open) setPendingStatus(null) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer le changement de statut</AlertDialogTitle>
+            <AlertDialogDescription>
+              {`Êtes-vous sûr de vouloir changer le statut en « ${pendingStatus ? deliverableStatusConfig[pendingStatus].label : ""} » ?`}
+              {pendingStatus === 'pending_review' && " Cette action enverra une notification au client."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (pendingStatus) {
+                handleStatusChange(pendingStatus);
+                setPendingStatus(null);
+              }
+            }}>Confirmer</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

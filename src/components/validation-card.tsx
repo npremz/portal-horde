@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ValidationCardProps {
   onValidate: (approved: boolean, comment?: string) => Promise<void>;
@@ -27,22 +28,32 @@ export function ValidationCard({ onValidate, disabled = false }: ValidationCardP
 
   async function handleApprove() {
     setLoading(true);
-    await onValidate(true);
-    setLoading(false);
-    setConfirmApproveOpen(false);
+    try {
+      await onValidate(true);
+      setConfirmApproveOpen(false);
+    } catch {
+      toast.error("Erreur lors de la validation");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleRequestRevision() {
     setLoading(true);
-    await onValidate(false, revisionComment);
-    setLoading(false);
-    setConfirmRevisionOpen(false);
-    setRevisionComment("");
+    try {
+      await onValidate(false, revisionComment);
+      setConfirmRevisionOpen(false);
+      setRevisionComment("");
+    } catch {
+      toast.error("Erreur lors de la validation");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <>
-      <Card className="border-yellow-200 bg-yellow-50">
+      <Card className="border-status-warning-border bg-status-warning-bg">
         <CardContent className="p-4">
           <p className="font-medium">Ce livrable attend votre validation</p>
           <p className="text-sm text-muted-foreground mb-3">

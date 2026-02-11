@@ -14,10 +14,10 @@ import { useNotifications } from "@/hooks/use-notifications";
 import type { NotificationType } from "@/types/database";
 
 const notificationIcons: Record<NotificationType, React.ReactNode> = {
-  deliverable_ready: <FileText className="h-4 w-4 text-yellow-600" />,
-  deliverable_validated: <Check className="h-4 w-4 text-green-600" />,
-  revision_requested: <XCircle className="h-4 w-4 text-red-600" />,
-  new_comment: <MessageSquare className="h-4 w-4 text-blue-600" />,
+  deliverable_ready: <FileText className="h-4 w-4 text-status-warning-text" />,
+  deliverable_validated: <Check className="h-4 w-4 text-status-success-text" />,
+  revision_requested: <XCircle className="h-4 w-4 text-status-danger-text" />,
+  new_comment: <MessageSquare className="h-4 w-4 text-status-info-text" />,
 };
 
 interface NotificationBellProps {

@@ -86,6 +86,7 @@ export default function LoginPage() {
 
             {message && (
               <div
+                role="alert"
                 className={`p-3 rounded-md text-sm ${
                   message.type === "success"
                     ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"

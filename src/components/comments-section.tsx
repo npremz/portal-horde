@@ -40,10 +40,15 @@ export function CommentsSection({
     }
 
     setSending(true);
-    await onSendComment(validation.sanitized);
-    setNewComment("");
-    setError("");
-    setSending(false);
+    try {
+      await onSendComment(validation.sanitized);
+      setNewComment("");
+      setError("");
+    } catch {
+      // Keep comment content on failure so user doesn't lose their text
+    } finally {
+      setSending(false);
+    }
   }
 
   return (

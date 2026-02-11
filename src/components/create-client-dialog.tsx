@@ -220,8 +220,9 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
                   }}
                   placeholder="Nom du client"
                   aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? "client_name-error" : undefined}
                 />
-                <FormFieldError error={errors.name} />
+                <FormFieldError id="client_name-error" error={errors.name} />
               </div>
 
               <div className="space-y-2">
@@ -236,8 +237,9 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
                   }}
                   placeholder="contact@entreprise.com"
                   aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? "client_email-error" : undefined}
                 />
-                <FormFieldError error={errors.email} />
+                <FormFieldError id="client_email-error" error={errors.email} />
               </div>
 
               <div className="space-y-2">
@@ -252,8 +254,9 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
                   }}
                   placeholder="+33 6 12 34 56 78"
                   aria-invalid={!!errors.phone}
+                  aria-describedby={errors.phone ? "client_phone-error" : undefined}
                 />
-                <FormFieldError error={errors.phone} />
+                <FormFieldError id="client_phone-error" error={errors.phone} />
               </div>
 
               <div className="space-y-2">
@@ -338,9 +341,10 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
                   placeholder="https://exemple.com"
                   className="pl-10"
                   aria-invalid={!!errors.website}
+                  aria-describedby={errors.website ? "client_website-error" : undefined}
                 />
               </div>
-              <FormFieldError error={errors.website} />
+              <FormFieldError id="client_website-error" error={errors.website} />
             </div>
           </div>
 
@@ -427,8 +431,9 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
               placeholder="Notes internes (visibles uniquement par les admins)..."
               rows={3}
               aria-invalid={!!errors.notes}
+              aria-describedby={errors.notes ? "client_notes-error" : undefined}
             />
-            <FormFieldError error={errors.notes} />
+            <FormFieldError id="client_notes-error" error={errors.notes} />
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -443,7 +448,7 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => handleOpenChange(false)}
             >
               Annuler
             </Button>
@@ -454,13 +459,13 @@ export function CreateClientDialog({ onClientCreated }: CreateClientDialogProps)
       <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Modifications non sauvegardees</AlertDialogTitle>
+            <AlertDialogTitle>Modifications non sauvegardées</AlertDialogTitle>
             <AlertDialogDescription>
-              Le formulaire contient des donnees non sauvegardees. Voulez-vous vraiment fermer ?
+              Le formulaire contient des données non sauvegardées. Voulez-vous vraiment fermer ?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Continuer l&apos;edition</AlertDialogCancel>
+            <AlertDialogCancel>Continuer l&apos;édition</AlertDialogCancel>
             <AlertDialogAction onClick={() => { setOpen(false); setFormData(emptyForm); setErrors({}); }}>
               Fermer sans sauvegarder
             </AlertDialogAction>

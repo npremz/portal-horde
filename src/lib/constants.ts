@@ -5,9 +5,9 @@ export const deliverableStatusConfig: Record<
   { label: string; color: string }
 > = {
   draft: { label: "Brouillon", color: "bg-muted text-muted-foreground" },
-  pending_review: { label: "En attente de validation", color: "bg-yellow-100 text-yellow-800" },
-  approved: { label: "Validé", color: "bg-green-100 text-green-800" },
-  revision_requested: { label: "Révision demandée", color: "bg-red-100 text-red-800" },
+  pending_review: { label: "En attente de validation", color: "bg-status-warning-bg text-status-warning-text" },
+  approved: { label: "Validé", color: "bg-status-success-bg text-status-success-text" },
+  revision_requested: { label: "Révision demandée", color: "bg-status-danger-bg text-status-danger-text" },
 };
 
 export const phaseStatusConfig: Record<
@@ -22,20 +22,20 @@ export const phaseStatusConfig: Record<
   },
   in_progress: {
     label: "En cours",
-    color: "bg-blue-100 text-blue-800",
-    dotColor: "bg-blue-500 border-blue-500",
+    color: "bg-status-info-bg text-status-info-text",
+    dotColor: "bg-status-info-text border-status-info-text",
     textColor: "text-foreground",
   },
   review: {
     label: "À valider",
-    color: "bg-yellow-100 text-yellow-800",
-    dotColor: "bg-orange-500 border-orange-500",
+    color: "bg-status-warning-bg text-status-warning-text",
+    dotColor: "bg-status-orange-text border-status-orange-text",
     textColor: "text-foreground",
   },
   completed: {
     label: "Terminée",
-    color: "bg-green-100 text-green-800",
-    dotColor: "bg-green-500 border-green-500",
+    color: "bg-status-success-bg text-status-success-text",
+    dotColor: "bg-status-success-text border-status-success-text",
     textColor: "text-muted-foreground",
   },
 };
@@ -44,10 +44,10 @@ export const projectStatusConfig: Record<
   ProjectStatus,
   { label: string; color: string; variant: "default" | "secondary" | "outline" | "destructive"; dotColor: string }
 > = {
-  active: { label: "Actif", color: "bg-green-100 text-green-800", variant: "default", dotColor: "bg-green-500" },
-  paused: { label: "En pause", color: "bg-yellow-100 text-yellow-800", variant: "secondary", dotColor: "bg-yellow-500" },
-  completed: { label: "Terminé", color: "bg-blue-100 text-blue-800", variant: "outline", dotColor: "bg-blue-500" },
-  archived: { label: "Archivé", color: "bg-muted text-muted-foreground", variant: "outline", dotColor: "bg-gray-500" },
+  active: { label: "Actif", color: "bg-status-success-bg text-status-success-text", variant: "default", dotColor: "bg-status-success-text" },
+  paused: { label: "En pause", color: "bg-status-warning-bg text-status-warning-text", variant: "secondary", dotColor: "bg-status-warning-text" },
+  completed: { label: "Terminé", color: "bg-status-info-bg text-status-info-text", variant: "outline", dotColor: "bg-status-info-text" },
+  archived: { label: "Archivé", color: "bg-muted text-muted-foreground", variant: "outline", dotColor: "bg-muted-foreground" },
 };
 
 // CRM client status configuration
@@ -57,33 +57,33 @@ export const clientStatusConfig: Record<
 > = {
   lead: {
     label: "Lead",
-    color: "bg-gray-100 text-gray-800",
-    dotColor: "bg-gray-500",
+    color: "bg-status-neutral-bg text-status-neutral-text",
+    dotColor: "bg-status-neutral-text",
   },
   contacted: {
     label: "Contacté",
-    color: "bg-blue-100 text-blue-800",
-    dotColor: "bg-blue-500",
+    color: "bg-status-info-bg text-status-info-text",
+    dotColor: "bg-status-info-text",
   },
   in_project: {
     label: "En projet",
-    color: "bg-green-100 text-green-800",
-    dotColor: "bg-green-500",
+    color: "bg-status-success-bg text-status-success-text",
+    dotColor: "bg-status-success-text",
   },
   pending_review: {
     label: "En attente de validation",
-    color: "bg-yellow-100 text-yellow-800",
-    dotColor: "bg-yellow-500",
+    color: "bg-status-warning-bg text-status-warning-text",
+    dotColor: "bg-status-warning-text",
   },
   completed: {
     label: "Terminé",
-    color: "bg-emerald-100 text-emerald-800",
-    dotColor: "bg-emerald-500",
+    color: "bg-status-success-bg text-status-success-text",
+    dotColor: "bg-status-success-text",
   },
   archived: {
     label: "Archivé",
     color: "bg-muted text-muted-foreground",
-    dotColor: "bg-gray-400",
+    dotColor: "bg-muted-foreground",
   },
 };
 
@@ -121,15 +121,15 @@ export const messageTypeConfig: Record<
 > = {
   prospecting: {
     label: "Prospection",
-    color: "bg-blue-100 text-blue-800",
+    color: "bg-status-info-bg text-status-info-text",
   },
   followup: {
     label: "Relance",
-    color: "bg-orange-100 text-orange-800",
+    color: "bg-status-orange-bg text-status-orange-text",
   },
   custom: {
     label: "Personnalisé",
-    color: "bg-gray-100 text-gray-800",
+    color: "bg-status-neutral-bg text-status-neutral-text",
   },
 };
 
@@ -207,17 +207,17 @@ export const userRoleConfig: Record<
 > = {
   client: {
     label: "Client",
-    color: "bg-gray-100 text-gray-800",
+    color: "bg-status-neutral-bg text-status-neutral-text",
     description: "Accès au portail client uniquement",
   },
   editor: {
     label: "Éditeur",
-    color: "bg-blue-100 text-blue-800",
+    color: "bg-status-info-bg text-status-info-text",
     description: "Peut gérer les clients et contacts",
   },
   admin: {
     label: "Admin",
-    color: "bg-purple-100 text-purple-800",
+    color: "bg-status-purple-bg text-status-purple-text",
     description: "Accès complet au système",
   },
 };

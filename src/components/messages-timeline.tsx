@@ -27,7 +27,7 @@ function TrackingBadges({ message }: { message: ClientMessage }) {
       {message.clicked_at ? (
         <Tooltip>
           <TooltipTrigger asChild>
-            <Badge variant="outline" className="border-blue-300 text-blue-600 bg-blue-50 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-800">
+            <Badge variant="outline" className="border-status-info-border text-status-info-text bg-status-info-bg">
               <MousePointerClick className="h-3 w-3" />
               Cliqué
             </Badge>

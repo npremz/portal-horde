@@ -355,6 +355,7 @@ export default function AdminClientsPage() {
                       <button
                         onClick={() => togglePriority(client.id, client.is_priority)}
                         className="p-1 hover:bg-muted rounded"
+                        aria-label={client.is_priority ? "Retirer la priorité" : "Marquer comme prioritaire"}
                       >
                         <Star
                           className={`h-5 w-5 ${
@@ -439,7 +440,7 @@ export default function AdminClientsPage() {
                     )}
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive ml-auto">
+                        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive ml-auto" aria-label="Supprimer le client">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </AlertDialogTrigger>
@@ -527,6 +528,7 @@ export default function AdminClientsPage() {
                           onClick={() => togglePriority(client.id, client.is_priority)}
                           className="p-1 hover:bg-muted rounded"
                           title={client.is_priority ? "Retirer priorité" : "Marquer prioritaire"}
+                          aria-label={client.is_priority ? "Retirer la priorité" : "Marquer comme prioritaire"}
                         >
                           <Star
                             className={`h-4 w-4 ${
@@ -639,14 +641,14 @@ export default function AdminClientsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="sm" asChild>
+                          <Button variant="ghost" size="sm" asChild aria-label="Voir le client">
                             <Link href={`/admin/clients/${client.id}`}>
                               <Eye className="h-4 w-4" />
                             </Link>
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" aria-label="Supprimer le client">
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </AlertDialogTrigger>

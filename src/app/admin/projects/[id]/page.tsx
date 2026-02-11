@@ -76,6 +76,7 @@ import type {
 } from "@/types/database";
 import {
   phaseStatusConfig,
+  deliverableStatusConfig,
   projectStatusConfig,
 } from "@/lib/constants";
 
@@ -99,6 +100,7 @@ export default function AdminProjectPage() {
   const [editingPhase, setEditingPhase] = useState<Phase | null>(null);
   const [editPhaseName, setEditPhaseName] = useState("");
   const [deletingPhase, setDeletingPhase] = useState<Phase | null>(null);
+  const [pendingStatusChange, setPendingStatusChange] = useState<{id: string, newStatus: string, type: 'phase' | 'deliverable'} | null>(null);
 
   const supabase = createClient();
 
@@ -274,6 +276,23 @@ export default function AdminProjectPage() {
 
       fetchProject();
     }
+  }
+
+  function getStatusLabel(status: string | undefined, type: 'phase' | 'deliverable' | undefined) {
+    if (!status || !type) return "";
+    if (type === 'phase') return phaseStatusConfig[status as PhaseStatus]?.label ?? status;
+    return deliverableStatusConfig[status as DeliverableStatus]?.label ?? status;
+  }
+
+  function handleConfirmStatusChange() {
+    if (!pendingStatusChange) return;
+    const { id, newStatus, type } = pendingStatusChange;
+    if (type === 'phase') {
+      updatePhaseStatus(id, newStatus as PhaseStatus);
+    } else {
+      updateDeliverableStatus(id, newStatus as DeliverableStatus);
+    }
+    setPendingStatusChange(null);
   }
 
   if (loading) {
@@ -474,7 +493,7 @@ export default function AdminProjectPage() {
                       <div className="flex items-center gap-1 shrink-0">
                         <Select
                           value={phase.status}
-                          onValueChange={(value) => updatePhaseStatus(phase.id, value as PhaseStatus)}
+                          onValueChange={(value) => setPendingStatusChange({ id: phase.id, newStatus: value, type: 'phase' })}
                         >
                           <SelectTrigger className="w-28 h-8 text-xs">
                             <SelectValue />
@@ -568,7 +587,7 @@ export default function AdminProjectPage() {
                               <Select
                                 value={deliverable.status}
                                 onValueChange={(value) =>
-                                  updateDeliverableStatus(deliverable.id, value as DeliverableStatus)
+                                  setPendingStatusChange({ id: deliverable.id, newStatus: value, type: 'deliverable' })
                                 }
                               >
                                 <SelectTrigger className="w-28 h-8 text-xs">
@@ -664,6 +683,23 @@ export default function AdminProjectPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Status change confirmation dialog */}
+      <AlertDialog open={!!pendingStatusChange} onOpenChange={(open) => { if (!open) setPendingStatusChange(null) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer le changement de statut</AlertDialogTitle>
+            <AlertDialogDescription>
+              {`Êtes-vous sûr de vouloir changer le statut en « ${getStatusLabel(pendingStatusChange?.newStatus, pendingStatusChange?.type)} » ?`}
+              {pendingStatusChange?.newStatus === 'pending_review' && " Cette action enverra une notification au client."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmStatusChange}>Confirmer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
