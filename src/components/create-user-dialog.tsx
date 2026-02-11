@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { userRoleConfig } from "@/lib/constants";
 import { validateEmail, validateName } from "@/lib/validation";
 import { FormFieldError } from "@/components/ui/form-field-error";
+import { useFormDialog } from "@/lib/hooks/use-form-dialog";
 import type { UserRole } from "@/types/database";
 
 interface CreateUserDialogProps {
@@ -56,19 +57,21 @@ const emptyForm: FormData = {
 
 export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>(emptyForm);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
-  const clearError = (field: string) => {
-    setErrors((prev) => {
-      if (!prev[field]) return prev;
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
-  };
+  const {
+    errors, setErrors, clearError,
+    loading, setLoading,
+    showCloseConfirm, setShowCloseConfirm,
+    handleOpenChange,
+    confirmClose,
+  } = useFormDialog<FormData>({
+    initialData: emptyForm,
+    onOpenChange: (newOpen) => {
+      setOpen(newOpen);
+      if (!newOpen) setFormData(emptyForm);
+    },
+  });
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,22 +129,8 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
     }
   };
 
-  const isDirty = () => JSON.stringify(formData) !== JSON.stringify(emptyForm);
-
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && isDirty()) {
-      setShowCloseConfirm(true);
-      return;
-    }
-    setOpen(newOpen);
-    if (!newOpen) {
-      setFormData(emptyForm);
-      setErrors({});
-    }
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={(newOpen) => handleOpenChange(newOpen, formData)}>
       <DialogTrigger asChild>
         <Button>
           <UserPlus className="h-4 w-4 mr-2" />
@@ -239,7 +228,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => handleOpenChange(false)}
+              onClick={() => handleOpenChange(false, formData)}
             >
               Annuler
             </Button>
@@ -257,7 +246,7 @@ export function CreateUserDialog({ onUserCreated }: CreateUserDialogProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Continuer l&apos;édition</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { setOpen(false); setFormData(emptyForm); setErrors({}); }}>
+            <AlertDialogAction onClick={confirmClose}>
               Fermer sans sauvegarder
             </AlertDialogAction>
           </AlertDialogFooter>

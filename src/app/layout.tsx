@@ -3,8 +3,11 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: "Horde Portal",
-  description: "Portail client Horde",
+  title: {
+    template: "%s | Horde",
+    default: "Horde - Portail client",
+  },
+  description: "Portail client Horde - Suivi de projets et livrables",
 };
 
 export default function RootLayout({

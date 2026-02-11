@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -10,9 +11,14 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
+  Sparkles,
 } from "lucide-react";
 import { projectStatusConfig } from "@/lib/constants";
 import type { ProjectStatus, Deliverable } from "@/types/database";
+
+export const metadata: Metadata = {
+  title: "Tableau de bord",
+};
 
 const phaseStatusIcons = {
   pending: Clock,
@@ -296,22 +302,31 @@ export default async function DashboardPage() {
               );
             })}
           </div>
-        ) : (
+        ) : isAdmin ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <FolderKanban className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="font-medium text-lg mb-1">Aucun projet</h3>
               <p className="text-muted-foreground text-center">
-                {isAdmin
-                  ? "Creez votre premier projet pour commencer."
-                  : "Vous n'avez pas encore de projet en cours."}
+                Créez votre premier projet pour commencer.
               </p>
-              {isAdmin && (
-                <Button className="mt-4" asChild>
-                  <Link href="/admin/projects/new">Creer un projet</Link>
-                </Button>
-              )}
+              <Button className="mt-4" asChild>
+                <Link href="/admin/projects/new">Créer un projet</Link>
+              </Button>
             </CardContent>
+          </Card>
+        ) : (
+          <Card className="p-8 text-center">
+            <div className="mx-auto max-w-md space-y-4">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <Sparkles className="h-8 w-8 text-primary" />
+              </div>
+              <h2 className="text-xl font-semibold">Bienvenue sur votre espace Horde !</h2>
+              <p className="text-muted-foreground">
+                Cet espace vous permet de suivre vos projets en cours, consulter et valider les livrables,
+                et échanger avec notre équipe. Vos projets apparaîtront ici dès qu&apos;ils seront créés.
+              </p>
+            </div>
           </Card>
         )}
       </div>

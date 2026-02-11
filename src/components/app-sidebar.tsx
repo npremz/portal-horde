@@ -173,24 +173,26 @@ export function AppSidebar({ user, profile }: AppSidebarProps) {
             Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.url || pathname.startsWith(item.url + "/")}
-                  >
-                    <Link href={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                      {canAccessAdminArea && item.url === "/admin/clients" && (
-                        <FollowupBadge className="ml-auto" />
-                      )}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <nav aria-label="Navigation principale">
+              <SidebarMenu>
+                {navItems.map((item) => {
+                  const isActive = pathname === item.url || pathname.startsWith(item.url + "/");
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={isActive}>
+                        <Link href={item.url} aria-current={isActive ? "page" : undefined}>
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                          {canAccessAdminArea && item.url === "/admin/clients" && (
+                            <FollowupBadge className="ml-auto" />
+                          )}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </nav>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

@@ -46,6 +46,7 @@ import { toast } from "sonner";
 import { FormFieldError } from "@/components/ui/form-field-error";
 import { contactRoleConfig } from "@/lib/constants";
 import { validateEmail, validatePhone, validateName, validateNotes } from "@/lib/validation";
+import { useFormDialog } from "@/lib/hooks/use-form-dialog";
 import type { ClientContact, ContactRole } from "@/types/database";
 
 interface ContactsSectionProps {
@@ -85,23 +86,26 @@ export function ContactsSection({
   const [editingContact, setEditingContact] = useState<ClientContact | null>(null);
   const [contactToDelete, setContactToDelete] = useState<ClientContact | null>(null);
   const [formData, setFormData] = useState<ContactFormData>(emptyForm);
-  const [loading, setLoading] = useState(false);
-  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
-  const [initialFormData, setInitialFormData] = useState<ContactFormData>(emptyForm);
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const clearError = (field: string) => {
-    setErrors((prev) => {
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
-  };
+  const {
+    errors, setErrors, clearError,
+    loading, setLoading,
+    showCloseConfirm, setShowCloseConfirm,
+    handleOpenChange,
+    confirmClose,
+    setInitialData,
+  } = useFormDialog<ContactFormData>({
+    initialData: emptyForm,
+    onOpenChange: (newOpen) => {
+      setDialogOpen(newOpen);
+      if (!newOpen) setFormData(emptyForm);
+    },
+  });
 
   const openAddDialog = () => {
     setEditingContact(null);
     setFormData(emptyForm);
-    setInitialFormData(emptyForm);
+    setInitialData(emptyForm);
     setErrors({});
     setDialogOpen(true);
   };
@@ -117,7 +121,7 @@ export function ContactsSection({
       notes: contact.notes || "",
     };
     setFormData(editData);
-    setInitialFormData(editData);
+    setInitialData(editData);
     setErrors({});
     setDialogOpen(true);
   };
@@ -217,11 +221,7 @@ export function ContactsSection({
   };
 
   const handleDialogOpenChange = (newOpen: boolean) => {
-    if (!newOpen && JSON.stringify(formData) !== JSON.stringify(initialFormData)) {
-      setShowCloseConfirm(true);
-      return;
-    }
-    setDialogOpen(newOpen);
+    handleOpenChange(newOpen, formData);
   };
 
   // Sort contacts: primary first, then by name
@@ -484,7 +484,7 @@ export function ContactsSection({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Continuer l&apos;édition</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { setDialogOpen(false); setFormData(emptyForm); }}>
+            <AlertDialogAction onClick={confirmClose}>
               Fermer sans sauvegarder
             </AlertDialogAction>
           </AlertDialogFooter>

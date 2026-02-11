@@ -35,6 +35,7 @@ import { toast } from "sonner";
 import { FormFieldError } from "@/components/ui/form-field-error";
 import { prospectingTemplates, messageTypeConfig } from "@/lib/constants";
 import { replaceTemplateVariables } from "@/lib/email/templates";
+import { useFormDialog } from "@/lib/hooks/use-form-dialog";
 import type { Client, ClientContact, MessageType } from "@/types/database";
 
 const CLIENT_EMAIL_ID = "__client__";
@@ -53,6 +54,13 @@ interface SendMessageDialogProps {
   trigger?: React.ReactNode;
 }
 
+interface MessageFormData {
+  subject: string;
+  content: string;
+}
+
+const emptyForm: MessageFormData = { subject: "", content: "" };
+
 export function SendMessageDialog({
   client,
   contacts,
@@ -60,22 +68,25 @@ export function SendMessageDialog({
   trigger,
 }: SendMessageDialogProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [selectedRecipientId, setSelectedRecipientId] = useState<string>("");
   const [messageType, setMessageType] = useState<MessageType>("prospecting");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
-  const clearError = (field: string) => {
-    setErrors((prev) => {
-      if (!prev[field]) return prev;
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
-  };
+  const {
+    errors, setErrors, clearError,
+    loading, setLoading,
+    showCloseConfirm, setShowCloseConfirm,
+    handleOpenChange: hookHandleOpenChange,
+    confirmClose,
+  } = useFormDialog<MessageFormData>({
+    initialData: emptyForm,
+    isDirty: (current) => !!current.subject.trim() || !!current.content.trim(),
+    onOpenChange: (newOpen) => {
+      setOpen(newOpen);
+      if (!newOpen) resetForm();
+    },
+  });
 
   // Build list of recipients: client email + contacts with email
   const recipients = useMemo(() => {
@@ -202,9 +213,7 @@ export function SendMessageDialog({
       setOpen(false);
 
       // Reset form
-      setSubject("");
-      setContent("");
-      setMessageType("prospecting");
+      resetForm();
 
       onMessageSent?.();
     } catch (error) {
@@ -221,16 +230,10 @@ export function SendMessageDialog({
     setContent("");
     setSelectedRecipientId("");
     setMessageType("prospecting");
-    setErrors({});
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && (subject.trim() || content.trim())) {
-      setShowCloseConfirm(true);
-      return;
-    }
-    setOpen(newOpen);
-    if (!newOpen) resetForm();
+    hookHandleOpenChange(newOpen, { subject, content });
   };
 
   return (
@@ -361,7 +364,7 @@ export function SendMessageDialog({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Continuer l&apos;édition</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { setOpen(false); resetForm(); }}>
+            <AlertDialogAction onClick={confirmClose}>
               Fermer sans envoyer
             </AlertDialogAction>
           </AlertDialogFooter>

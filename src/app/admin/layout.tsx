@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -5,6 +6,10 @@ import { MobileHeader } from "@/components/mobile-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { canAccessAdmin } from "@/lib/permissions";
+
+export const metadata: Metadata = {
+  title: "Administration",
+};
 
 export default async function AdminLayout({
   children,

@@ -58,7 +58,7 @@ export default function AdminError({
             Réessayer
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/admin">
+            <Link href="/admin/dashboard">
               <Settings className="h-4 w-4 mr-2" />
               Panneau admin
             </Link>

@@ -26,24 +26,27 @@ import { UserPlus, Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { FormFieldError } from "@/components/ui/form-field-error";
 import { validateEmail, validateName } from "@/lib/validation";
+import { useFormDialog } from "@/lib/hooks/use-form-dialog";
 
 const emptyForm = { email: "", full_name: "", company: "" };
 
 export function InviteClientDialog() {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState(emptyForm);
-  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
-  const clearError = (field: string) => {
-    setErrors((prev) => {
-      if (!prev[field]) return prev;
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
-  };
+  const {
+    errors, setErrors, clearError,
+    loading, setLoading,
+    showCloseConfirm, setShowCloseConfirm,
+    handleOpenChange,
+    confirmClose,
+  } = useFormDialog({
+    initialData: emptyForm,
+    onOpenChange: (newOpen) => {
+      setOpen(newOpen);
+      if (!newOpen) setFormData(emptyForm);
+    },
+  });
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,17 +92,8 @@ export function InviteClientDialog() {
     }
   };
 
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen && JSON.stringify(formData) !== JSON.stringify(emptyForm)) {
-      setShowCloseConfirm(true);
-      return;
-    }
-    setOpen(newOpen);
-    if (!newOpen) { setErrors({}); }
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={(newOpen) => handleOpenChange(newOpen, formData)}>
       <DialogTrigger asChild>
         <Button>
           <UserPlus className="h-4 w-4 mr-2" />
@@ -171,7 +165,7 @@ export function InviteClientDialog() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => handleOpenChange(false)}
+              onClick={() => handleOpenChange(false, formData)}
             >
               Annuler
             </Button>
@@ -189,7 +183,7 @@ export function InviteClientDialog() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Continuer l&apos;édition</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { setOpen(false); setFormData(emptyForm); setErrors({}); }}>
+            <AlertDialogAction onClick={confirmClose}>
               Fermer sans sauvegarder
             </AlertDialogAction>
           </AlertDialogFooter>
